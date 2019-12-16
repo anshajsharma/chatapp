@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".RegisterActivity">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="36dp"
+            android:text="Register A New Account"
+            android:textAlignment="center"
+            android:textColor="#862E7B"
+            android:textSize="28sp" />
+
+        <EditText
+            android:id="@+id/diplay_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Display Name" />
+
+        <EditText
+            android:id="@+id/EmailId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Email Id" />
+
+        <EditText
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:id="@+id/Password"
+         android:hint="Passwowd"
+         android:inputType="textPassword"
+         />
+    </LinearLayout>
+
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="292dp"
+        android:layout_marginEnd="17dp"
+        android:id="@+id/register"
+        android:text="Register" />
+
+
+</RelativeLayout>
