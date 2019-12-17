@@ -3,12 +3,14 @@ package com.example.chatapp;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.viewpager.widget.ViewPager;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -16,11 +18,21 @@ public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     Toolbar mToolbar;
+    private ViewPager mViewPager;
+    private TabLayout mTablayout;
+    private SectionPagerAdapter mSectionPagerAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mAuth = FirebaseAuth.getInstance();
+        mViewPager = findViewById(R.id.tabPager);
+        mSectionPagerAdapter = new SectionPagerAdapter(getSupportFragmentManager());
+        mViewPager.setAdapter(mSectionPagerAdapter);
+        mTablayout = findViewById(R.id.tab_layout);
+        mTablayout.setupWithViewPager(mViewPager);
+
+
 
     }
     @Override
@@ -59,6 +71,11 @@ public class MainActivity extends AppCompatActivity {
          if(item.getItemId() == R.id.log_out){
              FirebaseAuth.getInstance().signOut();
              sendToStart();
+         }
+         if(item.getItemId() == R.id.account_settings)
+         {
+             Intent intent = new Intent(MainActivity.this,SettingsActivity.class);
+             startActivity(intent);
          }
 
         return true;
