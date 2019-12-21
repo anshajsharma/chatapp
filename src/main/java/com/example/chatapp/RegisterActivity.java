@@ -15,11 +15,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
-import java.util.HashMap;
 
 public class RegisterActivity extends AppCompatActivity {
     EditText mDisplayName;
@@ -28,7 +23,6 @@ public class RegisterActivity extends AppCompatActivity {
     Button mRegister;
     private FirebaseAuth mAuth;
     private ProgressDialog mProgressDialog;
-    private DatabaseReference mDatabaseRef;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,40 +59,16 @@ public class RegisterActivity extends AppCompatActivity {
 
     }
 
-    private void register_user(final String DisplayName, String EmailID, String Password) {
+    private void register_user(String DisplayName, String EmailID, String Password) {
         mAuth.createUserWithEmailAndPassword(EmailID,Password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()){
-
-                    FirebaseUser curr_user = FirebaseAuth.getInstance().getCurrentUser();
-                    String uid = curr_user.getUid();
-
-                    mDatabaseRef = FirebaseDatabase.getInstance().getReference().child("Users").child(uid);
-
-                    HashMap<String, String> userMap = new HashMap<>();
-
-                    userMap.put("name",DisplayName);
-                    userMap.put("status","Hey there I'm using Anshaj's Chat App!!");
-                    userMap.put("image","default");
-                    userMap.put("thumb_nail","default");
-
-                    mDatabaseRef.setValue(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            mProgressDialog.dismiss();
-                            Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(intent);
-                            finish();
-                        }
-                    });
-
-
-
-
-
-
+                    mProgressDialog.dismiss();
+                    Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
                 }
                 else{
                     mProgressDialog.hide();
