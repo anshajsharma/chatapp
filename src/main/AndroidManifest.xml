@@ -9,10 +9,25 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+<<<<<<< Updated upstream
         <activity android:name=".SettingsActivity"
             android:label="@string/app_name"
             android:theme="@style/Theme.AppCompat.NoActionBar">
         </activity>
+=======
+        <activity android:name=".AllUsersActivity"
+            android:label="All Users"
+            android:parentActivityName=".MainActivity"
+            ></activity>
+        <activity
+            android:name=".StatusChangeActivity"
+            android:label="New Status"
+            android:parentActivityName=".SettingsActivity" />
+        <activity
+            android:name=".SettingsActivity"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
+>>>>>>> Stashed changes
         <activity
             android:name=".LoginActivity"
             android:label="Login" />
