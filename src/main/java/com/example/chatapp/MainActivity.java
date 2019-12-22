@@ -17,6 +17,7 @@ import com.google.firebase.auth.FirebaseUser;
 public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
+    Toolbar mToolbar;
     private ViewPager mViewPager;
     private TabLayout mTablayout;
     private SectionPagerAdapter mSectionPagerAdapter;
@@ -37,10 +38,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
+       // updateUI(currentUser);
         if(currentUser==null)
         {
             sendToStart();
+
+
         }
     }
 
@@ -72,10 +77,6 @@ public class MainActivity extends AppCompatActivity {
              Intent intent = new Intent(MainActivity.this,SettingsActivity.class);
              startActivity(intent);
          }
-//         if(item.getItemId() == R.id.all_users){
-//             Intent intent = new Intent(MainActivity.this,AllUsersActivity.class);
-//             startActivity(intent);
-//         }
 
         return true;
     }
