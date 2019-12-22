@@ -14,17 +14,16 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".AllUsersActivity"></activity>
-        <activity
-            android:name=".ui.login.AllUserActivity"
-            android:label="@string/title_activity_all_user" />
-        <activity
-            android:name=".StatusChangeActivity"
-            android:label="New Status"
-            android:parentActivityName=".SettingsActivity" />
+
         <activity
             android:name=".SettingsActivity"
             android:parentActivityName=".MainActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
+
+        <activity
+            android:name=".StatusChangeActivity"
+            android:label="New Status"
+            android:parentActivityName=".SettingsActivity" />
         <activity
             android:name=".LoginActivity"
             android:label="Login"
