@@ -1,9 +1,7 @@
 package com.example.chatapp;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,7 +11,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -31,10 +28,7 @@ import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
-
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
-
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class SettingsActivity extends AppCompatActivity {
@@ -43,7 +37,6 @@ public class SettingsActivity extends AppCompatActivity {
 
     private DatabaseReference mDatabaseRef;
     private FirebaseUser mCurrentUser;
-
     private CircleImageView circleImageView;
     private TextView display_name;
     private Button change_status;
@@ -76,7 +69,7 @@ public class SettingsActivity extends AppCompatActivity {
 
             // Crop image activity api uses....
                 CropImage.activity()
-                        .setAspectRatio(1,1)
+                        .setAspectRatio(42,27)
                         .setGuidelines(CropImageView.Guidelines.ON)
                         .start(SettingsActivity.this);
             }
@@ -98,6 +91,8 @@ public class SettingsActivity extends AppCompatActivity {
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
         String curr_uid = mCurrentUser.getUid();
         mDatabaseRef = FirebaseDatabase.getInstance().getReference().child("Users").child(curr_uid);
+
+
 
         mDatabaseRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -126,15 +121,16 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Uri uri) {
                 //Picasso image handler is used....
-                    Picasso.get()
+                    Picasso.with(SettingsActivity.this)
                         .load(uri)
+                        .placeholder(R.drawable.avtar)
                         .into(circleImageView);
             }
         })
           .addOnFailureListener(new OnFailureListener() {
               @Override
               public void onFailure(@NonNull Exception e) {
-                  Toast.makeText(SettingsActivity.this, "Failed to load current user's profile pic... Add a new one!", Toast.LENGTH_SHORT).show();
+               //   Toast.makeText(SettingsActivity.this, "Failed to load current user's profile pic... Add a new one!", Toast.LENGTH_SHORT).show();
               }
           }) ;
 
@@ -148,13 +144,14 @@ public class SettingsActivity extends AppCompatActivity {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
                 Uri resultUri = result.getUri();
+                Uri resultUri2 = data.getData();
 
 
                 // Time stampGenerator.... best way to get unique id....
                 // Nothing can be better than this in uniqueness
                 String timeStamp = String.valueOf(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
 
-                mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
+                //mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
                 final String curr_uid = mCurrentUser.getUid();
 
                 final StorageReference filePath = mProfilePictures.child("profile_pictures").child(curr_uid).child("profile_picture.jpg");
@@ -179,7 +176,7 @@ public class SettingsActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(Uri uri) {
                         String profilePicUrl = uri.toString();
-                        Toast.makeText(SettingsActivity.this, profilePicUrl, Toast.LENGTH_SHORT).show();
+                    //    Toast.makeText(SettingsActivity.this, profilePicUrl, Toast.LENGTH_SHORT).show();
                         Log.i(TAG, "onSuccess: "+ profilePicUrl);
 
                         mDatabaseRef.child("image").setValue(profilePicUrl);
@@ -187,27 +184,13 @@ public class SettingsActivity extends AppCompatActivity {
                 });
 
                 //Picasso image handler is used....
-                Picasso.get()
+                Picasso.with(SettingsActivity.this)
                         .load(resultUri)
+                        .placeholder(R.drawable.avtar)
                         .into(circleImageView);
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();
             }
         }
     }
-
-   // Generetes random string
-    protected String randomStringGenerator() {
-        String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-        StringBuilder salt = new StringBuilder();
-        Random rnd = new Random();
-        while (salt.length() < 18) { // length of the random string.
-            int index = (int) (rnd.nextFloat() * SALTCHARS.length());
-            salt.append(SALTCHARS.charAt(index));
-        }
-        String saltStr = salt.toString();
-        return saltStr;
-
-    }
-
 }

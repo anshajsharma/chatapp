@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         mAuth = FirebaseAuth.getInstance();
         mViewPager = findViewById(R.id.tabPager);
         mSectionPagerAdapter = new SectionPagerAdapter(getSupportFragmentManager());
@@ -76,7 +77,13 @@ public class MainActivity extends AppCompatActivity {
          {
              Intent intent = new Intent(MainActivity.this,SettingsActivity.class);
              startActivity(intent);
+
          }
+        if(item.getItemId() == R.id.all_users)
+        {
+            Intent intent = new Intent(MainActivity.this,AllUsersActivity.class);
+            startActivity(intent);
+        }
 
         return true;
     }
