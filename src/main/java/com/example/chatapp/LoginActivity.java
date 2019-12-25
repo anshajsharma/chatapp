@@ -2,6 +2,7 @@ package com.example.chatapp;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -10,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -21,8 +23,10 @@ import com.google.firebase.auth.FirebaseUser;
 public class LoginActivity extends AppCompatActivity {
     EditText mEmailId;
     EditText mPassword;
-    Button mSignIn;
+    CardView mSignIn;
     private FirebaseAuth mAuth;
+    TextView mButtom;
+   // Button signIn;
 
     private ProgressDialog mProgressDialog;
 
@@ -35,6 +39,17 @@ public class LoginActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mSignIn = findViewById(R.id.sign_in);
         mProgressDialog = new ProgressDialog(this);
+
+        mButtom=findViewById(R.id.new_account);
+      //  signIn = findViewById(R.id.sign_in);
+        mButtom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent reg_intent = new Intent(LoginActivity.this,RegisterActivity.class);
+                startActivity(reg_intent);
+            }
+        });
+
         mSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

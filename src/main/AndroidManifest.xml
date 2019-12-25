@@ -13,8 +13,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".UserProfileActivity"></activity>
-        <activity android:name=".AllUsersActivity" />
+        <service
+            android:name=".MessagingService"
+            android:enabled="false"
+            android:exported="true"></service>
+
+        <activity
+            android:name=".UserProfileActivity"
+            android:parentActivityName=".AllUsersActivity" />
+        <activity
+            android:name=".AllUsersActivity"
+            android:parentActivityName=".MainActivity" />
         <activity
             android:name=".SettingsActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
@@ -25,7 +34,7 @@
         <activity
             android:name=".LoginActivity"
             android:label="Login"
-            android:parentActivityName=".StartActivity" />
+            android:parentActivityName=".SettingsActivity" />
         <activity
             android:name=".RegisterActivity"
             android:label="Register"
@@ -45,6 +54,12 @@
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/Base.Theme.AppCompat" />
+
+        <service android:name=".java.MessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

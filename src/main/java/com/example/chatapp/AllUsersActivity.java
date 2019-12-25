@@ -21,6 +21,8 @@ import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
@@ -37,7 +39,7 @@ public class AllUsersActivity extends AppCompatActivity {
     private static final String TAG = "AllUsersActivity";
 
     private RecyclerView mUsersList;
-
+    private FirebaseUser current_user;
     private DatabaseReference databaseReference;
     private FirebaseRecyclerAdapter adapter;
     //private Object userViewHolder;
@@ -50,6 +52,7 @@ public class AllUsersActivity extends AppCompatActivity {
         mUsersList = findViewById(R.id.users_list);
         databaseReference = FirebaseDatabase.getInstance().getReference().child("Users");
         // mUsersList.hasFixedSize(true);
+        current_user = FirebaseAuth.getInstance().getCurrentUser();
         mUsersList.setLayoutManager(new LinearLayoutManager(this));
 
 
@@ -87,10 +90,21 @@ public class AllUsersActivity extends AppCompatActivity {
                holder.mView.setOnClickListener(new View.OnClickListener() {
                    @Override
                    public void onClick(View v) {
-                     Intent intent = new Intent(AllUsersActivity.this , UserProfileActivity.class);
-                     intent.putExtra("user_id",user_id);
-                       Log.i(TAG, "onClick23: " + user_id );
-                     startActivity(intent);
+                       Log.i(TAG, "onClick23: " + user_id +" " + current_user.getUid());
+                       if(!user_id.equals(current_user.getUid())){
+
+                           Intent intent = new Intent(AllUsersActivity.this , UserProfileActivity.class);
+                           intent.putExtra("user_id",user_id);
+                         //  Log.i(TAG, "onClick23: " + user_id );
+                           startActivity(intent);
+                       }
+                     else{
+
+                           Intent intent = new Intent(AllUsersActivity.this , SettingsActivity.class);
+
+                           startActivity(intent);
+                       }
+
                    }
                });
             }

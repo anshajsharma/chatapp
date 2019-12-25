@@ -1,6 +1,8 @@
 package com.example.chatapp;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -22,7 +24,7 @@ public class RegisterActivity extends AppCompatActivity {
     EditText mDisplayName;
     EditText mEmailID;
     EditText mPassword;
-    Button mRegister;
+    CardView mRegister;
     private FirebaseAuth mAuth;
     private ProgressDialog mProgressDialog;
     private DatabaseReference mDatabaseRef;
@@ -46,7 +48,7 @@ public class RegisterActivity extends AppCompatActivity {
                 String password = mPassword.getText().toString();
                 if(!EmailID.equals("") && !password.equals("") && !display_name.equals(""))
                 {
-                    mProgressDialog.setTitle("Regestring User");
+                    mProgressDialog.setTitle("Registering User");
                     mProgressDialog.setMessage("Please wait while we create your account !!");
                     mProgressDialog.setCanceledOnTouchOutside(false);
                     mProgressDialog.show();
@@ -79,6 +81,9 @@ public class RegisterActivity extends AppCompatActivity {
                     userMap.put("status","Hey there I'm using Anshaj's Chat App!!");
                     userMap.put("image","default");
                     userMap.put("thumb_nail","default");
+                    userMap.put("online", "true");
+                    userMap.put("friends_Count","0");
+                    userMap.put("last_synced_location","Earth");
 
                     mDatabaseRef.setValue(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
@@ -90,10 +95,6 @@ public class RegisterActivity extends AppCompatActivity {
                             finish();
                         }
                     });
-
-
-
-
 
 
                 }

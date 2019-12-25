@@ -1,5 +1,4 @@
 package com.example.chatapp;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
@@ -12,7 +11,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -25,6 +23,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
@@ -56,56 +56,78 @@ public class SettingsActivity extends AppCompatActivity {
         user_status = findViewById(R.id.curr_status);
         change_status = findViewById(R.id.change_user_status);
         change_profile = findViewById(R.id.change_user_picture);
-
-
-
-
-
         mProfilePictures = FirebaseStorage.getInstance().getReference();
-
-        change_profile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-            // Crop image activity api uses....
-                CropImage.activity()
-                        .setAspectRatio(42,27)
-                        .setGuidelines(CropImageView.Guidelines.ON)
-                        .start(SettingsActivity.this);
-            }
-        });
-
-        change_status.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                String user_curr_status;
-                user_curr_status=user_status.getText().toString();
-                Intent intent = new Intent(SettingsActivity.this,StatusChangeActivity.class);
-                intent.putExtra("user_prev_status",user_curr_status);
-                startActivity(intent);
-                finish();
-            }
-        });
 
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
         String curr_uid = mCurrentUser.getUid();
+
         mDatabaseRef = FirebaseDatabase.getInstance().getReference().child("Users").child(curr_uid);
+        mDatabaseRef.keepSynced(true);
+       // FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
 
+        // Changing profile picture using crop image api...
+        change_profile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                {
+                     // Crop image activity api uses....
+                      CropImage.activity()
+                         .setAspectRatio(42,27)
+                         .setGuidelines(CropImageView.Guidelines.ON)
+                         .start(SettingsActivity.this);
+             }}
+             });
 
+      //Status change using chane status button
+        change_status.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                {
+                String user_curr_status;
+                user_curr_status = user_status.getText().toString();
+                Intent intent = new Intent(SettingsActivity.this, StatusChangeActivity.class);
+                intent.putExtra("user_prev_status", user_curr_status);
+                startActivity(intent);
+                finish();
+            }
+            }
+        });
+
+        // Showing all data of current user after retrieving from database
         mDatabaseRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                 String name = dataSnapshot.child("name").getValue().toString();
-                String image= dataSnapshot.child("image").getValue().toString();
+                final String image= dataSnapshot.child("image").getValue().toString();
                 String status = dataSnapshot.child("status").getValue().toString();
                 String thumb_image = dataSnapshot.child("thumb_nail").getValue().toString();
 
                 display_name.setText(name);
                 user_status.setText(status);
+               // Picasso.with(SettingsActivity.this).load(image).placeholder(R.drawable.avtar).into(circleImageView);
 
+                if(!image.equals("default")) {
+
+                    //Picasso.with(SettingsActivity.this).load(image).placeholder(R.drawable.default_avatar).into(mDisplayImage);
+
+                    Picasso.with(SettingsActivity.this).load(image).networkPolicy(NetworkPolicy.OFFLINE)
+                            .placeholder(R.drawable.avtar).into(circleImageView, new Callback() {
+                        @Override
+                        public void onSuccess() {
+
+                        }
+
+                        @Override
+                        public void onError() {
+
+                            Picasso.with(SettingsActivity.this).load(image).placeholder(R.drawable.avtar).into(circleImageView);
+
+                        }
+                    });
+
+                }
 
             }
 
@@ -115,29 +137,9 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
-        final StorageReference filePath = mProfilePictures.child("profile_pictures").child(curr_uid).child("profile_picture.jpg");
-        Log.i(TAG, "onActivityResult: "+filePath.toString());
-        filePath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri uri) {
-                //Picasso image handler is used....
-                    Picasso.with(SettingsActivity.this)
-                        .load(uri)
-                        .placeholder(R.drawable.avtar)
-                        .into(circleImageView);
-            }
-        })
-          .addOnFailureListener(new OnFailureListener() {
-              @Override
-              public void onFailure(@NonNull Exception e) {
-               //   Toast.makeText(SettingsActivity.this, "Failed to load current user's profile pic... Add a new one!", Toast.LENGTH_SHORT).show();
-              }
-          }) ;
-
-
-
-
     }
+
+    // Whole work of profile changing done here.. database... imageshow... links... all handled
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {

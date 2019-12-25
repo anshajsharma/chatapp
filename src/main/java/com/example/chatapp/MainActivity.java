@@ -5,17 +5,26 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.messaging.FirebaseMessagingService;
+import com.google.firebase.messaging.RemoteMessage;
 
 public class MainActivity extends AppCompatActivity {
-
+    private static final String TAG = "MainActivity";
     private FirebaseAuth mAuth;
     Toolbar mToolbar;
     private ViewPager mViewPager;
@@ -33,7 +42,24 @@ public class MainActivity extends AppCompatActivity {
         mTablayout = findViewById(R.id.tab_layout);
         mTablayout.setupWithViewPager(mViewPager);
 
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "getInstanceId failed", task.getException());
+                            return;
+                        }
 
+                        // Get new Instance ID token
+                        String token = task.getResult().getToken();
+
+                        // Log and toast
+                        String msg = getString(R.string.msg_token_fmt, token);
+                        Log.d(TAG, "asdfgh" + msg);
+                      //  Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+                    }
+                });
 
     }
     @Override
@@ -51,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void sendToStart() {
-        Intent startIntent = new Intent(this,StartActivity.class);
+        Intent startIntent = new Intent(this,LoginActivity.class);
         startActivity(startIntent);
         finish();;
     }
@@ -86,5 +112,23 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return true;
+    }
+    public static class MyFirebaseMessagingService extends FirebaseMessagingService {
+
+        @Override
+        public void onNewToken(String s) {
+            super.onNewToken(s);
+            Log.e("newToken", s);
+            getSharedPreferences("_", MODE_PRIVATE).edit().putString("fb", s).apply();
+        }
+
+        @Override
+        public void onMessageReceived(RemoteMessage remoteMessage) {
+            super.onMessageReceived(remoteMessage);
+        }
+
+        public static String getToken(Context context) {
+            return context.getSharedPreferences("_", MODE_PRIVATE).getString("fb", "empty");
+        }
     }
 }
