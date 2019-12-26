@@ -1,4 +1,4 @@
-package com.example.chatapp;
+package com.example.chatapp.RegisterAndLogin;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
@@ -7,9 +7,11 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.example.chatapp.UsersHomePage;
+import com.example.chatapp.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -38,6 +40,8 @@ public class RegisterActivity extends AppCompatActivity {
         mPassword = findViewById(R.id.Password);
         mRegister = findViewById(R.id.register);
         mProgressDialog = new ProgressDialog(this);
+
+
 
 
         mRegister.setOnClickListener(new View.OnClickListener() {
@@ -84,12 +88,13 @@ public class RegisterActivity extends AppCompatActivity {
                     userMap.put("online", "true");
                     userMap.put("friends_Count","0");
                     userMap.put("last_synced_location","Earth");
+                    userMap.put("user_id",curr_user.getUid());
 
                     mDatabaseRef.setValue(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             mProgressDialog.dismiss();
-                            Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+                            Intent intent = new Intent(RegisterActivity.this, UsersHomePage.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);
                             finish();

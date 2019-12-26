@@ -105,8 +105,7 @@
                 android:layout_marginLeft="10dp"
                 android:fontFamily="sans-serif"
                 android:text="Sign up"
-                android:id="@+id/new_account"
-                android:textColor="#FAB333"
+                android:id="@+id/new_account"                android:textColor="#FAB333"
                 android:textSize="14sp"
                 android:textStyle="bold" />
         </LinearLayout>

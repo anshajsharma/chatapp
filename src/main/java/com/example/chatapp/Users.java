@@ -7,7 +7,25 @@ public class Users {
     public  String status;
     public String thumb_image;
     public  String online;
+    public String user_id;
    // public  int friend_count;
+
+    public Users(String name, String image, String status, String thumb_image, String online, String user_id) {
+        this.name = name;
+        this.image = image;
+        this.status = status;
+        this.thumb_image = thumb_image;
+        this.online = online;
+        this.user_id = user_id;
+    }
+
+    public String getUser_id() {
+        return user_id;
+    }
+
+    public void setUser_id(String user_id) {
+        this.user_id = user_id;
+    }
 
     public Users(String name, String image, String status, String thumb_image, String online) {
         this.name = name;

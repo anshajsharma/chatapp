@@ -5,7 +5,6 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class Friends {
     String user2id;
-
     public Friends() {
     }
 

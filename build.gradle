@@ -1,15 +1,15 @@
-apply plugin: 'com.android.application'
-apply plugin: 'com.google.gms.google-services'
-
 buildscript {
     repositories {
-        maven { url 'https://plugins.gradle.org/m2/'}
+        maven { url 'https://plugins.gradle.org/m2/' }
     }
     dependencies {
         classpath 'gradle.plugin.com.onesignal:onesignal-gradle-plugin:[0.12.4, 0.99.99]'
     }
 }
 apply plugin: 'com.onesignal.androidsdk.onesignal-gradle-plugin'
+apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
+
 
 repositories {
     maven { url 'https://maven.google.com' }
@@ -36,7 +36,7 @@ android {
 android {
     defaultConfig {
         manifestPlaceholders = [
-                onesignal_app_id: '262a221d-70b2-4976-b949-fa05d6b7d28c',
+                onesignal_app_id               : '262a221d-70b2-4976-b949-fa05d6b7d28c',
                 // Project number pulled from dashboard, local value is ignored.
                 onesignal_google_project_number: 'REMOTE'
         ]
@@ -56,10 +56,10 @@ dependencies {
     implementation 'com.google.firebase:firebase-storage:16.0.4'
     implementation 'com.google.firebase:firebase-auth:16.0.4'
     implementation 'com.google.firebase:firebase-messaging:17.4.0'
-   // Update 9.0.0 to 11.2.+ so it is using the same gms version as OneSignal
-   // implementation 'com.google.android.gms:play-services-maps:16.1.0'
+    // Update 9.0.0 to 11.2.+ so it is using the same gms version as OneSignal
+    // implementation 'com.google.android.gms:play-services-maps:16.1.0'
 
-   // implementation 'com.onesignal:OneSignal:[3.12.4, 3.99.99]'
+    // implementation 'com.onesignal:OneSignal:[3.12.4, 3.99.99]'
 
     implementation 'androidx.annotation:annotation:1.1.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'

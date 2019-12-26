@@ -28,7 +28,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 
 public class UserProfileActivity extends AppCompatActivity {
@@ -40,13 +42,14 @@ public class UserProfileActivity extends AppCompatActivity {
     private Button friendRequest, cancelFriendRequest;
     private String user2;
     private FirebaseUser user1;
+    DatabaseReference up;
     private int curr_state;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_profile);
-        user2 = getIntent().getStringExtra("user_id");
+        user2 = getIntent().getStringExtra("user_id2");
 
         Log.i(TAG, "onClick22 " + user2);
         //int a = getCurrent_state();
@@ -74,28 +77,32 @@ public class UserProfileActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.hasChild(user2)) {
-                    String type = dataSnapshot.child(user2).child("request_type").getValue().toString();
+                    String type = dataSnapshot.child(user2).getValue().toString();
 
                     Log.i(TAG, "onDataChange: " + type + " " + user1.getUid());
                     Log.i(TAG, "onDataChange: " + type + " " + user2);
-                    if (type.equals("sent")) {
-                        friendRequest.setText("Cancel Friend Request");
-                        cancelFriendRequest.setVisibility(View.INVISIBLE);
-                        curr_state = 1;
-                    } else if (type.equals("received")) {
-                        friendRequest.setText("Accept Friend Request");
-                        cancelFriendRequest.setVisibility(View.VISIBLE);
-                        curr_state = 2;
-                    }
-                    else if(type.equals("Not Friend Now") || type.equals("Friend request cancelled")){
-                        friendRequest.setText("Send Friend Request");
-                        cancelFriendRequest.setVisibility(View.INVISIBLE);
-                        curr_state = 4;
-                    }
-                    else {
-                        friendRequest.setText("Unfriend");
-                        cancelFriendRequest.setVisibility(View.INVISIBLE);
-                        curr_state = 3;
+                    switch (type) {
+                        case "sent":
+                            friendRequest.setText("Cancel Friend Request");
+                            cancelFriendRequest.setVisibility(View.INVISIBLE);
+                            curr_state = 1;
+                            break;
+                        case "received":
+                            friendRequest.setText("Accept Friend Request");
+                            cancelFriendRequest.setVisibility(View.VISIBLE);
+                            curr_state = 2;
+                            break;
+                        case "Not Friend Now":
+                        case "Friend request cancelled":
+                            friendRequest.setText("Send Friend Request");
+                            cancelFriendRequest.setVisibility(View.INVISIBLE);
+                            curr_state = 4;
+                            break;
+                        default:
+                            friendRequest.setText("Unfriend");
+                            cancelFriendRequest.setVisibility(View.INVISIBLE);
+                            curr_state = 3;
+                            break;
                     }
 
                 }
@@ -139,22 +146,24 @@ public class UserProfileActivity extends AppCompatActivity {
         });
 
 
+
         //Send Friend Request , Accept Friend Request , Cancel Friend Request , Unfriend .... Button Click tasks
         friendRequest.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
+
                 // user1 sent friend request to user2
                 if (curr_state == 0 || curr_state == 4) {
 
-                    mFriendRequestRef.child(user1.getUid()).child(user2).child("request_type")
+                    mFriendRequestRef.child(user1.getUid()).child(user2)
                             .setValue("sent")
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()) {
 
-                                        mFriendRequestRef.child(user2).child(user1.getUid()).child("request_type")
+                                        mFriendRequestRef.child(user2).child(user1.getUid())
                                                 .setValue("received").addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
@@ -171,16 +180,19 @@ public class UserProfileActivity extends AppCompatActivity {
 
 
                 }
+
                 // user1 cancelled friend request sent to user2
                 else if (curr_state == 1) {
 
-                    mFriendRequestRef.child(user1.getUid()).child(user2).child("request_type").setValue("Friend request cancelled")
+                    mFriendRequestRef.child(user1.getUid()).child(user2).setValue("Friend request cancelled")
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()) {
 
-                                        mFriendRequestRef.child(user2).child(user1.getUid()).child("request_type").setValue("Friend request cancelled")
+
+
+                                        mFriendRequestRef.child(user2).child(user1.getUid()).setValue("Friend request cancelled")
                                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                     @Override
                                                     public void onSuccess(Void aVoid) {
@@ -199,22 +211,21 @@ public class UserProfileActivity extends AppCompatActivity {
                 // User1 has choice of Accepting and Declining the friend Request of user 2 :::: user1 accepted
                 else if (curr_state == 2) {
 
-                    mFriendRequestRef.child(user1.getUid()).child(user2).child("request_type")
-                            .setValue("friends " + "From Date : " + currentDateAndTime() )
+                    mFriendRequestRef.child(user1.getUid()).child(user2)
+                            .setValue("friends")
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()) {
 
-                                        mFriendRequestRef.child(user2).child(user1.getUid()).child("request_type")
-                                                .setValue("friends " + "Date : " + currentDateAndTime() ).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        mFriendRequestRef.child(user2).child(user1.getUid())
+                                                .setValue("friends").addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
                                                 Toast.makeText(UserProfileActivity.this, "Friend request accepted...", Toast.LENGTH_SHORT).show();
                                                 friendRequest.setText("Unfriend");
-                                               // Friends newFriend = new Friends(user2);
-                                                mFriendsRef.child(user1.getUid()).push().setValue(user2);
-                                                mFriendsRef.child(user2).push().setValue(user1.getUid());
+                                                mFriendsRef.child(user1.getUid()).child(user2).setValue("friends");
+                                                mFriendsRef.child(user2).child(user1.getUid()).setValue("friends");
                                                 cancelFriendRequest.setVisibility(View.INVISIBLE);
                                                 curr_state = 3;
                                             }
@@ -230,13 +241,13 @@ public class UserProfileActivity extends AppCompatActivity {
                 // user1 removed user2 from friend list
                 else if (curr_state == 3) {
 
-                    mFriendRequestRef.child(user1.getUid()).child(user2).child("request_type").setValue("Not Friend Now")
+                    mFriendRequestRef.child(user1.getUid()).child(user2).setValue("Not Friend Now")
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()) {
 
-                                        mFriendRequestRef.child(user2).child(user1.getUid()).child("request_type").setValue("Not Friend Now")
+                                        mFriendRequestRef.child(user2).child(user1.getUid()).setValue("Not Friend Now")
                                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                     @Override
                                                     public void onSuccess(Void aVoid) {
@@ -263,19 +274,20 @@ public class UserProfileActivity extends AppCompatActivity {
         cancelFriendRequest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mFriendRequestRef.child(user1.getUid()).child(user2).removeValue()
+                mFriendRequestRef.child(user1.getUid()).child(user2).setValue("Not Friend Now")
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
 
-                                    mFriendRequestRef.child(user2).child(user1.getUid()).child("request_type").setValue("Not Friend Now")
+                                    mFriendRequestRef.child(user2).child(user1.getUid()).setValue("Not Friend Now")
                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
                                                 public void onSuccess(Void aVoid) {
                                                     Toast.makeText(UserProfileActivity.this, "Done...", Toast.LENGTH_SHORT).show();
                                                     friendRequest.setText("Send Friend Request");
-                                                    mFriendsRef.child(user2).child(user1.getUid()).child("request_type").setValue("Not Friend Now");
+                                                    mFriendsRef.child(user1.getUid()).child(user2).removeValue();
+                                                    mFriendsRef.child(user2).child(user1.getUid()).removeValue();
                                                     curr_state = 0;
 
                                                     cancelFriendRequest.setVisibility(View.INVISIBLE);
@@ -320,7 +332,7 @@ public class UserProfileActivity extends AppCompatActivity {
 //            @Override
 //            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 //                if(dataSnapshot.hasChild(user2)){
-//                    String type = dataSnapshot.child(user2).child("request_type").getValue().toString();
+//                    String type = dataSnapshot.child(user2).getValue().toString();
 //                    if(type.equals("sent")){
 //                        curr_state[0] =1;
 //                    }

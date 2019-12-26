@@ -73,7 +73,7 @@ public class AllUsersActivity extends AppCompatActivity {
             @Override
             public userViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
                 // Create a new instance of the ViewHolder, in this case we are using a custom
-                // layout called R.layout.message for each item
+                // layout called R.layout.single_user_layout for each item
                 View view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.single_user_layout, parent, false);
 
@@ -81,10 +81,14 @@ public class AllUsersActivity extends AppCompatActivity {
             }
 
             @Override
+
             protected void onBindViewHolder(userViewHolder holder, int position, Users user  ) {
                 // Bind the Users object to the userViewHolder
                 // ...
+            //    Log.i(TAG, "onBindViewHolder: "+ user.getOnline());
                 holder.setDetails(user.getName(),user.getStatus(),user.getImage(),getApplicationContext());
+
+
                 final String user_id = getRef(position).getKey();
 
                holder.mView.setOnClickListener(new View.OnClickListener() {
@@ -94,7 +98,7 @@ public class AllUsersActivity extends AppCompatActivity {
                        if(!user_id.equals(current_user.getUid())){
 
                            Intent intent = new Intent(AllUsersActivity.this , UserProfileActivity.class);
-                           intent.putExtra("user_id",user_id);
+                           intent.putExtra("user_id2",user_id);
                          //  Log.i(TAG, "onClick23: " + user_id );
                            startActivity(intent);
                        }

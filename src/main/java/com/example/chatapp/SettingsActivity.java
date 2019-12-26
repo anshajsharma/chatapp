@@ -185,11 +185,6 @@ public class SettingsActivity extends AppCompatActivity {
                     }
                 });
 
-                //Picasso image handler is used....
-                Picasso.with(SettingsActivity.this)
-                        .load(resultUri)
-                        .placeholder(R.drawable.avtar)
-                        .into(circleImageView);
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();
             }

@@ -13,17 +13,28 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".ChatActivity"></activity>
+        <activity
+            android:name=".RegisterAndLogin.MainScreen"
+            android:theme="@style/Theme.AppCompat.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <service
             android:name=".MessagingService"
             android:enabled="false"
-            android:exported="true"></service>
+            android:exported="true" />
 
         <activity
             android:name=".UserProfileActivity"
             android:parentActivityName=".AllUsersActivity" />
         <activity
             android:name=".AllUsersActivity"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".UsersHomePage" />
         <activity
             android:name=".SettingsActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
@@ -32,25 +43,16 @@
             android:label="New Status"
             android:parentActivityName=".SettingsActivity" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".RegisterAndLogin.LoginActivity"
             android:label="Login"
-            android:parentActivityName=".SettingsActivity" />
-        <activity
-            android:name=".RegisterActivity"
-            android:label="Register"
-            android:parentActivityName=".StartActivity" />
-        <activity
-            android:name=".StartActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
-            android:name=".MainActivity"
-            android:label="Let&apos;s Chat">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:name=".RegisterAndLogin.RegisterActivity"
+            android:label="Register"
+            android:parentActivityName=".RegisterAndLogin.LoginActivity" />
+        <activity
+            android:name=".UsersHomePage"
+            android:label="Let&apos;s Chat"></activity>
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/Base.Theme.AppCompat" />
