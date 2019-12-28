@@ -7,13 +7,20 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".MApplication"
         android:allowBackup="true"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ChatActivity"></activity>
+        <activity android:name=".User2FriendView"></activity>
+        <activity android:name=".RegisterAndLogin.MaaKaLAdla" />
+        <activity android:name=".Show_Profile_PictureActivity" />
+        <activity
+            android:name=".ChatActivity"
+            android:parentActivityName=".UsersHomePage"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
             android:name=".RegisterAndLogin.MainScreen"
             android:theme="@style/Theme.AppCompat.NoActionBar">
@@ -52,7 +59,8 @@
             android:parentActivityName=".RegisterAndLogin.LoginActivity" />
         <activity
             android:name=".UsersHomePage"
-            android:label="Let&apos;s Chat"></activity>
+            android:label="Let&apos;s Chat"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/Base.Theme.AppCompat" />

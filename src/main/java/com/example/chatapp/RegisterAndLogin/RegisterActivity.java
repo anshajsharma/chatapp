@@ -89,6 +89,9 @@ public class RegisterActivity extends AppCompatActivity {
                     userMap.put("friends_Count","0");
                     userMap.put("last_synced_location","Earth");
                     userMap.put("user_id",curr_user.getUid());
+                    userMap.put("friend_list_visibility","visible");
+                    userMap.put("online_visisbility","visible");
+                    userMap.put("background_image","https://firebasestorage.googleapis.com/v0/b/chat-application-c97dd.appspot.com/o/bird-4706963_1280.jpg?alt=media&token=ca52ea77-ee2b-425c-8397-3fa7a6410972");
 
                     mDatabaseRef.setValue(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override

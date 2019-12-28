@@ -1,8 +1,10 @@
 package com.example.chatapp;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.ViewPager;
 
 import android.content.Context;
@@ -11,10 +13,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.example.chatapp.RegisterAndLogin.LoginActivity;
+import com.example.chatapp.RegisterAndLogin.MaaKaLAdla;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -31,13 +36,16 @@ import com.google.firebase.messaging.RemoteMessage;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 
-public class UsersHomePage extends AppCompatActivity {
+public class UsersHomePage extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = "UsersHomePage";
     private FirebaseAuth mAuth;
     Toolbar mToolbar;
@@ -45,6 +53,10 @@ public class UsersHomePage extends AppCompatActivity {
     private TabLayout mTablayout;
     private SectionPagerAdapter mSectionPagerAdapter;
     DatabaseReference databaseReference;
+    private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mToggle;
+    Toolbar toolbar;
+    NavigationView navigationView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,10 +72,29 @@ public class UsersHomePage extends AppCompatActivity {
         mTablayout.setupWithViewPager(mViewPager);
 
 
+        //toolbar and drawer setup took place
+        setUpToolBar();
+        navigationView = findViewById(R.id.clickable_menu);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+
+                if(menuItem.getItemId() == R.id.db){
+                    Toast.makeText(UsersHomePage.this, "Account", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(UsersHomePage.this, MaaKaLAdla.class);
+                    startActivity(intent);
+                }
+
+                return false;
+            }
+        });
+
+
         databaseReference = FirebaseDatabase.getInstance().getReference();
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         if(currentUser != null)
+            databaseReference.child("Users").child(currentUser.getUid()).keepSynced(true);
         databaseReference.child("Users").child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -71,8 +102,9 @@ public class UsersHomePage extends AppCompatActivity {
                 if(dataSnapshot.exists()){
                     GenericTypeIndicator<Map<String, String>> genericTypeIndicator = new GenericTypeIndicator<Map<String, String>>() {};
                     Map<String, String> map = dataSnapshot.getValue(genericTypeIndicator );
-                    Log.i("asd", String.valueOf(map));
-
+                   // Log.i("asd", String.valueOf(map));
+                    List FriendList = new ArrayList(map.keySet());
+                        Log.i(TAG, "onDataChange: "+ FriendList.toString());
                 }
 
 
@@ -109,6 +141,41 @@ public class UsersHomePage extends AppCompatActivity {
                 });
 
     }
+
+
+    public void setUpToolBar()
+    {
+        mDrawerLayout = findViewById(R.id.drawer);
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        mToggle = new ActionBarDrawerToggle(this,mDrawerLayout,toolbar,R.string.open,R.string.close);
+        mDrawerLayout.addDrawerListener(mToggle);
+        mToggle.syncState();
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if(mToggle.onOptionsItemSelected(item)){
+            Toast.makeText(this, item+"clicked", Toast.LENGTH_SHORT).show();
+            Log.i(TAG, "onOptionsItemSelected: " + item.toString()+"clicked");
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        int id=menuItem.getItemId();
+
+        Log.i(TAG, "onOptionsItemSelected: " + id +" clicked");
+
+
+        return false;
+    }
+
+
+
     @Override
     public void onStart() {
         super.onStart();
@@ -143,55 +210,44 @@ public class UsersHomePage extends AppCompatActivity {
         finish();;
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu1) {
-         super.onCreateOptionsMenu(menu1);
 
-        getMenuInflater().inflate(R.menu.menu, menu1);
+    //Menu got connected to appbar......................................................................\\
 
-        return true;
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu1) {
+//         super.onCreateOptionsMenu(menu1);
+//
+//        getMenuInflater().inflate(R.menu.menu, menu1);
+//
+//        return true;
+//    }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-         super.onOptionsItemSelected(item);
+//    @Override
+//    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+//         super.onOptionsItemSelected(item);
+//
+//         if(item.getItemId() == R.id.log_out){
+//             FirebaseAuth.getInstance().signOut();
+//             sendToStart();
+//         }
+//         if(item.getItemId() == R.id.account_settings)
+//         {
+//             Intent intent = new Intent(UsersHomePage.this,SettingsActivity.class);
+//             startActivity(intent);
+//
+//         }
+//        if(item.getItemId() == R.id.all_users)
+//        {
+//            Intent intent = new Intent(UsersHomePage.this,AllUsersActivity.class);
+//            startActivity(intent);
+//        }
+//
+//        return true;
+//    }
+    //....................................................................................................\\
 
-         if(item.getItemId() == R.id.log_out){
-             FirebaseAuth.getInstance().signOut();
-             sendToStart();
-         }
-         if(item.getItemId() == R.id.account_settings)
-         {
-             Intent intent = new Intent(UsersHomePage.this,SettingsActivity.class);
-             startActivity(intent);
 
-         }
-        if(item.getItemId() == R.id.all_users)
-        {
-            Intent intent = new Intent(UsersHomePage.this,AllUsersActivity.class);
-            startActivity(intent);
-        }
 
-        return true;
-    }
-    public static class MyFirebaseMessagingService extends FirebaseMessagingService {
-
-        @Override
-        public void onNewToken(String s) {
-            super.onNewToken(s);
-            Log.e("newToken", s);
-            getSharedPreferences("_", MODE_PRIVATE).edit().putString("fb", s).apply();
-        }
-
-        @Override
-        public void onMessageReceived(RemoteMessage remoteMessage) {
-            super.onMessageReceived(remoteMessage);
-        }
-
-        public static String getToken(Context context) {
-            return context.getSharedPreferences("_", MODE_PRIVATE).getString("fb", "empty");
-        }
-    }
 
     // Return Current  Date and Time Stamp in sdf1 FORMAT  ------------->>>>
     public String currentDateAndTime() {

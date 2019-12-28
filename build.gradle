@@ -55,11 +55,14 @@ dependencies {
     implementation 'com.google.firebase:firebase-database:16.0.4'
     implementation 'com.google.firebase:firebase-storage:16.0.4'
     implementation 'com.google.firebase:firebase-auth:16.0.4'
-    implementation 'com.google.firebase:firebase-messaging:17.4.0'
+    implementation 'com.google.firebase:firebase-messaging:17.3.1'
     // Update 9.0.0 to 11.2.+ so it is using the same gms version as OneSignal
     // implementation 'com.google.android.gms:play-services-maps:16.1.0'
 
     // implementation 'com.onesignal:OneSignal:[3.12.4, 3.99.99]'
+
+    implementation 'com.squareup.retrofit2:retrofit:2.5.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
 
     implementation 'androidx.annotation:annotation:1.1.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
@@ -80,4 +83,8 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
     implementation 'com.google.android.material:material:1.0.0'
+    implementation 'androidx.mediarouter:mediarouter:1.1.0'
+
+    //noinspection GradleCompatible
+    implementation 'com.android.support:design:25.3.1'
 }

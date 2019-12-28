@@ -8,7 +8,36 @@ public class Users {
     public String thumb_image;
     public  String online;
     public String user_id;
+    public String friend_list_visibility;
+    public String online_visisbility;
    // public  int friend_count;
+
+    public Users(String name, String image, String status, String thumb_image, String online, String user_id, String friend_list_visibility, String online_visisbility) {
+        this.name = name;
+        this.image = image;
+        this.status = status;
+        this.thumb_image = thumb_image;
+        this.online = online;
+        this.user_id = user_id;
+        this.friend_list_visibility = friend_list_visibility;
+        this.online_visisbility = online_visisbility;
+    }
+
+    public String getFriend_list_visibility() {
+        return friend_list_visibility;
+    }
+
+    public void setFriend_list_visibility(String friend_list_visibility) {
+        this.friend_list_visibility = friend_list_visibility;
+    }
+
+    public String getOnline_visisbility() {
+        return online_visisbility;
+    }
+
+    public void setOnline_visisbility(String online_visisbility) {
+        this.online_visisbility = online_visisbility;
+    }
 
     public Users(String name, String image, String status, String thumb_image, String online, String user_id) {
         this.name = name;

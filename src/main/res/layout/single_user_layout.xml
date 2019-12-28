@@ -8,7 +8,9 @@
         android:layout_width="16dp"
         android:layout_height="16dp"
         android:layout_marginTop="7dp"
+        android:id="@+id/cv"
         android:layout_marginStart="76dp"
+        android:background="@color/white"
         app:cardCornerRadius="8dp">
 
         <ImageView
@@ -22,7 +24,7 @@
         android:id="@+id/single_user_profile_pic"
         android:layout_width="94dp"
         android:layout_height="89dp"
-
+        android:background="@color/white"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_centerVertical="true"
@@ -46,12 +48,14 @@
             android:id="@+id/single_display_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="#646060"
             android:text="Name: Display Name" />
 
         <TextView
             android:id="@+id/single_user_status"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="#646060"
             android:text="Status: Default" />
     </LinearLayout>
 

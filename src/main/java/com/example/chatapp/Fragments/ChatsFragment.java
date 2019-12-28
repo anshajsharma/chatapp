@@ -1,7 +1,9 @@
 package com.example.chatapp.Fragments;
 
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -17,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.chatapp.ChatActivity;
 import com.example.chatapp.R;
 import com.example.chatapp.SettingsActivity;
 import com.example.chatapp.UserProfileActivity;
@@ -28,6 +31,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -86,19 +90,17 @@ public class ChatsFragment extends Fragment {
         adapter = new FirebaseRecyclerAdapter<Users, ChatsFragment.FriendsViewHolder>(options) {
             @Override
             protected void onBindViewHolder(@NonNull ChatsFragment.FriendsViewHolder holder, int position, @NonNull Users user) {
-                // Bind the Users object to the userViewHolder
+                // Bind the Users object to the userViewHolder(holder)
                 // ...
 
 
 
                 holder.setDetails(user.getName(), user.getStatus(), user.getImage(), ctx , user.getOnline());
-
+                databaseReference.keepSynced(true);
 
 
 
                 final String user_id = getRef(position).getKey();
-
-
 
                 holder.mView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -118,6 +120,48 @@ public class ChatsFragment extends Fragment {
                             startActivity(intent);
                         }
 
+                    }
+                });
+
+                holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+
+                        if (!user_id.equals(current_user.getUid())) {
+             //Choice dialog box on clicking user2 profile for long time
+                            CharSequence options[] = new CharSequence[] {"Open Profile" , "Send Message" };
+                            final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                            builder.setTitle("Select Option");
+                            builder.setItems(options, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int i) {
+                                    // If events for item clicked
+                                    if(i==0){
+                                        Intent intent = new Intent(ctx,UserProfileActivity.class);
+                                        intent.putExtra("user_id2",user_id);
+                                        startActivity(intent);
+                                    }
+                                    if(i==1){
+                                        Intent intent = new Intent(ctx, ChatActivity.class);
+                                        intent.putExtra("user_id2",user_id);
+                                        startActivity(intent);
+                                    }
+                                }
+                            });
+                            builder.show();
+           //If you press your profile for long time you will go to settings
+                        } else {
+
+                            Intent intent = new Intent(getActivity(), SettingsActivity.class);
+                            //  intent.putExtra("user_id2", user_id);
+                            startActivity(intent);
+
+                        }
+
+
+
+
+                        return false;
                     }
                 });
             }
@@ -151,7 +195,6 @@ public class ChatsFragment extends Fragment {
 
         public FriendsViewHolder(View itemView) {
             super(itemView);
-
             mView = itemView;
 
         }
@@ -165,7 +208,7 @@ public class ChatsFragment extends Fragment {
             userStatusView.setText(status);
 
             CircleImageView userImageView = (CircleImageView) mView.findViewById(R.id.single_user_profile_pic);
-            Picasso.with(ctx).load(image).placeholder(R.drawable.avtar).into(userImageView);
+            Picasso.with(ctx).load(image).networkPolicy(NetworkPolicy.OFFLINE).placeholder(R.drawable.avtar).into(userImageView);
 
             ImageView userOnlineView = (ImageView) mView.findViewById(R.id.online_check_image);
 
@@ -179,13 +222,6 @@ public class ChatsFragment extends Fragment {
 
             }
         }
-
-        public void setUserOnline(String online_status) {
-
-
-
-        }
-
 }
 
     }

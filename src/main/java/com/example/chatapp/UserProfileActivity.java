@@ -2,8 +2,10 @@ package com.example.chatapp;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.chatapp.Fragments.FriendListAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -21,11 +24,13 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -118,7 +123,7 @@ public class UserProfileActivity extends AppCompatActivity {
 
         });
 
-
+         getTotalAndMutualFriendsCount(user1.getUid(),user2);
         //Displaying User2 profile
         mDatabaseRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -320,6 +325,147 @@ public class UserProfileActivity extends AppCompatActivity {
         String s = sdf.format(currenTimeZone), s0 = sdf2.format(currenTimeZone);
         Log.i(TAG, "currentDateAndTime: " + s + " " + s0 + " " + currentDate);
         return sdf.format(currenTimeZone);
+    }
+
+     ArrayList<String> user1Friendlist , user2Friendlist;
+
+    public void getTotalAndMutualFriendsCount(String user_1 , String user_2)
+    {
+        DatabaseReference user1FriendsRef = FirebaseDatabase.getInstance().getReference().child("Friends").child(user_1);
+        final DatabaseReference user2FriendsRef = FirebaseDatabase.getInstance().getReference().child("Friends").child(user_2);
+
+         String user1 = user_1 ;
+       final  String user2 = user_2 ;
+
+
+
+            user1FriendsRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                    if(dataSnapshot.exists()){
+                        GenericTypeIndicator<Map<String, String>> genericTypeIndicator = new GenericTypeIndicator<Map<String, String>>() {};
+                        Map<String, String> map = dataSnapshot.getValue(genericTypeIndicator );
+
+                        final long user1FriendsCount ,user2FriendsCount;
+                        // FriendList.clear();
+                        assert map != null;
+                        user1Friendlist = new ArrayList(map.keySet());
+                        user1FriendsCount = user1Friendlist.size();
+
+                        user2FriendsRef.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                                if(dataSnapshot.exists()) {
+                                    GenericTypeIndicator<Map<String, String>> genericTypeIndicator = new GenericTypeIndicator<Map<String, String>>() {
+                                    };
+                                    Map<String, String> map = dataSnapshot.getValue(genericTypeIndicator);
+                                    assert map != null;
+                                    user2Friendlist = new ArrayList(map.keySet());
+
+                                    long user2FriendsCount =   user2Friendlist.size();
+
+
+                                    user1Friendlist.retainAll(user2Friendlist);
+
+
+
+                                      int mutual = user1Friendlist.size();
+                                      String s =String.valueOf(user2FriendsCount)+" Friends | "+String.valueOf(mutual) + " Mutual Friends";
+
+                                    ((TextView)findViewById(R.id.friends_count)).setText(s ); ;
+                                    ((TextView)findViewById(R.id.friends_count)).setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            Intent intent = new Intent(UserProfileActivity.this , User2FriendView.class );
+                                            intent.putExtra("user2" , user2);
+                                            startActivity(intent);
+                                        }
+                                    });
+
+
+
+                                }
+                                else{
+                                    String s="0 Friends | 0 Mutual Friends";
+                                    ((TextView)findViewById(R.id.friends_count)).setText(s );
+                                    ((TextView)findViewById(R.id.friends_count)).setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            Intent intent = new Intent(UserProfileActivity.this , User2FriendView.class );
+                                            intent.putExtra("user2" , user2);
+                                            startActivity(intent);
+                                        }
+                                    });
+
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
+
+
+                    }else{
+
+                        user2FriendsRef.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                                if(dataSnapshot.exists()) {
+                                    GenericTypeIndicator<Map<String, String>> genericTypeIndicator = new GenericTypeIndicator<Map<String, String>>() {
+                                    };
+                                    Map<String, String> map = dataSnapshot.getValue(genericTypeIndicator);
+                                    assert map != null;
+                                    user2Friendlist = new ArrayList(map.keySet());
+
+                                    long user2FriendsCount =   user2Friendlist.size();
+                                    String s=String.valueOf(user2FriendsCount) + " Friends | " + "0 Mutual Friends";
+
+                                    ((TextView)findViewById(R.id.friends_count)).setText( s);
+                                    ((TextView)findViewById(R.id.friends_count)).setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            Intent intent = new Intent(UserProfileActivity.this , User2FriendView.class );
+                                            intent.putExtra("user2" , user2);
+                                            startActivity(intent);
+                                        }
+                                    });
+
+                                }
+                                else{
+                                    String s ="0 Friends | 0 Mutual Friends";
+                                    ((TextView)findViewById(R.id.friends_count)).setText(s );
+                                    ((TextView)findViewById(R.id.friends_count)).setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            Intent intent = new Intent(UserProfileActivity.this , User2FriendView.class );
+                                            intent.putExtra("user2" , user2);
+                                            startActivity(intent);
+                                        }
+                                    });
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
+
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
+       // findViewById(R.id.) "0 Friends | " + "0 Mutual Friends" ;
     }
 
 //    public int getCurrent_state()

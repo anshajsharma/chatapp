@@ -15,4 +15,6 @@
     <string name="login_failed">"Login failed"</string>
     <string name="msg_token_fmt" translatable="false">InstanceID Token: %s</string>
     <string name="welcome_to_chat_fragment">Welcome to Chat fragment...</string>
+    <string name="close">Close</string>
+    <string name="open">Open</string>
 </resources>

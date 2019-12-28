@@ -28,6 +28,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -169,7 +170,7 @@ public class RequestFragment extends Fragment {
             userStatusView.setText(status);
 
             CircleImageView userImageView =  mView.findViewById(R.id.user2_profile_pic);
-            Picasso.with(ctx).load(image).placeholder(R.drawable.avtar).into(userImageView);
+            Picasso.with(ctx).load(image).networkPolicy(NetworkPolicy.OFFLINE).placeholder(R.drawable.avtar).into(userImageView);
 
             ImageView userOnlineView =  mView.findViewById(R.id.online_check_image);
 

@@ -6,7 +6,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -91,30 +93,78 @@ public class AllUsersActivity extends AppCompatActivity {
 
                 final String user_id = getRef(position).getKey();
 
-               holder.mView.setOnClickListener(new View.OnClickListener() {
-                   @Override
-                   public void onClick(View v) {
-                       Log.i(TAG, "onClick23: " + user_id +" " + current_user.getUid());
-                       if(!user_id.equals(current_user.getUid())){
+                final Context ctx = AllUsersActivity.this;
 
-                           Intent intent = new Intent(AllUsersActivity.this , UserProfileActivity.class);
-                           intent.putExtra("user_id2",user_id);
-                         //  Log.i(TAG, "onClick23: " + user_id );
-                           startActivity(intent);
-                       }
-                     else{
+                holder.mView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Log.i(TAG, "onClick23: " + user_id + " " + current_user.getUid());
+                        if (!user_id.equals(current_user.getUid())) {
 
-                           Intent intent = new Intent(AllUsersActivity.this , SettingsActivity.class);
+                            Intent intent = new Intent(AllUsersActivity.this, UserProfileActivity.class);
+                            intent.putExtra("user_id2", user_id);
+                            startActivity(intent);
 
-                           startActivity(intent);
-                       }
+                            //  Log.i(TAG, "onClick23: " + user_id );
+                        } else {
 
-                   }
-               });
+                            Intent intent = new Intent(AllUsersActivity.this, SettingsActivity.class);
+                            //  intent.putExtra("user_id2", user_id);
+                            startActivity(intent);
+                        }
+
+                    }
+                });
+
+                holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+
+                        if (!user_id.equals(current_user.getUid())) {
+                            //Choice dialog box on clicking user2 profile for long time
+                            CharSequence options[] = new CharSequence[] {"Open Profile" , "Send Message" };
+                            final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                            builder.setTitle("Select Option");
+                            builder.setItems(options, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int i) {
+                                    // If events for item clicked
+                                    if(i==0){
+                                        Intent intent = new Intent(ctx,UserProfileActivity.class);
+                                        intent.putExtra("user_id2",user_id);
+                                        startActivity(intent);
+                                    }
+                                    if(i==1){
+                                        Intent intent = new Intent(ctx, ChatActivity.class);
+                                        intent.putExtra("user_id2",user_id);
+                                        startActivity(intent);
+                                    }
+                                }
+                            });
+                            builder.show();
+                            //If you press your profile for long time you will go to settings
+                        } else {
+
+                            Intent intent = new Intent(AllUsersActivity.this, SettingsActivity.class);
+                            //  intent.putExtra("user_id2", user_id);
+                            startActivity(intent);
+
+                        }
+
+
+
+
+                        return false;
+                    }
+                });
             }
         };
 
         mUsersList.setAdapter(adapter);
+    }
+
+    private Context getContext() {
+        return AllUsersActivity.this;
     }
 
     @Override

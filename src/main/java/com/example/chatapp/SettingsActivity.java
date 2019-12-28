@@ -106,6 +106,7 @@ public class SettingsActivity extends AppCompatActivity {
 
                 display_name.setText(name);
                 user_status.setText(status);
+                mDatabaseRef.keepSynced(true);
                // Picasso.with(SettingsActivity.this).load(image).placeholder(R.drawable.avtar).into(circleImageView);
 
                 if(!image.equals("default")) {
@@ -164,7 +165,17 @@ public class SettingsActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                        if(task.isSuccessful()){
 
+                           filePath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                               @Override
+                               public void onSuccess(Uri uri) {
+                                   String profilePicUrl = uri.toString();
+                                   //    Toast.makeText(SettingsActivity.this, profilePicUrl, Toast.LENGTH_SHORT).show();
+                                   Log.i(TAG, "onSuccess: "+ profilePicUrl);
 
+                                   mDatabaseRef.child("image").setValue(profilePicUrl);
+                                   mDatabaseRef.keepSynced(true);
+                               }
+                           });
                            Toast.makeText(SettingsActivity.this, "Successful", Toast.LENGTH_SHORT).show();
 
                        }
@@ -174,16 +185,7 @@ public class SettingsActivity extends AppCompatActivity {
                        }
                     }
                 });
-                filePath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                    @Override
-                    public void onSuccess(Uri uri) {
-                        String profilePicUrl = uri.toString();
-                    //    Toast.makeText(SettingsActivity.this, profilePicUrl, Toast.LENGTH_SHORT).show();
-                        Log.i(TAG, "onSuccess: "+ profilePicUrl);
 
-                        mDatabaseRef.child("image").setValue(profilePicUrl);
-                    }
-                });
 
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();
