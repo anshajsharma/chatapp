@@ -2,6 +2,8 @@ package com.example.chatapp;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -28,8 +31,14 @@ import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.concurrent.TimeUnit;
 import de.hdodenhof.circleimageview.CircleImageView;
+import id.zelory.compressor.Compressor;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -43,6 +52,7 @@ public class SettingsActivity extends AppCompatActivity {
     private ImageView imageView;
     private Button change_profile;
     private TextView user_status;
+    private Bitmap compressImageFile;
     final int PICK_IMAGE=1;
     private StorageReference mProfilePictures;
 
@@ -73,7 +83,7 @@ public class SettingsActivity extends AppCompatActivity {
                 {
                      // Crop image activity api uses....
                       CropImage.activity()
-                         .setAspectRatio(42,27)
+                         .setAspectRatio(1,1)
                          .setGuidelines(CropImageView.Guidelines.ON)
                          .start(SettingsActivity.this);
              }}
@@ -89,7 +99,6 @@ public class SettingsActivity extends AppCompatActivity {
                 Intent intent = new Intent(SettingsActivity.this, StatusChangeActivity.class);
                 intent.putExtra("user_prev_status", user_curr_status);
                 startActivity(intent);
-                finish();
             }
             }
         });
@@ -146,8 +155,8 @@ public class SettingsActivity extends AppCompatActivity {
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
-                Uri resultUri = result.getUri();
-                Uri resultUri2 = data.getData();
+                final Uri resultUri = result.getUri();
+                final Uri resultUri2 = data.getData();
 
 
                 // Time stampGenerator.... best way to get unique id....
@@ -158,7 +167,6 @@ public class SettingsActivity extends AppCompatActivity {
                 final String curr_uid = mCurrentUser.getUid();
 
                 final StorageReference filePath = mProfilePictures.child("profile_pictures").child(curr_uid).child("profile_picture.jpg");
-                Log.i(TAG, "onActivityResult: "+filePath.toString());
 
                 filePath.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
@@ -169,8 +177,44 @@ public class SettingsActivity extends AppCompatActivity {
                                @Override
                                public void onSuccess(Uri uri) {
                                    String profilePicUrl = uri.toString();
+                                   File imageFile = new File(resultUri.getPath());
+                                   try {
+                                       compressImageFile = new Compressor(SettingsActivity.this)
+                                               .setMaxHeight(200)
+                                               .setMaxWidth(200)
+                                               .setQuality(15)
+                                               .compressToBitmap(imageFile);
+                                   } catch (IOException e) {
+                                       e.printStackTrace();
+                                   }
                                    //    Toast.makeText(SettingsActivity.this, profilePicUrl, Toast.LENGTH_SHORT).show();
                                    Log.i(TAG, "onSuccess: "+ profilePicUrl);
+
+
+                              // Thumbnail==Profile Imahe Compression upload done here
+
+                                   ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                                   compressImageFile.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                                   byte[] thumbData = baos.toByteArray();
+
+                                   final StorageReference thumbFileRef = mProfilePictures.child("profile_pictures").child(curr_uid).child("thumb_nail.jpg");
+
+                                   UploadTask uploadTask = thumbFileRef.putBytes(thumbData);
+                                   uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                       @Override
+                                       public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                                       }
+                                   })
+                                     .addOnFailureListener(new OnFailureListener() {
+                                         @Override
+                                         public void onFailure(@NonNull Exception e) {
+                                             Toast.makeText(SettingsActivity.this, "Thumb_image compression failed!", Toast.LENGTH_SHORT).show();
+                                         }
+                                     });
+
+
+
 
                                    mDatabaseRef.child("image").setValue(profilePicUrl);
                                    mDatabaseRef.keepSynced(true);

@@ -2,10 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="265dp"
+    android:layout_width="match_parent"
     android:layout_gravity="start"
     android:orientation="vertical"
     android:layout_height="wrap_content">
+    <LinearLayout
+        android:layout_width="300dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
     <androidx.cardview.widget.CardView
         android:layout_width="wrap_content"
@@ -22,6 +26,8 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="5dp"
         android:layout_marginBottom="6dp"
+        android:textColor="#363636"
+        android:id="@+id/message_body"
         android:paddingStart="5dp"
         android:paddingEnd="0dp"
         android:text="Received Messages"
@@ -38,6 +44,7 @@
         tools:ignore="RtlHardcoded" />
 
     </androidx.cardview.widget.CardView>
+    </LinearLayout>
 
 
 </LinearLayout>

@@ -82,7 +82,7 @@ public class FriendsFragment extends Fragment {
                        // FriendList.clear();
                         assert map != null;
                         FriendList = new ArrayList(map.keySet());
-                        Log.i(TAG, "onDataChange2: "+ FriendList.toString());
+                        //Log.i(TAG, "onDataChange2: "+ FriendList.toString());
 
                         //Recycler view initialisation done here....
                         mFriendList =  mMainView.findViewById(R.id.friend_list);
@@ -119,7 +119,7 @@ public class FriendsFragment extends Fragment {
 //        adapter = new FirebaseRecyclerAdapter<Friendlist, FriendsFragment.FriendsViewHolder>(options) {
 //            @Override
 //            protected void onBindViewHolder(@NonNull final FriendsViewHolder holder, int position, @NonNull final Users user) {
-//                // Bind the Users object to the userViewHolder
+//                // Bind the Users object to the messageViewHolder
 //                // ...
 //                String user2 = user.getUser_id();
 //                mfriendRef.child(current_user.getUid()).child(user2).addValueEventListener(new ValueEventListener() {
@@ -144,7 +144,7 @@ public class FriendsFragment extends Fragment {
 //                        Log.i(TAG, "onClick23: " + user_id + " " + current_user.getUid());
 //                        if (!(user_id.equals(current_user.getUid()))) {
 //
-//                            Intent intent = new Intent(getActivity(), UserProfileActivity.class);
+//                            Intent intent = new Intent(getActivity(), User2ProfileActivity.class);
 //                            intent.Fra("user_id2", user_id);
 //                            startActivity(intent);
 //

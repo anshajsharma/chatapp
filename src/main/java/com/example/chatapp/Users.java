@@ -5,18 +5,18 @@ public class Users {
     public String name;
     public String image;
     public  String status;
-    public String thumb_image;
+    public String thumb_nail;
     public  String online;
     public String user_id;
     public String friend_list_visibility;
     public String online_visisbility;
    // public  int friend_count;
 
-    public Users(String name, String image, String status, String thumb_image, String online, String user_id, String friend_list_visibility, String online_visisbility) {
+    public Users(String name, String image, String status, String thumb_nail, String online, String user_id, String friend_list_visibility, String online_visisbility) {
         this.name = name;
         this.image = image;
         this.status = status;
-        this.thumb_image = thumb_image;
+        this.thumb_nail = thumb_nail;
         this.online = online;
         this.user_id = user_id;
         this.friend_list_visibility = friend_list_visibility;
@@ -39,11 +39,11 @@ public class Users {
         this.online_visisbility = online_visisbility;
     }
 
-    public Users(String name, String image, String status, String thumb_image, String online, String user_id) {
+    public Users(String name, String image, String status, String thunb_nail, String online, String user_id) {
         this.name = name;
         this.image = image;
         this.status = status;
-        this.thumb_image = thumb_image;
+        this.thumb_nail = thunb_nail;
         this.online = online;
         this.user_id = user_id;
     }
@@ -56,20 +56,20 @@ public class Users {
         this.user_id = user_id;
     }
 
-    public Users(String name, String image, String status, String thumb_image, String online) {
+    public Users(String name, String image, String status, String thumb_nail, String online) {
         this.name = name;
         this.image = image;
         this.status = status;
-        this.thumb_image = thumb_image;
+        this.thumb_nail = thumb_nail;
         this.online = online;
     }
 
-    public String getThumb_image() {
-        return thumb_image;
+    public String getThumb_nail() {
+        return thumb_nail;
     }
 
-    public void setThumb_image(String thumb_image) {
-        this.thumb_image = thumb_image;
+    public void setThumb_nail(String thumb_nail) {
+        this.thumb_nail = thumb_nail;
     }
 
     public String getOnline() {

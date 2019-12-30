@@ -17,4 +17,5 @@
     <string name="welcome_to_chat_fragment">Welcome to Chat fragment...</string>
     <string name="close">Close</string>
     <string name="open">Open</string>
+    <string name="user_s_posted_image">User\'s Posted Image</string>
 </resources>

@@ -1,7 +1,6 @@
 package com.example.chatapp;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -10,11 +9,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,11 +26,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.squareup.picasso.Picasso;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class AllUsersActivity extends AppCompatActivity {
@@ -44,7 +35,7 @@ public class AllUsersActivity extends AppCompatActivity {
     private FirebaseUser current_user;
     private DatabaseReference databaseReference;
     private FirebaseRecyclerAdapter adapter;
-    //private Object userViewHolder;
+    //private Object messageViewHolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +55,7 @@ public class AllUsersActivity extends AppCompatActivity {
         Query query = FirebaseDatabase.getInstance()
                 .getReference()
                 .child("Users")
-                .limitToLast(50);
+                .limitToLast(5000);
 
         FirebaseRecyclerOptions<Users> options =
                 new FirebaseRecyclerOptions.Builder<Users>()
@@ -85,7 +76,7 @@ public class AllUsersActivity extends AppCompatActivity {
             @Override
 
             protected void onBindViewHolder(userViewHolder holder, int position, Users user  ) {
-                // Bind the Users object to the userViewHolder
+                // Bind the Users object to the messageViewHolder
                 // ...
             //    Log.i(TAG, "onBindViewHolder: "+ user.getOnline());
                 holder.setDetails(user.getName(),user.getStatus(),user.getImage(),getApplicationContext());
@@ -101,7 +92,7 @@ public class AllUsersActivity extends AppCompatActivity {
                         Log.i(TAG, "onClick23: " + user_id + " " + current_user.getUid());
                         if (!user_id.equals(current_user.getUid())) {
 
-                            Intent intent = new Intent(AllUsersActivity.this, UserProfileActivity.class);
+                            Intent intent = new Intent(AllUsersActivity.this, User2ProfileActivity.class);
                             intent.putExtra("user_id2", user_id);
                             startActivity(intent);
 
@@ -130,7 +121,7 @@ public class AllUsersActivity extends AppCompatActivity {
                                 public void onClick(DialogInterface dialog, int i) {
                                     // If events for item clicked
                                     if(i==0){
-                                        Intent intent = new Intent(ctx,UserProfileActivity.class);
+                                        Intent intent = new Intent(ctx, User2ProfileActivity.class);
                                         intent.putExtra("user_id2",user_id);
                                         startActivity(intent);
                                     }
@@ -162,22 +153,6 @@ public class AllUsersActivity extends AppCompatActivity {
 
         mUsersList.setAdapter(adapter);
     }
-
-    private Context getContext() {
-        return AllUsersActivity.this;
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        adapter.startListening();
-    }
-    @Override
-    protected void onStop() {
-        super.onStop();
-        adapter.stopListening();
-    }
-
     public class userViewHolder extends RecyclerView.ViewHolder{
 
         View mView;
@@ -206,5 +181,22 @@ public class AllUsersActivity extends AppCompatActivity {
             return mView;
         }
     }
+
+    private Context getContext() {
+        return AllUsersActivity.this;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        adapter.startListening();
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        adapter.stopListening();
+    }
+
+
 
 }

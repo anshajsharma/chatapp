@@ -48,9 +48,6 @@ public class StatusChangeActivity extends AppCompatActivity {
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
-                                    Intent intent = new Intent(StatusChangeActivity.this,SettingsActivity.class);
-                                    startActivity(intent);
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                     finish();
                                 }
                             })

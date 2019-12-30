@@ -2,7 +2,6 @@ package com.example.chatapp;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -14,7 +13,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.chatapp.Fragments.FriendListAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -33,13 +31,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-public class UserProfileActivity extends AppCompatActivity {
-    private static final String TAG = "UserProfileActivity";
+public class User2ProfileActivity extends AppCompatActivity {
+    private static final String TAG = "User2ProfileActivity";
     private DatabaseReference mDatabaseRef, mFriendRequestRef, mFriendsRef;
     private TextView display_name, friends, status;
     private ImageView profile_pic;
@@ -77,6 +74,17 @@ public class UserProfileActivity extends AppCompatActivity {
         mProgressDialog.setMessage("Please wait while we load the user data.");
         mProgressDialog.setCanceledOnTouchOutside(false);
         mProgressDialog.show();
+        ///User2FriendView
+        ((TextView)findViewById(R.id.friends_count)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(User2ProfileActivity.this , User2FriendView.class );
+                intent.putExtra("user2" , user2);
+                startActivity(intent);
+            }
+        });
+
+
         // Determining current situation between user1 and user2
         mFriendRequestRef.child(user1.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
@@ -136,7 +144,7 @@ public class UserProfileActivity extends AppCompatActivity {
 
                 display_name.setText(name);
                 status.setText(user_status);
-                Picasso.with(UserProfileActivity.this)
+                Picasso.with(User2ProfileActivity.this)
                         .load(image)
                         .placeholder(R.drawable.avtar)
                         .fit()
@@ -172,13 +180,13 @@ public class UserProfileActivity extends AppCompatActivity {
                                                 .setValue("received").addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
-                                                Toast.makeText(UserProfileActivity.this, "Friend request sent...", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(User2ProfileActivity.this, "Friend request sent...", Toast.LENGTH_SHORT).show();
                                                 friendRequest.setText("Cancel Friend Request");
                                                 curr_state = 1;
                                             }
                                         });
                                     } else {
-                                        Toast.makeText(UserProfileActivity.this, "Failed in sending friend request..", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(User2ProfileActivity.this, "Failed in sending friend request..", Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             });
@@ -201,14 +209,14 @@ public class UserProfileActivity extends AppCompatActivity {
                                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                     @Override
                                                     public void onSuccess(Void aVoid) {
-                                                        Toast.makeText(UserProfileActivity.this, "Friend request cancelled...", Toast.LENGTH_SHORT).show();
+                                                        Toast.makeText(User2ProfileActivity.this, "Friend request cancelled...", Toast.LENGTH_SHORT).show();
                                                         friendRequest.setText("Send Friend Request");
                                                         curr_state = 0;
                                                     }
                                                 });
 
                                     } else {
-                                        Toast.makeText(UserProfileActivity.this, "Failed in cancelling friend request..", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(User2ProfileActivity.this, "Failed in cancelling friend request..", Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             });
@@ -227,7 +235,7 @@ public class UserProfileActivity extends AppCompatActivity {
                                                 .setValue("friends").addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
-                                                Toast.makeText(UserProfileActivity.this, "Friend request accepted...", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(User2ProfileActivity.this, "Friend request accepted...", Toast.LENGTH_SHORT).show();
                                                 friendRequest.setText("Unfriend");
                                                 mFriendsRef.child(user1.getUid()).child(user2).setValue("friends");
                                                 mFriendsRef.child(user2).child(user1.getUid()).setValue("friends");
@@ -236,7 +244,7 @@ public class UserProfileActivity extends AppCompatActivity {
                                             }
                                         });
                                     } else {
-                                        Toast.makeText(UserProfileActivity.this, "Error in accepting friend request..", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(User2ProfileActivity.this, "Error in accepting friend request..", Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             });
@@ -256,7 +264,7 @@ public class UserProfileActivity extends AppCompatActivity {
                                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                     @Override
                                                     public void onSuccess(Void aVoid) {
-                                                        Toast.makeText(UserProfileActivity.this, "Done...", Toast.LENGTH_SHORT).show();
+                                                        Toast.makeText(User2ProfileActivity.this, "Done...", Toast.LENGTH_SHORT).show();
                                                         friendRequest.setText("Send Friend Request");
                                                         mFriendsRef.child(user1.getUid()).child(user2).removeValue();
                                                         mFriendsRef.child(user2).child(user1.getUid()).removeValue();
@@ -265,7 +273,7 @@ public class UserProfileActivity extends AppCompatActivity {
                                                 });
 
                                     } else {
-                                        Toast.makeText(UserProfileActivity.this, "Some error occurred ..", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(User2ProfileActivity.this, "Some error occurred ..", Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             });
@@ -289,7 +297,7 @@ public class UserProfileActivity extends AppCompatActivity {
                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
                                                 public void onSuccess(Void aVoid) {
-                                                    Toast.makeText(UserProfileActivity.this, "Done...", Toast.LENGTH_SHORT).show();
+                                                    Toast.makeText(User2ProfileActivity.this, "Done...", Toast.LENGTH_SHORT).show();
                                                     friendRequest.setText("Send Friend Request");
                                                     mFriendsRef.child(user1.getUid()).child(user2).removeValue();
                                                     mFriendsRef.child(user2).child(user1.getUid()).removeValue();
@@ -300,7 +308,7 @@ public class UserProfileActivity extends AppCompatActivity {
                                             });
 
                                 } else {
-                                    Toast.makeText(UserProfileActivity.this, "Some error occurred ..", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(User2ProfileActivity.this, "Some error occurred ..", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         });
@@ -375,14 +383,7 @@ public class UserProfileActivity extends AppCompatActivity {
                                       String s =String.valueOf(user2FriendsCount)+" Friends | "+String.valueOf(mutual) + " Mutual Friends";
 
                                     ((TextView)findViewById(R.id.friends_count)).setText(s ); ;
-                                    ((TextView)findViewById(R.id.friends_count)).setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            Intent intent = new Intent(UserProfileActivity.this , User2FriendView.class );
-                                            intent.putExtra("user2" , user2);
-                                            startActivity(intent);
-                                        }
-                                    });
+
 
 
 
@@ -390,14 +391,6 @@ public class UserProfileActivity extends AppCompatActivity {
                                 else{
                                     String s="0 Friends | 0 Mutual Friends";
                                     ((TextView)findViewById(R.id.friends_count)).setText(s );
-                                    ((TextView)findViewById(R.id.friends_count)).setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            Intent intent = new Intent(UserProfileActivity.this , User2FriendView.class );
-                                            intent.putExtra("user2" , user2);
-                                            startActivity(intent);
-                                        }
-                                    });
 
                                 }
                             }
@@ -426,27 +419,11 @@ public class UserProfileActivity extends AppCompatActivity {
                                     String s=String.valueOf(user2FriendsCount) + " Friends | " + "0 Mutual Friends";
 
                                     ((TextView)findViewById(R.id.friends_count)).setText( s);
-                                    ((TextView)findViewById(R.id.friends_count)).setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            Intent intent = new Intent(UserProfileActivity.this , User2FriendView.class );
-                                            intent.putExtra("user2" , user2);
-                                            startActivity(intent);
-                                        }
-                                    });
 
                                 }
                                 else{
                                     String s ="0 Friends | 0 Mutual Friends";
                                     ((TextView)findViewById(R.id.friends_count)).setText(s );
-                                    ((TextView)findViewById(R.id.friends_count)).setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            Intent intent = new Intent(UserProfileActivity.this , User2FriendView.class );
-                                            intent.putExtra("user2" , user2);
-                                            startActivity(intent);
-                                        }
-                                    });
                                 }
                             }
 

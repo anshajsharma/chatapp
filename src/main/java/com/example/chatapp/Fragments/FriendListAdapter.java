@@ -4,22 +4,18 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.chatapp.ChatActivity;
 import com.example.chatapp.R;
 import com.example.chatapp.SettingsActivity;
 import com.example.chatapp.Show_Profile_PictureActivity;
-import com.example.chatapp.UserProfileActivity;
+import com.example.chatapp.User2ProfileActivity;
 import com.example.chatapp.Users;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -28,6 +24,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -71,7 +68,7 @@ public class FriendListAdapter extends RecyclerView.Adapter< FriendListAdapter.V
             public void onClick(View v) {
                 if (!(mFriendList.get(position)).equals(currUser.getUid())) {
 
-                    Intent intent = new Intent(ctx, UserProfileActivity.class);
+                    Intent intent = new Intent(ctx, User2ProfileActivity.class);
                     intent.putExtra("user_id2", user2);
                     ctx.startActivity(intent);
 
@@ -97,7 +94,7 @@ public class FriendListAdapter extends RecyclerView.Adapter< FriendListAdapter.V
                         public void onClick(DialogInterface dialog, int i) {
                             // If events for item clicked
                             if(i==0){
-                                Intent intent = new Intent(ctx, UserProfileActivity.class);
+                                Intent intent = new Intent(ctx, User2ProfileActivity.class);
                                 intent.putExtra("user_id2",user2);
                                 ctx.startActivity(intent);
                             }
@@ -166,25 +163,20 @@ public class FriendListAdapter extends RecyclerView.Adapter< FriendListAdapter.V
                         TextView tv2 = mView.findViewById(R.id.single_user_status);
                         tv.setText(sec_user.getName());
                         tv2.setText(sec_user.getStatus());
+
+                        String image;
+                        if(!sec_user.getThumb_nail().equals("default")) image = sec_user.getThumb_nail();
+                        else image =sec_user.getImage();
+
                         CircleImageView circleImageView = mView.findViewById(R.id.single_user_profile_pic);
                         Picasso.with(ctx)
-                                .load(sec_user.getImage())
+                                .load(image)
+                                .networkPolicy(NetworkPolicy.OFFLINE)
                                 .placeholder(R.drawable.avtar)
                                 .into(circleImageView);
 
-                        ImageView userOnlineView =  mView.findViewById(R.id.online_check_image);
-                        CardView cv = mView.findViewById(R.id.cv);
 
-                        if(sec_user.getOnline().equals("true")){
 
-                            userOnlineView.setVisibility(View.VISIBLE);
-                            cv.setVisibility(View.VISIBLE);
-
-                        } else {
-
-                            userOnlineView.setVisibility(View.INVISIBLE);
-                            cv.setVisibility(View.INVISIBLE);
-                        }
 
                         circleImageView.setOnClickListener(new View.OnClickListener() {
                             @Override

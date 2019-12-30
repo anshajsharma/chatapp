@@ -4,22 +4,6 @@
     android:layout_width="wrap_content"
     android:layout_height="100dp">
 
-    <androidx.cardview.widget.CardView
-        android:layout_width="16dp"
-        android:layout_height="16dp"
-        android:layout_marginTop="7dp"
-        android:id="@+id/cv"
-        android:layout_marginStart="76dp"
-        android:background="@color/white"
-        app:cardCornerRadius="8dp">
-
-        <ImageView
-            android:id="@+id/online_check_image"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@drawable/online_image" />
-    </androidx.cardview.widget.CardView>
-
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/single_user_profile_pic"
         android:layout_width="94dp"

@@ -14,9 +14,20 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".User2FriendView"></activity>
+        <activity android:name=".NewPost"></activity>
+        <activity android:name=".UICheckActivity" />
+        <activity
+            android:name=".NewsFeed"
+            android:label="News Feed" />
+        <activity
+            android:name=".User1FriendList"
+            android:label="Start a new conversation"
+            android:parentActivityName=".UsersHomePage" />
+        <activity android:name=".User2FriendView" />
         <activity android:name=".RegisterAndLogin.MaaKaLAdla" />
-        <activity android:name=".Show_Profile_PictureActivity" />
+        <activity
+            android:name=".Show_Profile_PictureActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
             android:name=".ChatActivity"
             android:parentActivityName=".UsersHomePage"
@@ -37,7 +48,7 @@
             android:exported="true" />
 
         <activity
-            android:name=".UserProfileActivity"
+            android:name=".User2ProfileActivity"
             android:parentActivityName=".AllUsersActivity" />
         <activity
             android:name=".AllUsersActivity"

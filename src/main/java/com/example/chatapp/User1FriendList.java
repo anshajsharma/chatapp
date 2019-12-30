@@ -9,7 +9,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.example.chatapp.Fragments.FriendListAdapter;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -26,63 +25,52 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class User2FriendView extends AppCompatActivity {
-
-    private static final String TAG = "User2FriendView";
-
-    String user2;
-    RecyclerView user2Friendlist;
-
+public class User1FriendList extends AppCompatActivity {
+    private static final String TAG = "User1FriendList";
+    private RecyclerView mFriendList;
     private FirebaseUser current_user;
     private DatabaseReference databaseReference , mfriendRef;
     private FirebaseRecyclerAdapter adapter;
     private View mMainView;
     private Context ctx;
-    private List<String> user2FriendList ;
+    private List<String> FriendList ;
     private RecyclerView.Adapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user2_friend_view);
+        setContentView(R.layout.activity_user1_friend_list);
 
-        user2 = getIntent().getStringExtra("user2");
-
-
+        //variable initialisation
         databaseReference = FirebaseDatabase.getInstance().getReference().child("Users");
+        databaseReference.keepSynced(true);
         current_user = FirebaseAuth.getInstance().getCurrentUser();
-        ctx = getApplicationContext();
+        databaseReference.keepSynced(true); ctx = getApplicationContext();
         mfriendRef = FirebaseDatabase.getInstance().getReference().child("Friends");
-
-
 
         //Retreiving Friends in Friendlist array of string----------------------------------------------------------\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
         if(current_user != null)
-            mfriendRef.child(user2).addValueEventListener(new ValueEventListener() {
+            mfriendRef.child(current_user.getUid()).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                     if(dataSnapshot.exists()){
                         GenericTypeIndicator<Map<String, String>> genericTypeIndicator = new GenericTypeIndicator<Map<String, String>>() {};
                         Map<String, String> map = dataSnapshot.getValue(genericTypeIndicator );
-                        Log.i("asad", String.valueOf(map));
+                        //Log.i("asad", String.valueOf(map));
                         // FriendList.clear();
                         assert map != null;
-                        user2FriendList = new ArrayList(map.keySet());
-                       // user2FriendList.add(FirebaseAuth.getInstance().getUid());
-                        Log.i(TAG, "onDataChange2: "+ user2FriendList.toString());
-                  if(user2FriendList.contains(FirebaseAuth.getInstance().getUid()))      user2FriendList.remove(FirebaseAuth.getInstance().getUid());
+                        FriendList = new ArrayList(map.keySet());
+                       // Log.i(TAG, "onDataChange2: "+ FriendList.toString());
+
                         //Recycler view initialisation done here....
-                        user2Friendlist = findViewById(R.id.user2_friendlist);
-                        user2Friendlist.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-                        user2Friendlist.setLayoutManager(new LinearLayoutManager(ctx));
-                        mAdapter = new User2FriendListAdapter(user2FriendList,ctx);
-                        user2Friendlist.setAdapter(mAdapter);
+                        mFriendList =  findViewById(R.id.friend_list);
+                        mFriendList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+                        mFriendList.setLayoutManager(new LinearLayoutManager(ctx));
+                        mAdapter = new FriendListAdapter(FriendList,ctx);
+                        mFriendList.setAdapter(mAdapter);
                         mAdapter.notifyDataSetChanged();
 
-                    }else {
-                        Toast.makeText(ctx, "No Friend !!", Toast.LENGTH_SHORT).show();
-                        finish();
                     }
                 }
 

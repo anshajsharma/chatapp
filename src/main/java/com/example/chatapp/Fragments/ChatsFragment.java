@@ -22,10 +22,12 @@ import android.widget.TextView;
 import com.example.chatapp.ChatActivity;
 import com.example.chatapp.R;
 import com.example.chatapp.SettingsActivity;
-import com.example.chatapp.UserProfileActivity;
+import com.example.chatapp.User1FriendList;
+import com.example.chatapp.User2ProfileActivity;
 import com.example.chatapp.Users;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -49,7 +51,7 @@ public class ChatsFragment extends Fragment {
     private FirebaseRecyclerAdapter adapter;
     private View mMainView;
     private Context ctx;
-
+    private FloatingActionButton floatingActionButton;
     public ChatsFragment() {
         // Required empty public constructor
     }
@@ -68,6 +70,15 @@ public class ChatsFragment extends Fragment {
         //databaseReference.keepSynced(true);
         ctx = container.getContext();
         mchat_list.setLayoutManager(new LinearLayoutManager(ctx));
+
+        floatingActionButton = mMainView.findViewById(R.id.floatingActionButton);
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ctx, User1FriendList.class);
+                startActivity(intent);
+            }
+        });
 
         // Inflate the layout for this fragment
         return mMainView;
@@ -90,12 +101,16 @@ public class ChatsFragment extends Fragment {
         adapter = new FirebaseRecyclerAdapter<Users, ChatsFragment.FriendsViewHolder>(options) {
             @Override
             protected void onBindViewHolder(@NonNull ChatsFragment.FriendsViewHolder holder, int position, @NonNull Users user) {
-                // Bind the Users object to the userViewHolder(holder)
+                // Bind the Users object to the messageViewHolder(holder)
                 // ...
 
+                String image;
+
+                if(!user.getThumb_nail().equals("default")) image = user.getThumb_nail();
+                else image =user.getImage();
 
 
-                holder.setDetails(user.getName(), user.getStatus(), user.getImage(), ctx , user.getOnline());
+                holder.setDetails(user.getName(), user.getStatus(), image , ctx );
                 databaseReference.keepSynced(true);
 
 
@@ -108,8 +123,8 @@ public class ChatsFragment extends Fragment {
                         Log.i(TAG, "onClick23: " + user_id + " " + current_user.getUid());
                         if (!user_id.equals(current_user.getUid())) {
 
-                            Intent intent = new Intent(getActivity(), UserProfileActivity.class);
-                            intent.putExtra("user_id2", user_id);
+                            Intent intent = new Intent(ctx, ChatActivity.class);
+                            intent.putExtra("user_id2",user_id);
                             startActivity(intent);
 
                             //  Log.i(TAG, "onClick23: " + user_id );
@@ -137,7 +152,7 @@ public class ChatsFragment extends Fragment {
                                 public void onClick(DialogInterface dialog, int i) {
                                     // If events for item clicked
                                     if(i==0){
-                                        Intent intent = new Intent(ctx,UserProfileActivity.class);
+                                        Intent intent = new Intent(ctx, User2ProfileActivity.class);
                                         intent.putExtra("user_id2",user_id);
                                         startActivity(intent);
                                     }
@@ -199,7 +214,7 @@ public class ChatsFragment extends Fragment {
 
         }
 
-        public void setDetails(String name , String status , String image , Context ctx , String online_status)
+        public void setDetails(String name , String status , String image , Context ctx )
         {
             TextView userNameView = (TextView) mView.findViewById(R.id.single_display_name);
             userNameView.setText(name);
@@ -212,15 +227,6 @@ public class ChatsFragment extends Fragment {
 
             ImageView userOnlineView = (ImageView) mView.findViewById(R.id.online_check_image);
 
-            if(online_status.equals("true")){
-
-                userOnlineView.setVisibility(View.VISIBLE);
-
-            } else {
-
-                userOnlineView.setVisibility(View.INVISIBLE);
-
-            }
         }
 }
 

@@ -14,12 +14,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.chatapp.R;
 import com.example.chatapp.SettingsActivity;
-import com.example.chatapp.UserProfileActivity;
+import com.example.chatapp.User2ProfileActivity;
 import com.example.chatapp.Users;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -89,14 +88,14 @@ public class RequestFragment extends Fragment {
         adapter = new FirebaseRecyclerAdapter<Users, RequestFragment.FriendsViewHolder>(options) {
             @Override
             protected void onBindViewHolder(@NonNull RequestFragment.FriendsViewHolder holder, int position, @NonNull Users user) {
-                // Bind the Users object to the userViewHolder
+                // Bind the Users object to the messageViewHolder
                 // ...
 
                 String user1 = current_user.getUid();
 
 
 
-                holder.setDetails(user.getName(), user.getStatus(), user.getImage(), ctx , user.getOnline());
+                holder.setDetails(user.getName(), user.getStatus(), user.getImage(), ctx );
 
 
 
@@ -111,7 +110,7 @@ public class RequestFragment extends Fragment {
                         Log.i(TAG, "onClick23: " + user_id + " " + current_user.getUid());
                         if (!user_id.equals(current_user.getUid())) {
 
-                            Intent intent = new Intent(getActivity(), UserProfileActivity.class);
+                            Intent intent = new Intent(getActivity(), User2ProfileActivity.class);
                             intent.putExtra("user_id2", user_id);
                             startActivity(intent);
 
@@ -161,7 +160,7 @@ public class RequestFragment extends Fragment {
 
         }
 
-        public void setDetails(String name , String status , String image , Context ctx , String online_status)
+        public void setDetails(String name , String status , String image , Context ctx )
         {
             TextView userNameView = (TextView) mView.findViewById(R.id.user2_name);
             userNameView.setText(name);
@@ -172,24 +171,9 @@ public class RequestFragment extends Fragment {
             CircleImageView userImageView =  mView.findViewById(R.id.user2_profile_pic);
             Picasso.with(ctx).load(image).networkPolicy(NetworkPolicy.OFFLINE).placeholder(R.drawable.avtar).into(userImageView);
 
-            ImageView userOnlineView =  mView.findViewById(R.id.online_check_image);
-
-            if(online_status.equals("true")){
-
-                userOnlineView.setVisibility(View.VISIBLE);
-
-            } else {
-
-                userOnlineView.setVisibility(View.INVISIBLE);
-
-            }
         }
 
-        public void setUserOnline(String online_status) {
 
-
-
-        }
 
     }
 

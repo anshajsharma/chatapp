@@ -1,11 +1,15 @@
 package com.example.chatapp;
 
-public class Friends {
-    String meassage_bady  , type , delivery_status , sender , receiver ;
+public class SingleMessage {
+
+    String message_body, type , delivery_status , sender , receiver ;
     long timestamp , sent_timestamp , received_timestamp , seen_timestamp;
 
-    public Friends(String meassage_bady, String type, String delivery_status, String sender, String receiver, long timestamp, long sent_timestamp, long received_timestamp, long seen_timestamp) {
-        this.meassage_bady = meassage_bady;
+    public SingleMessage() {
+    }
+
+    public SingleMessage(String message_body, String type, String delivery_status, String sender, String receiver, long timestamp, long sent_timestamp, long received_timestamp, long seen_timestamp) {
+        this.message_body = message_body;
         this.type = type;
         this.delivery_status = delivery_status;
         this.sender = sender;
@@ -16,12 +20,21 @@ public class Friends {
         this.seen_timestamp = seen_timestamp;
     }
 
-    public String getMeassage_bady() {
-        return meassage_bady;
+    public SingleMessage(String message_body, String type, String delivery_status, String sender, String receiver, long timestamp) {
+        this.message_body = message_body;
+        this.type = type;
+        this.delivery_status = delivery_status;
+        this.sender = sender;
+        this.receiver = receiver;
+        this.timestamp = timestamp;
     }
 
-    public void setMeassage_bady(String meassage_bady) {
-        this.meassage_bady = meassage_bady;
+    public String getMessage_body() {
+        return message_body;
+    }
+
+    public void setMessage_body(String message_body) {
+        this.message_body = message_body;
     }
 
     public String getType() {
@@ -87,5 +100,5 @@ public class Friends {
     public void setSeen_timestamp(long seen_timestamp) {
         this.seen_timestamp = seen_timestamp;
     }
-}
 
+}

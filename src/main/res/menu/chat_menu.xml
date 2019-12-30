@@ -43,9 +43,6 @@
                 android:id="@+id/clear_chat"
                 android:title="Clear Chat" />
 
-            <item
-                android:id="@+id/subitem2"
-                android:title="Sub Item 2" />
 
         </menu>
 

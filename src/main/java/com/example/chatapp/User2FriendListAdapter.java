@@ -1,27 +1,20 @@
 package com.example.chatapp;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
-import com.example.chatapp.ChatActivity;
-import com.example.chatapp.R;
-import com.example.chatapp.SettingsActivity;
-import com.example.chatapp.Show_Profile_PictureActivity;
-import com.example.chatapp.UserProfileActivity;
-import com.example.chatapp.Users;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -77,7 +70,7 @@ public class User2FriendListAdapter extends RecyclerView.Adapter<User2FriendList
 //            public void onClick(View v) {
 //                if (!(mUser2FriendList.get(position)).equals(currUser.getUid())) {
 //
-//                    Intent intent = new Intent(ctx, UserProfileActivity.class);
+//                    Intent intent = new Intent(ctx, User2ProfileActivity.class);
 //                    intent.putExtra("user_id2", user2);
 //                    ctx.startActivity(intent);
 //
@@ -116,15 +109,17 @@ public class User2FriendListAdapter extends RecyclerView.Adapter<User2FriendList
             final String user1 = currUser.getUid();
             final String user2 = s;
 
+            final CardView viewProfile = mView.findViewById(R.id.view_profile);
+//            if(user1.equals(user2)) viewProfile.setVisibility(View.INVISIBLE);
 
             mDataRef.child(user2).addValueEventListener(new ValueEventListener() {
                 @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                public void onDataChange(@NonNull final DataSnapshot dataSnapshot) {
                     if(dataSnapshot.exists())
                     {
                         Users sec_user = dataSnapshot.getValue(Users.class);
                         TextView tv = mView.findViewById(R.id.single_display_name);
-
+                       final DatabaseReference mFriendRequestRef = FirebaseDatabase.getInstance().getReference().child("Friend_Requests");
                         tv.setText(sec_user.getName());
 
                         CircleImageView circleImageView = mView.findViewById(R.id.single_user_profile_pic);
@@ -137,7 +132,7 @@ public class User2FriendListAdapter extends RecyclerView.Adapter<User2FriendList
                             @Override
                             public void onClick(View v) {
                                 Intent intent = new Intent(ctx, Show_Profile_PictureActivity.class);
-                                intent.putExtra("user_id2",user2);
+                                intent.putExtra("user_id2", user2);
                                 ctx.startActivity(intent);
 
                             }
@@ -153,16 +148,79 @@ public class User2FriendListAdapter extends RecyclerView.Adapter<User2FriendList
                 }
             });
 
+            mFriendRef.child(user2).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if(dataSnapshot.exists()){
+                        if(!dataSnapshot.hasChild(user1)){
+                            final CardView cv = mView.findViewById(R.id.add_friend);
+                            cv.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                               final DatabaseReference mFriendRequestRef = FirebaseDatabase.getInstance().getReference().child("Friend_Requests");
+                                mFriendRequestRef.child(user1).child(user2)
+                                            .setValue("sent")
+                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    if (task.isSuccessful()) {
+
+                                                        mFriendRequestRef.child(user2).child(user1)
+                                                                .setValue("received").addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void aVoid) {
+                                                                Toast.makeText(ctx, "Friend request sent...", Toast.LENGTH_SHORT).show();
+                                                                cv.setVisibility(View.INVISIBLE);
+                                                                viewProfile.animate().translationXBy(-210f).setDuration(1100);
+                                                            }
+                                                        });
+                                                    } else {
+                                                        Toast.makeText(ctx, "Failed in sending friend request..", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }
+                                            });
+                                }
+                            });
+                        }
+                        else{
+                            final CardView cv = mView.findViewById(R.id.add_friend);
+                            cv.setVisibility(View.INVISIBLE);
+                            viewProfile.animate().translationXBy(-210f).setDuration(1100);
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
 
 
-            CardView viewProfile = mView.findViewById(R.id.view_profile);
+
+
+            TextView tv2 = mView.findViewById(R.id.mutual_friends_count);
+
+            tv2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                   mView.findViewById(R.id.mutual_friends_count).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent intent = new Intent(ctx , User2FriendView.class );
+                            intent.putExtra("user2" , user2);
+                            ctx.startActivity(intent);
+                        }
+                    });
+                }
+            });
 
             viewProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!user2.equals(user1)) {
 
-                    Intent intent = new Intent(ctx, UserProfileActivity.class);
+                    Intent intent = new Intent(ctx, User2ProfileActivity.class);
                     intent.putExtra("user_id2", user2);
                     ctx.startActivity(intent);
 
@@ -174,6 +232,7 @@ public class User2FriendListAdapter extends RecyclerView.Adapter<User2FriendList
 
             }
         });
+
 
 
 

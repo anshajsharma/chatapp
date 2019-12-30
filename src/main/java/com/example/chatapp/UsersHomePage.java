@@ -13,12 +13,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.example.chatapp.RegisterAndLogin.LoginActivity;
 import com.example.chatapp.RegisterAndLogin.MaaKaLAdla;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -56,6 +58,7 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mToggle;
     Toolbar toolbar;
+    FloatingActionButton floatingActionButton;
     NavigationView navigationView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +75,7 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
         mTablayout.setupWithViewPager(mViewPager);
 
 
+
         //toolbar and drawer setup took place
         setUpToolBar();
         navigationView = findViewById(R.id.clickable_menu);
@@ -80,9 +84,32 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
 
                 if(menuItem.getItemId() == R.id.db){
-                    Toast.makeText(UsersHomePage.this, "Account", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(UsersHomePage.this, MaaKaLAdla.class);
+                   // Toast.makeText(UsersHomePage.this, "Account", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(UsersHomePage.this, SettingsActivity.class);
                     startActivity(intent);
+                }
+               else if(menuItem.getItemId() == R.id.fr){
+                    Intent intent = new Intent(UsersHomePage.this, User1FriendList.class);
+                    startActivity(intent);
+                }
+                else if(menuItem.getItemId() == R.id.no){
+                    Intent intent = new Intent(UsersHomePage.this, UICheckActivity.class);
+                    startActivity(intent);
+                }
+                else  if(menuItem.getItemId() == R.id.feed){
+                    Intent intent = new Intent(UsersHomePage.this, NewsFeed.class);
+                    startActivity(intent);
+                }
+                else if(menuItem.getItemId() == R.id.ff){
+
+                }
+                else if(menuItem.getItemId() == R.id.st){
+                    Intent intent = new Intent(UsersHomePage.this,SettingsActivity.class);
+                     startActivity(intent);
+                }
+                else if(menuItem.getItemId() == R.id.lo){
+                    FirebaseAuth.getInstance().signOut();
+                      sendToStart();
                 }
 
                 return false;
@@ -195,13 +222,13 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
     public void onStop() {
         super.onStop();
         // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+//        FirebaseUser currentUser = mAuth.getCurrentUser();
         // updateUI(currentUser);
 
-        if(currentUser!=null)
-        {
-            databaseReference.child("Users").child(currentUser.getUid()).child("online").setValue(currentDateAndTime());
-        }
+//        if(currentUser!=null)
+//        {
+//            databaseReference.child("Users").child(currentUser.getUid()).child("online").setValue(currentDateAndTime());
+//        }
     }
 
     private void sendToStart() {
