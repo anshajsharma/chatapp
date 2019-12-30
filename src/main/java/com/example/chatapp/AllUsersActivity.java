@@ -1,14 +1,202 @@
 package com.example.chatapp;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.squareup.picasso.Picasso;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class AllUsersActivity extends AppCompatActivity {
+    private static final String TAG = "AllUsersActivity";
+
+    private RecyclerView mUsersList;
+    private FirebaseUser current_user;
+    private DatabaseReference databaseReference;
+    private FirebaseRecyclerAdapter adapter;
+    //private Object messageViewHolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_all_users);
+
+        mUsersList = findViewById(R.id.users_list);
+        databaseReference = FirebaseDatabase.getInstance().getReference().child("Users");
+        // mUsersList.hasFixedSize(true);
+        current_user = FirebaseAuth.getInstance().getCurrentUser();
+        mUsersList.setLayoutManager(new LinearLayoutManager(this));
+
+
+        //loads data into recycler view onstart up
+
+
+        Query query = FirebaseDatabase.getInstance()
+                .getReference()
+                .child("Users")
+                .limitToLast(5000);
+
+        FirebaseRecyclerOptions<Users> options =
+                new FirebaseRecyclerOptions.Builder<Users>()
+                        .setQuery(query, Users.class)
+                        .build();
+
+        adapter = new FirebaseRecyclerAdapter<Users, userViewHolder>(options) {
+            @Override
+            public userViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                // Create a new instance of the ViewHolder, in this case we are using a custom
+                // layout called R.layout.single_user_layout for each item
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.single_user_layout, parent, false);
+
+                return new userViewHolder(view);
+            }
+
+            @Override
+
+            protected void onBindViewHolder(userViewHolder holder, int position, Users user  ) {
+                // Bind the Users object to the messageViewHolder
+                // ...
+            //    Log.i(TAG, "onBindViewHolder: "+ user.getOnline());
+                holder.setDetails(user.getName(),user.getStatus(),user.getImage(),getApplicationContext());
+
+
+                final String user_id = getRef(position).getKey();
+
+                final Context ctx = AllUsersActivity.this;
+
+                holder.mView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Log.i(TAG, "onClick23: " + user_id + " " + current_user.getUid());
+                        if (!user_id.equals(current_user.getUid())) {
+
+                            Intent intent = new Intent(AllUsersActivity.this, User2ProfileActivity.class);
+                            intent.putExtra("user_id2", user_id);
+                            startActivity(intent);
+
+                            //  Log.i(TAG, "onClick23: " + user_id );
+                        } else {
+
+                            Intent intent = new Intent(AllUsersActivity.this, SettingsActivity.class);
+                            //  intent.putExtra("user_id2", user_id);
+                            startActivity(intent);
+                        }
+
+                    }
+                });
+
+                holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+
+                        if (!user_id.equals(current_user.getUid())) {
+                            //Choice dialog box on clicking user2 profile for long time
+                            CharSequence options[] = new CharSequence[] {"Open Profile" , "Send Message" };
+                            final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                            builder.setTitle("Select Option");
+                            builder.setItems(options, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int i) {
+                                    // If events for item clicked
+                                    if(i==0){
+                                        Intent intent = new Intent(ctx, User2ProfileActivity.class);
+                                        intent.putExtra("user_id2",user_id);
+                                        startActivity(intent);
+                                    }
+                                    if(i==1){
+                                        Intent intent = new Intent(ctx, ChatActivity.class);
+                                        intent.putExtra("user_id2",user_id);
+                                        startActivity(intent);
+                                    }
+                                }
+                            });
+                            builder.show();
+                            //If you press your profile for long time you will go to settings
+                        } else {
+
+                            Intent intent = new Intent(AllUsersActivity.this, SettingsActivity.class);
+                            //  intent.putExtra("user_id2", user_id);
+                            startActivity(intent);
+
+                        }
+
+
+
+
+                        return false;
+                    }
+                });
+            }
+        };
+
+        mUsersList.setAdapter(adapter);
     }
+    public class userViewHolder extends RecyclerView.ViewHolder{
+
+        View mView;
+
+        public userViewHolder(@NonNull View itemView) {
+            super(itemView);
+            mView=itemView;
+        }
+        public void setDetails(String name , String status, String imageUrl , Context ctx){
+            TextView tv = mView.findViewById(R.id.single_display_name);
+            TextView tv2 = mView.findViewById(R.id.single_user_status);
+            tv.setText(name);
+            tv2.setText(status);
+            Uri resultUri = Uri.parse(imageUrl);
+            CircleImageView circleImageView = mView.findViewById(R.id.single_user_profile_pic);
+            Log.i(TAG, "setDetails: "+ name +" "+  imageUrl);
+            Picasso.with(AllUsersActivity.this)
+                    .load(imageUrl)
+                    .placeholder(R.drawable.avtar)
+                    .into(circleImageView);
+            //Context ka problem hai....
+
+        }
+
+        public View getmView() {
+            return mView;
+        }
+    }
+
+    private Context getContext() {
+        return AllUsersActivity.this;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        adapter.startListening();
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        adapter.stopListening();
+    }
+
+
+
 }
