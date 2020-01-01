@@ -1,4 +1,4 @@
-package com.example.chatapp;
+package com.example.chatapp.RegisterAndLogin;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,6 +17,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.chatapp.Messaging.ChatActivity;
+import com.example.chatapp.R;
+import com.example.chatapp.SettingsActivity;
+import com.example.chatapp.User2RelatedActivities.User2ProfileActivity;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;

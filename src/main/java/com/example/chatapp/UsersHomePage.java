@@ -7,17 +7,14 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.ViewPager;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import com.example.chatapp.RegisterAndLogin.LoginActivity;
-import com.example.chatapp.RegisterAndLogin.MaaKaLAdla;
+import com.example.chatapp.User2RelatedActivities.User1FriendList;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -33,8 +30,6 @@ import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
-import com.google.firebase.messaging.FirebaseMessagingService;
-import com.google.firebase.messaging.RemoteMessage;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -44,7 +39,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.TimeZone;
 
 public class UsersHomePage extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -167,6 +161,8 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
                     }
                 });
 
+        Log.i(TAG, "onCreate: " + currentDateAndTime());
+
     }
 
 
@@ -285,11 +281,11 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
         calendar.add(Calendar.MILLISECOND, tz.getOffset(calendar.getTimeInMillis()));
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault());   // 12-03-2019 15:16:17
         SimpleDateFormat sdf2 = new SimpleDateFormat("hh:mm a", Locale.getDefault());              //  03:12 PM
-        SimpleDateFormat sdf3 = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss a", Locale.getDefault());              //  03:12 am (whatsApp uses this)
+        SimpleDateFormat sdf3 = new SimpleDateFormat("dd MMM YYYY", Locale.getDefault());              //  03:12 am (whatsApp uses this)
         java.util.Date currenTimeZone = new java.util.Date((long) tsLong * 1000);
         String currentDate = DateFormat.getDateInstance().format(new Date());                             //Jun 27, 2017 1:17:32 PM
         String s = sdf.format(currenTimeZone), s0 = sdf2.format(currenTimeZone);
-        Log.i(TAG, "currentDateAndTime: " + s + " " + s0 + " " + currentDate);
-        return  currentDate + " " +sdf2.format(currenTimeZone) ;
+        Log.i(TAG, "currentDateAndTime: " + s + " " + s0 + " " + currentDate+"303   " + sdf3.format(currenTimeZone));
+        return  currentDate + " " +sdf3.format(currenTimeZone);
     }
 }

@@ -4,12 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".User2RelatedActivities.User1FriendList">
+    tools:context=".ViewPostsLikesActivity">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:layout_width="409dp"
-        android:id="@+id/friend_list"
-        android:layout_height="729dp"
-        tools:layout_editor_absoluteX="1dp"
-        tools:layout_editor_absoluteY="1dp" />
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:id="@+id/likes_list"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="0dp" />
 </RelativeLayout>

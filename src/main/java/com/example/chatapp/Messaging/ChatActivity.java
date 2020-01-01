@@ -1,4 +1,4 @@
-package com.example.chatapp;
+package com.example.chatapp.Messaging;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -8,26 +8,22 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.example.chatapp.R;
+import com.example.chatapp.User2RelatedActivities.User2ProfileActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -36,14 +32,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,10 +89,14 @@ public class ChatActivity extends AppCompatActivity {
         mChatref = mRootRef.child("chat_rooms");
         messageList = new ArrayList<>();
 
+        // Hide keyeboard  when activity opens...............
+        getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-        LinearLayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
-        mLayoutManager.setReverseLayout(true);
-        mLayoutManager.setStackFromEnd(true);
+
+//        LinearLayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+//        mLayoutManager.setReverseLayout(true);
+//        mLayoutManager.setStackFromEnd(true);
 
 
 
@@ -109,7 +106,7 @@ public class ChatActivity extends AppCompatActivity {
         toolbar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ChatActivity.this,User2ProfileActivity.class);
+                Intent intent = new Intent(ChatActivity.this, User2ProfileActivity.class);
                 intent.putExtra("user_id2",user2);
                 startActivity(intent);
             }
@@ -122,6 +119,9 @@ public class ChatActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+//        mChatref.push().child("kya").setValue("haal");
+//        Log.i(TAG, "onCreate: " + mChatref.child(user2).push().getKey().trim() ) ;
 
 
         ////////-----RecyclerView Workings -----------------------------------------------------------------
@@ -148,6 +148,22 @@ public class ChatActivity extends AppCompatActivity {
                         Objects.requireNonNull(mChatList.getLayoutManager()).scrollToPosition(messageList.size()-1);
                       //  mAdapter.notifyDataSetChanged();
 
+                        mChatList.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                            @Override
+                            public void onLayoutChange(View v,
+                                                       int left, int top, int right, int bottom,
+                                                       int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                                if (bottom < oldBottom) {
+                                    mChatList.postDelayed(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mChatList.smoothScrollToPosition(
+                                                    Objects.requireNonNull(messageList.size() - 1));
+                                        }
+                                    }, 0);
+                                }
+                            }
+                        });
 
 
                     }
@@ -158,6 +174,8 @@ public class ChatActivity extends AppCompatActivity {
 
                 }
             });
+
+
 
 
         // This is just an alternate way of doing what we did above
@@ -192,8 +210,8 @@ public class ChatActivity extends AppCompatActivity {
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()) {
                                         mMessageRef.child(sender).child(user2).child(String.valueOf(timestamp)).child("delivery_status").setValue("sent");
-                                        mChatref.child(sender).child(user2).child(String.valueOf(timestamp))
-                                                .setValue("Messages" + "/" + sender + "/" + receiver + "/" + String.valueOf(timestamp));
+//                                        mChatref.child(sender).child(user2).child(String.valueOf(timestamp))
+//                                                .setValue("Messages" + "/" + sender + "/" + receiver + "/" + String.valueOf(timestamp));
                                     }
                                 }
                             });
@@ -203,8 +221,8 @@ public class ChatActivity extends AppCompatActivity {
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()) {
                                         mMessageRef.child(user2).child(sender).child(String.valueOf(timestamp)).child("delivery_status").setValue("state4");
-                                        mChatref.child(user2).child(sender).child(String.valueOf(timestamp))
-                                                .setValue("Messages" + "/" + receiver + "/" + sender + "/" + String.valueOf(timestamp));
+//                                        mChatref.child(user2).child(sender).child(String.valueOf(timestamp))
+//                                                .setValue("Messages" + "/" + receiver + "/" + sender + "/" + String.valueOf(timestamp));
                                     }
                                 }
                             });

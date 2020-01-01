@@ -7,29 +7,39 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:name=".MApplication"
+        android:name=".Messaging.MApplication"
         android:allowBackup="true"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".NewPost"></activity>
+        <activity android:name=".Comments_handeling_Activity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            ></activity>
+        <activity
+            android:name=".ViewPostsLikesActivity"
+            android:label="Likes" />
+        <activity
+            android:name=".Show_Clicked_Image"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
+        <activity android:name=".NewPost" />
         <activity android:name=".UICheckActivity" />
         <activity
             android:name=".NewsFeed"
-            android:label="News Feed" />
+            android:label="News Feed"
+            android:parentActivityName=".UsersHomePage" />
         <activity
-            android:name=".User1FriendList"
+            android:name=".User2RelatedActivities.User1FriendList"
             android:label="Start a new conversation"
             android:parentActivityName=".UsersHomePage" />
-        <activity android:name=".User2FriendView" />
+        <activity android:name=".User2RelatedActivities.User2FriendView" />
         <activity android:name=".RegisterAndLogin.MaaKaLAdla" />
         <activity
-            android:name=".Show_Profile_PictureActivity"
+            android:name=".User2RelatedActivities.Show_Profile_PictureActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
-            android:name=".ChatActivity"
+            android:name=".Messaging.ChatActivity"
             android:parentActivityName=".UsersHomePage"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
@@ -43,21 +53,21 @@
         </activity>
 
         <service
-            android:name=".MessagingService"
+            android:name=".Messaging.MessagingService"
             android:enabled="false"
             android:exported="true" />
 
         <activity
-            android:name=".User2ProfileActivity"
-            android:parentActivityName=".AllUsersActivity" />
+            android:name=".User2RelatedActivities.User2ProfileActivity"
+            android:parentActivityName=".RegisterAndLogin.AllUsersActivity" />
         <activity
-            android:name=".AllUsersActivity"
+            android:name=".RegisterAndLogin.AllUsersActivity"
             android:parentActivityName=".UsersHomePage" />
         <activity
             android:name=".SettingsActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
-            android:name=".StatusChangeActivity"
+            android:name=".RegisterAndLogin.StatusChangeActivity"
             android:label="New Status"
             android:parentActivityName=".SettingsActivity" />
         <activity

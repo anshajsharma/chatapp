@@ -1,4 +1,4 @@
-package com.example.chatapp;
+package com.example.chatapp.User2RelatedActivities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +12,9 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.chatapp.R;
+import com.example.chatapp.SettingsActivity;
+import com.example.chatapp.RegisterAndLogin.Users;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;

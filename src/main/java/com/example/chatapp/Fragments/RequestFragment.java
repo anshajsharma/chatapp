@@ -18,8 +18,8 @@ import android.widget.TextView;
 
 import com.example.chatapp.R;
 import com.example.chatapp.SettingsActivity;
-import com.example.chatapp.User2ProfileActivity;
-import com.example.chatapp.Users;
+import com.example.chatapp.User2RelatedActivities.User2ProfileActivity;
+import com.example.chatapp.RegisterAndLogin.Users;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;

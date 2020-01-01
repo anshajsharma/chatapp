@@ -1,23 +1,18 @@
-package com.example.chatapp;
+package com.example.chatapp.Messaging;
 
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.chatapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
@@ -27,6 +22,7 @@ public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.
     private DatabaseReference mMessageRef, mChatRooomRef;
     private FirebaseUser currUser;
     private int MESSAGE_RECEIVED=0,MESSAGE_SENT=1;
+
 
     public MessageLIstAdapter(List<SingleMessage> chats, Context ctx) {
         this.chats = chats;

@@ -19,12 +19,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.chatapp.ChatActivity;
+import com.example.chatapp.Messaging.ChatActivity;
 import com.example.chatapp.R;
 import com.example.chatapp.SettingsActivity;
-import com.example.chatapp.User1FriendList;
-import com.example.chatapp.User2ProfileActivity;
-import com.example.chatapp.Users;
+import com.example.chatapp.User2RelatedActivities.User1FriendList;
+import com.example.chatapp.User2RelatedActivities.User2ProfileActivity;
+import com.example.chatapp.RegisterAndLogin.Users;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;

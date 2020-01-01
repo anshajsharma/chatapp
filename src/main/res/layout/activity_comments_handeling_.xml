@@ -3,12 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="@drawable/images"
     android:layout_height="match_parent"
-
-    tools:context=".Messaging.ChatActivity">
-
-
+    tools:context=".Comments_handeling_Activity">
 
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
@@ -29,38 +25,23 @@
                 android:layout_gravity="center_vertical"
                 android:background="@drawable/baseline_arrow_back_white_18dcp" />
 
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/user2_profile_pic"
-                android:layout_width="46dp"
-                android:layout_height="42dp"
-                android:layout_marginStart="5dp"
-                android:layout_marginTop="7dp"
-                android:layout_marginEnd="10dp"
-                android:src="@drawable/avtar" />
-
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
-                <TextView
-                    android:layout_width="162dp"
-                    android:layout_height="30dp"
-                    android:layout_marginStart="0dp"
-                    android:id="@+id/user2_name"
-                    android:layout_marginTop="2dp"
-                    android:gravity="center_vertical"
-                    android:text="Display Name"
-                    android:textSize="18dp" />
 
                 <TextView
+                    android:id="@+id/user2_name"
                     android:layout_width="162dp"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/last_seen"
-                    android:layout_marginStart="0dp"
-                    android:layout_marginTop="0dp"
-                    android:paddingLeft="1dp"
+                    android:layout_height="46dp"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="2dp"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="5dp"
                     android:gravity="center_vertical"
-                    android:text="Last seen" />
+                    android:text="Anshaj's Post"
+                    android:textSize="18dp" />
+
             </LinearLayout>
 
         </LinearLayout>
@@ -71,10 +52,10 @@
 
 
 
-  <RelativeLayout
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-     >
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
 
 
         <androidx.cardview.widget.CardView
@@ -95,7 +76,7 @@
                 android:backgroundTint="@android:color/white"
                 android:layout_gravity="bottom"
                 android:orientation="horizontal"
-          >
+                >
 
                 <ImageButton
                     android:id="@+id/chat_add_btn"
@@ -115,8 +96,8 @@
                     android:layout_weight="8"
                     android:background="@android:color/white"
                     android:ems="10"
-                    android:hint="Enter message here..."
-                    android:inputType="text"
+                    android:hint="Enter your comment here..."
+                    android:inputType="textPersonName"
                     android:paddingLeft="10dp"
                     android:paddingTop="14dp"
                     android:paddingRight="10dp"
@@ -135,7 +116,7 @@
                     android:src="@drawable/ic_attach_file_black_24dp" />
 
                 <ImageButton
-                    android:id="@+id/send_message_btn"
+                    android:id="@+id/send_comment"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:alpha="0.5"
@@ -146,21 +127,17 @@
         </androidx.cardview.widget.CardView>
 
 
-
-
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/message_list"
+            android:id="@+id/comment_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="55dp"
-            android:scrollbars="vertical"
             android:layout_above="@id/cardView"
-            android:layout_alignBaseline="@id/cardView"
+
 
             />
 
-  </RelativeLayout>
-
+    </RelativeLayout>
 
 
 
