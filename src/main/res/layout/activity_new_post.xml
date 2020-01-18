@@ -1,53 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".NewPost">
 
+
     <ImageView
-        android:id="@+id/imageView2"
+        android:id="@+id/image_to_be_posted"
         android:layout_width="match_parent"
-        android:layout_height="407dp"
-        android:layout_marginTop="28dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_height="365dp"
         app:srcCompat="@drawable/avtar" />
 
     <EditText
-        android:id="@+id/editText"
+        android:id="@+id/description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="10dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginBottom="201dp"
         android:ems="10"
         android:hint="Description...."
         android:inputType="text"
         android:paddingStart="5dp"
         android:paddingEnd="5dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView2" />
-
+        tools:layout_editor_absoluteY="431dp" />
 
     <LinearLayout
         android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:layout_marginTop="60dp"
 
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="2dp"
+        android:layout_marginBottom="76dp"
         android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText">
+        tools:layout_editor_absoluteY="280dp">
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/cancel_post"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="center_horizontal"
@@ -56,7 +50,7 @@
             app:cardCornerRadius="25dp">
 
             <TextView
-                android:id="@+id/post_image2"
+
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical|center_horizontal"
@@ -64,7 +58,7 @@
                 android:layout_marginEnd="10dp"
                 android:paddingStart="15dp"
                 android:paddingEnd="15dp"
-                android:text="Post"
+                android:text="Cancel Post"
                 android:textSize="24dp">
 
             </TextView>
@@ -77,23 +71,23 @@
         android:layout_width="match_parent"
         android:layout_height="40dp"
 
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText">
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginBottom="132dp"
+        android:orientation="vertical">
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/post_image"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="center_horizontal"
-
             android:backgroundTint="#FAB333"
             android:foregroundGravity="center_horizontal"
             app:cardCornerRadius="25dp">
 
             <TextView
-                android:id="@+id/post_image"
+
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical|center_horizontal"
@@ -112,13 +106,8 @@
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="407dp"
-        android:layout_height="19dp"
-        android:layout_marginTop="28dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_width="361dp"
+        android:layout_height="15dp" />
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>

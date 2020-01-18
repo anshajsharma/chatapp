@@ -1,25 +1,17 @@
 package com.example.chatapp;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.ViewPager;
-
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
-
 import com.example.chatapp.RegisterAndLogin.LoginActivity;
-import com.example.chatapp.RegisterAndLogin.MaaKaLAdla;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.example.chatapp.User2RelatedActivities.User1FriendList;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
@@ -31,11 +23,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
-import com.google.firebase.messaging.FirebaseMessagingService;
-import com.google.firebase.messaging.RemoteMessage;
-
+import com.onesignal.OneSignal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -44,7 +32,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.TimeZone;
 
 public class UsersHomePage extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -60,6 +47,7 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
     Toolbar toolbar;
     FloatingActionButton floatingActionButton;
     NavigationView navigationView;
+    FirebaseUser currentUser;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,103 +57,111 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
 
         //setting up fragments and  pagers in tabLayout
         mViewPager = findViewById(R.id.tabPager);
-        mSectionPagerAdapter = new SectionPagerAdapter(getSupportFragmentManager());
+        mSectionPagerAdapter = new SectionPagerAdapter(getSupportFragmentManager());  //SeactionPagerAdapter java class is used
+                                                                  // Open that for deteils
         mViewPager.setAdapter(mSectionPagerAdapter);
         mTablayout = findViewById(R.id.tab_layout);
         mTablayout.setupWithViewPager(mViewPager);
-
-
-
-        //toolbar and drawer setup took place
-        setUpToolBar();
-        navigationView = findViewById(R.id.clickable_menu);
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-
-                if(menuItem.getItemId() == R.id.db){
-                   // Toast.makeText(UsersHomePage.this, "Account", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(UsersHomePage.this, SettingsActivity.class);
-                    startActivity(intent);
-                }
-               else if(menuItem.getItemId() == R.id.fr){
-                    Intent intent = new Intent(UsersHomePage.this, User1FriendList.class);
-                    startActivity(intent);
-                }
-                else if(menuItem.getItemId() == R.id.no){
-                    Intent intent = new Intent(UsersHomePage.this, UICheckActivity.class);
-                    startActivity(intent);
-                }
-                else  if(menuItem.getItemId() == R.id.feed){
-                    Intent intent = new Intent(UsersHomePage.this, NewsFeed.class);
-                    startActivity(intent);
-                }
-                else if(menuItem.getItemId() == R.id.ff){
-
-                }
-                else if(menuItem.getItemId() == R.id.st){
-                    Intent intent = new Intent(UsersHomePage.this,SettingsActivity.class);
-                     startActivity(intent);
-                }
-                else if(menuItem.getItemId() == R.id.lo){
-                    FirebaseAuth.getInstance().signOut();
-                      sendToStart();
-                }
-
-                return false;
-            }
-        });
-
-
         databaseReference = FirebaseDatabase.getInstance().getReference();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
-        if(currentUser != null)
-            databaseReference.child("Users").child(currentUser.getUid()).keepSynced(true);
-        databaseReference.child("Users").child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                if(dataSnapshot.exists()){
-                    GenericTypeIndicator<Map<String, String>> genericTypeIndicator = new GenericTypeIndicator<Map<String, String>>() {};
-                    Map<String, String> map = dataSnapshot.getValue(genericTypeIndicator );
-                   // Log.i("asd", String.valueOf(map));
-                    List FriendList = new ArrayList(map.keySet());
-                        Log.i(TAG, "onDataChange: "+ FriendList.toString());
+
+
+
+
+        if(currentUser!=null) {
+
+            // OneSignal Initialization
+            OneSignal.startInit(this)
+                    .inFocusDisplaying(OneSignal.OSInFocusDisplayOption.Notification)
+                    .unsubscribeWhenNotificationsAreDisabled(true)
+                    .init();
+
+            OneSignal.idsAvailable(new OneSignal.IdsAvailableHandler() {
+                @Override
+                public void idsAvailable(String userId, String registrationId) {
+                    databaseReference.child("notification_keys").child(currentUser.getUid()).child("notification_id").setValue(userId);
                 }
+            });
+
+            new SendNotification("Message 1","heading 1","fbd7962b-1075-4dda-995b-4b9d13440708");
+
+            OneSignal.clearOneSignalNotifications();
 
 
 
+            //toolbar and drawer setup took place
+            setUpToolBar();
+            navigationView = findViewById(R.id.clickable_menu);
+            navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+
+                    if (menuItem.getItemId() == R.id.db) {
+                        // Toast.makeText(UsersHomePage.this, "Account", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(UsersHomePage.this, SettingsActivity.class);
+                        startActivity(intent);
+                    } else if (menuItem.getItemId() == R.id.fr) {
+                        Intent intent = new Intent(UsersHomePage.this, User1FriendList.class);
+                        startActivity(intent);
+                    } else if (menuItem.getItemId() == R.id.no) {
+
+                    } else if (menuItem.getItemId() == R.id.feed) {
+                        Intent intent = new Intent(UsersHomePage.this, NewsFeed.class);
+                        startActivity(intent);
+                    } else if (menuItem.getItemId() == R.id.ui) {
+                        Intent intent = new Intent(UsersHomePage.this, UICheckActivity.class);
+                        startActivity(intent);
+                    }
+                    else if (menuItem.getItemId() == R.id.ff){
+                        Intent intent = new Intent(UsersHomePage.this, FindFriend.class);
+                        startActivity(intent);
+
+                    }else if (menuItem.getItemId() == R.id.st) {
+                        Intent intent = new Intent(UsersHomePage.this, SettingsActivity.class);
+                        startActivity(intent);
+                    } else if (menuItem.getItemId() == R.id.lo) {
+                        FirebaseAuth.getInstance().signOut();
+                        OneSignal.setSubscription(false);
+                        sendToStart();
+                    }
+
+                    return false;
+                }
+            });
 
 
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+            FirebaseUser currentUser = mAuth.getCurrentUser();
 
-            }
-        });
-
-
-
-        FirebaseInstanceId.getInstance().getInstanceId()
-                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+            if (currentUser != null)
+            {
+                databaseReference.child("Users").child(currentUser.getUid()).keepSynced(true);
+                databaseReference.child("Users").child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
                     @Override
-                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
-                        if (!task.isSuccessful()) {
-                            Log.w(TAG, "getInstanceId failed", task.getException());
-                            return;
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                        if (dataSnapshot.exists()) {
+                            GenericTypeIndicator<Map<String, String>> genericTypeIndicator = new GenericTypeIndicator<Map<String, String>>() {
+                            };
+                            Map<String, String> map = dataSnapshot.getValue(genericTypeIndicator);
+                            // Log.i("asd", String.valueOf(map));
+                            List FriendList = new ArrayList(map.keySet());
+                            Log.i(TAG, "onDataChange: " + FriendList.toString());
                         }
+                    }
 
-                        // Get new Instance ID token
-                        String token = task.getResult().getToken();
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                        // Log and toast
-                        String msg = getString(R.string.msg_token_fmt, token);
-                        Log.d(TAG, "asdfgh" + msg);
-                      //  Toast.makeText(UsersHomePage.this, msg, Toast.LENGTH_SHORT).show();
                     }
                 });
+            }
+
+        }else{
+            sendToStart();
+        }
 
     }
 
@@ -194,10 +190,7 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         int id=menuItem.getItemId();
-
         Log.i(TAG, "onOptionsItemSelected: " + id +" clicked");
-
-
         return false;
     }
 
@@ -206,29 +199,21 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
     @Override
     public void onStart() {
         super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-       // updateUI(currentUser);
+        FirebaseUser curr_user = FirebaseAuth.getInstance().getCurrentUser();
 
-        if(currentUser==null)
+        if(curr_user==null)
         {
             sendToStart();
 
         }else{
-            databaseReference.child("Users").child(currentUser.getUid()).child("online").setValue("true");
+            OneSignal.clearOneSignalNotifications();
+            databaseReference.child("Users").child(curr_user.getUid()).child("online").setValue("true");
         }
     }
     @Override
     public void onStop() {
         super.onStop();
-        // Check if user is signed in (non-null) and update UI accordingly.
-//        FirebaseUser currentUser = mAuth.getCurrentUser();
-        // updateUI(currentUser);
 
-//        if(currentUser!=null)
-//        {
-//            databaseReference.child("Users").child(currentUser.getUid()).child("online").setValue(currentDateAndTime());
-//        }
     }
 
     private void sendToStart() {
@@ -237,6 +222,16 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
         finish();;
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(FirebaseAuth.getInstance().getCurrentUser() != null)
+        {
+            OneSignal.clearOneSignalNotifications();
+        }
+
+
+    }
 
     //Menu got connected to appbar......................................................................\\
 
@@ -265,7 +260,7 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
 //         }
 //        if(item.getItemId() == R.id.all_users)
 //        {
-//            Intent intent = new Intent(UsersHomePage.this,AllUsersActivity.class);
+//            Intent intent = new Intent(UsersHomePage.this,FindFriend.class);
 //            startActivity(intent);
 //        }
 //
@@ -285,11 +280,11 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
         calendar.add(Calendar.MILLISECOND, tz.getOffset(calendar.getTimeInMillis()));
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault());   // 12-03-2019 15:16:17
         SimpleDateFormat sdf2 = new SimpleDateFormat("hh:mm a", Locale.getDefault());              //  03:12 PM
-        SimpleDateFormat sdf3 = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss a", Locale.getDefault());              //  03:12 am (whatsApp uses this)
+        SimpleDateFormat sdf3 = new SimpleDateFormat("dd MMM YYYY", Locale.getDefault());              //  03:12 am (whatsApp uses this)
         java.util.Date currenTimeZone = new java.util.Date((long) tsLong * 1000);
         String currentDate = DateFormat.getDateInstance().format(new Date());                             //Jun 27, 2017 1:17:32 PM
         String s = sdf.format(currenTimeZone), s0 = sdf2.format(currenTimeZone);
-        Log.i(TAG, "currentDateAndTime: " + s + " " + s0 + " " + currentDate);
-        return  currentDate + " " +sdf2.format(currenTimeZone) ;
+        Log.i(TAG, "currentDateAndTime: " + s + " " + s0 + " " + currentDate+"303   " + sdf3.format(currenTimeZone));
+        return  currentDate + " " +sdf3.format(currenTimeZone);
     }
 }

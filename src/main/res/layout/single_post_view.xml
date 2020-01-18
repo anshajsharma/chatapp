@@ -3,13 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
-        android:scrollbars="vertical"
+        android:backgroundTint="@color/white"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginTop="15dp"
         app:cardCornerRadius="30dp"
         >
         <LinearLayout
@@ -18,21 +21,23 @@
             android:orientation="vertical">
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:id="@+id/open_user_profile"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
                 android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
                 android:orientation="horizontal">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
+
                     <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/posted_by_image"
                         android:layout_width="47dp"
                         android:layout_height="43dp"
-                        android:id="@+id/posted_by_image"
                         android:src="@drawable/avtar">
 
                     </de.hdodenhof.circleimageview.CircleImageView>
@@ -40,31 +45,50 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="41dp"
 
                     android:orientation="vertical">
 
+
                     <TextView
-                        android:layout_width="match_parent"
+                        android:id="@+id/posted_by_name"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Display Name"
-                        android:id="@+id/posted_by_name"
+                        android:textColor="#666262"
                         android:textSize="15sp"
                         android:textStyle="bold">
 
                     </TextView>
 
                     <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
                         android:id="@+id/time_of_post"
-                        android:text="Post Time: 2hrs ago">
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Post Time: 2hrs ago"
+                        android:textColor="#666262">
 
                     </TextView>
 
 
                 </LinearLayout>
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <ImageView
+                    android:id="@+id/post_menu"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginEnd="0dp"
+                    app:srcCompat="@drawable/ic_menu_black_24dp" />
+
+
             </LinearLayout>
 
             <LinearLayout
@@ -76,15 +100,19 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/description"
                     android:paddingStart="25dp"
-                    android:textSize="15sp"
-                    android:paddingEnd="20dp"
+                    android:textSize="18sp"
+                    android:textColor="#666262"
+                     android:text="Description"
+                    android:layout_marginTop="5dp"
+                    android:paddingEnd="40dp"
                    />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="538dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
                 android:orientation="vertical">
 
                 <ImageView
@@ -92,10 +120,10 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:id="@+id/posted_image"
+                    android:adjustViewBounds="true"
+                    android:layout_marginTop="5dp"
                     android:layout_marginEnd="10dp"
                     android:contentDescription="@string/user_s_posted_image"
-                    android:maxWidth="410dp"
-                    android:maxHeight="410dp"
                     android:src="@drawable/avtar" />
 
 
@@ -103,6 +131,8 @@
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="38dp"
+                        android:layout_marginTop="10dp"
+                        android:id="@+id/linearLayout"
                         android:layout_gravity="center_horizontal|center_vertical"
                         android:orientation="horizontal">
 
@@ -110,6 +140,7 @@
                             android:layout_width="109dp"
                             android:layout_height="match_parent"
                             android:layout_marginLeft="15dp"
+                            android:id="@+id/like_card"
                             android:backgroundTint="#D2D6DA"
                             app:cardCornerRadius="18dp">
 
@@ -132,6 +163,7 @@
                                 android:layout_marginEnd="10dp"
                                 android:gravity="center_vertical"
                                 android:paddingStart="5dp"
+                                android:textColor="#666262"
                                 android:paddingEnd="5dp"
                                 android:text="0 Like"
                                 android:textSize="14dp" />
@@ -142,6 +174,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
                             android:layout_marginLeft="10dp"
+                            android:id="@+id/comment_card"
                             android:backgroundTint="#D2D6DA"
                             app:cardCornerRadius="18dp">
 
@@ -161,6 +194,7 @@
                                 android:layout_marginLeft="10dp"
                                 android:layout_marginEnd="10dp"
                                 android:gravity="center_vertical"
+                                android:textColor="#666262"
                                 android:paddingStart="5dp"
                                 android:paddingEnd="5dp"
                                 android:text="0 Comment"
@@ -169,10 +203,11 @@
                         </androidx.cardview.widget.CardView>
 
                         <androidx.cardview.widget.CardView
-                            android:layout_width="109dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="match_parent"
                             android:layout_marginLeft="10dp"
                             android:backgroundTint="#D2D6DA"
+                            android:id="@+id/share_card"
                             app:cardCornerRadius="18dp">
 
                             <ImageView
@@ -192,6 +227,7 @@
                                 android:layout_marginLeft="10dp"
                                 android:layout_marginEnd="10dp"
                                 android:gravity="center_vertical"
+                                android:textColor="#666262"
                                 android:paddingStart="5dp"
                                 android:paddingEnd="5dp"
                                 android:text="0 Share"
@@ -205,6 +241,8 @@
             </LinearLayout>
 
     </androidx.cardview.widget.CardView>
+
+
 
 
 </RelativeLayout>

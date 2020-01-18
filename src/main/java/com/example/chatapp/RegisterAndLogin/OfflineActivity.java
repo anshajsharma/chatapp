@@ -1,4 +1,4 @@
-package com.example.chatapp;
+package com.example.chatapp.RegisterAndLogin;
 
 import android.util.Log;
 

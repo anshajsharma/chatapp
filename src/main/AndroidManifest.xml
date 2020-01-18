@@ -7,29 +7,40 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:name=".MApplication"
+        android:name=".Messaging.MApplication"
         android:allowBackup="true"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/icon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".NewPost"></activity>
+        <activity android:name=".Comments_handeling_Activity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            ></activity>
+        <activity
+            android:name=".ViewPostsLikesActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:label="Likes" />
+        <activity
+            android:name=".Show_Clicked_Image"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
+        <activity android:name=".NewPost" />
         <activity android:name=".UICheckActivity" />
         <activity
             android:name=".NewsFeed"
-            android:label="News Feed" />
+            android:label="News Feed"
+            android:parentActivityName=".UsersHomePage" />
         <activity
-            android:name=".User1FriendList"
+            android:name=".User2RelatedActivities.User1FriendList"
             android:label="Start a new conversation"
             android:parentActivityName=".UsersHomePage" />
-        <activity android:name=".User2FriendView" />
+        <activity android:name=".User2RelatedActivities.User2FriendView" />
         <activity android:name=".RegisterAndLogin.MaaKaLAdla" />
         <activity
-            android:name=".Show_Profile_PictureActivity"
+            android:name=".User2RelatedActivities.Show_Profile_PictureActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
-            android:name=".ChatActivity"
+            android:name=".Messaging.ChatActivity"
             android:parentActivityName=".UsersHomePage"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
@@ -42,22 +53,22 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name=".MessagingService"
-            android:enabled="false"
-            android:exported="true" />
+        <!-- Example: Sets all OneSignal notification's accent color to Green by default.  -->
+        <!-- Color format is in ARGB. -->
+        <meta-data android:name="com.onesignal.NotificationAccentColor.DEFAULT" android:value="FF00FF00" />
 
         <activity
-            android:name=".User2ProfileActivity"
-            android:parentActivityName=".AllUsersActivity" />
+            android:name=".User2RelatedActivities.User2ProfileActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
-            android:name=".AllUsersActivity"
+            android:name=".FindFriend"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
             android:parentActivityName=".UsersHomePage" />
         <activity
             android:name=".SettingsActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
-            android:name=".StatusChangeActivity"
+            android:name=".RegisterAndLogin.StatusChangeActivity"
             android:label="New Status"
             android:parentActivityName=".SettingsActivity" />
         <activity
@@ -75,12 +86,6 @@
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/Base.Theme.AppCompat" />
-
-        <service android:name=".java.MessagingService">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
     </application>
 
 </manifest>

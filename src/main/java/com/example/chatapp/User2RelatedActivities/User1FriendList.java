@@ -1,4 +1,4 @@
-package com.example.chatapp;
+package com.example.chatapp.User2RelatedActivities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.example.chatapp.Fragments.FriendListAdapter;
+import com.example.chatapp.R;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -67,7 +68,7 @@ public class User1FriendList extends AppCompatActivity {
                         mFriendList =  findViewById(R.id.friend_list);
                         mFriendList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
                         mFriendList.setLayoutManager(new LinearLayoutManager(ctx));
-                        mAdapter = new FriendListAdapter(FriendList,ctx);
+                        mAdapter = new FriendListAdapter(FriendList,User1FriendList.this);
                         mFriendList.setAdapter(mAdapter);
                         mAdapter.notifyDataSetChanged();
 

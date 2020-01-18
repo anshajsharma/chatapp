@@ -1,4 +1,4 @@
-package com.example.chatapp;
+package com.example.chatapp.Messaging;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -8,26 +8,22 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.example.chatapp.R;
+import com.example.chatapp.User2RelatedActivities.User2ProfileActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -36,14 +32,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +63,7 @@ public class ChatActivity extends AppCompatActivity {
     private ImageView back;
     SwipeRefreshLayout swipeRefreshLayout;
     private final int SENT_MESSAGE=0,RECEIVED_MESSAGE=1;
+    private String res;
 
     EditText message;
     @Override
@@ -79,7 +73,7 @@ public class ChatActivity extends AppCompatActivity {
         user2 = getIntent().getStringExtra("user_id2");
         ActionBar actionBar = getSupportActionBar();
         user1 = FirebaseAuth.getInstance().getCurrentUser();
-        ctx = getApplicationContext();
+        ctx = ChatActivity.this;
 //        assert actionBar != null;
 //        actionBar.setDisplayHomeAsUpEnabled(true);
 //        actionBar.setDisplayShowCustomEnabled(true);
@@ -93,13 +87,14 @@ public class ChatActivity extends AppCompatActivity {
         mChatList = findViewById(R.id.message_list);
         back = findViewById(R.id.back_button);
         mMessageRef = mRootRef.child("Messages");
-        mChatref = mRootRef.child("chat_rooms");
+        mChatref = mRootRef.child("chat_ref");
         messageList = new ArrayList<>();
+         res=path(user2,user1.getUid());
 
+        // Hide keyeboard  when activity opens...............
+        getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-        LinearLayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
-        mLayoutManager.setReverseLayout(true);
-        mLayoutManager.setStackFromEnd(true);
 
 
 
@@ -109,7 +104,7 @@ public class ChatActivity extends AppCompatActivity {
         toolbar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ChatActivity.this,User2ProfileActivity.class);
+                Intent intent = new Intent(ChatActivity.this, User2ProfileActivity.class);
                 intent.putExtra("user_id2",user2);
                 startActivity(intent);
             }
@@ -123,41 +118,80 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
+//        mChatref.push().child("kya").setValue("haal");
+//        Log.i(TAG, "onCreate: " + mChatref.child(user2).push().getKey().trim() ) ;
+
 
         ////////-----RecyclerView Workings -----------------------------------------------------------------
         ///This Method is finely working and updation ui but we can't set different ui for different users in this case......
 
         if(user2 != null)
-            mMessageRef.child(user1.getUid()).child(user2).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    if(messageList.size() != 0) messageList.clear();
-                    if(dataSnapshot.exists()){
-                      for(DataSnapshot dataSnapshot1:dataSnapshot.getChildren()){
-                          SingleMessage singleMessage = dataSnapshot1.getValue(SingleMessage.class);
-                          messageList.add(singleMessage);
-                      }
+        {
+                mMessageRef.child(path(user1.getUid(),user2)).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if(messageList.size() != 0) messageList.clear();
+                        if(dataSnapshot.exists()){
+                            for(DataSnapshot dataSnapshot1:dataSnapshot.getChildren()){
+                                SingleMessage singleMessage = dataSnapshot1.getValue(SingleMessage.class);
+                                assert singleMessage != null;
+                                if(!singleMessage.getAvaibility().equals(user2))
+                                messageList.add(singleMessage);
+                            }
+                            if(messageList.size()>0)
+                            {
+                                SingleMessage sm = messageList.get(messageList.size()-1);
+                                String res = sm.getMessage_body();
+                                if(sm.getMessage_body().length() >=30 ) res= res.substring(0,28) + "...";
+                                mRootRef.child("chat_ref").child(user1.getUid()).child(user2).child("last_message").setValue(res);
+                                mRootRef.child("chat_ref").child(user1.getUid()).child(user2).child("last_message_timestamp").setValue(sm.getTimestamp());
+                            }else{
+
+                            }
 
 
 
 //------------------    Recycler view initialisation done here....
-                        mChatList = findViewById(R.id.message_list);
-                        mChatList.setLayoutManager(new LinearLayoutManager(ctx));
-                        mAdapter = new MessageLIstAdapter(messageList,ctx);
-                        mChatList.setAdapter(mAdapter);
-                        Objects.requireNonNull(mChatList.getLayoutManager()).scrollToPosition(messageList.size()-1);
-                      //  mAdapter.notifyDataSetChanged();
+                            mChatList = findViewById(R.id.message_list);
+                            mChatList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+                            mAdapter = new MessageLIstAdapter(messageList,ChatActivity.this,user2);
+                            mChatList.setAdapter(mAdapter);
+                            Objects.requireNonNull(mChatList.getLayoutManager()).scrollToPosition(messageList.size()-1);
+                            //  mAdapter.notifyDataSetChanged();
+
+                            mChatList.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                                @Override
+                                public void onLayoutChange(View v,
+                                                           int left, int top, int right, int bottom,
+                                                           int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                                    if (bottom < oldBottom) {
+                                        mChatList.postDelayed(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                if(messageList.size()>0)
+                                                {
+                                                    mChatList.smoothScrollToPosition(
+                                                            Objects.requireNonNull(messageList.size() - 1));
+                                                }
+
+                                            }
+                                        }, 0);
+                                    }
+                                }
+                            });
 
 
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
 
                     }
-                }
+                });
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                }
-            });
+        }
 
 
         // This is just an alternate way of doing what we did above
@@ -182,32 +216,29 @@ public class ChatActivity extends AppCompatActivity {
                 messages.put("type", type);
                 messages.put("sender", sender);
                 messages.put("receiver", receiver);
+                messages.put("avaibility","both");
                 messages.put("delivery_status", delivery_status);
                 messages.put("timestamp", timestamp);
+                final String newMessageBody;
+                if(meassage_body.length()>=30)  newMessageBody = meassage_body.substring(0,25)+"...";
+                else newMessageBody = meassage_body;
+
 
                 if (!meassage_body.equals("")) {
-                    mMessageRef.child(sender).child(user2).child(String.valueOf(timestamp)).setValue(messages)
-                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()) {
-                                        mMessageRef.child(sender).child(user2).child(String.valueOf(timestamp)).child("delivery_status").setValue("sent");
-                                        mChatref.child(sender).child(user2).child(String.valueOf(timestamp))
-                                                .setValue("Messages" + "/" + sender + "/" + receiver + "/" + String.valueOf(timestamp));
+
+                        mMessageRef.child(res).child(String.valueOf(timestamp)).setValue(messages)
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+
+
+                                        }
                                     }
-                                }
-                            });
-                    mMessageRef.child(user2).child(sender).child(String.valueOf(timestamp)).setValue(messages)
-                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()) {
-                                        mMessageRef.child(user2).child(sender).child(String.valueOf(timestamp)).child("delivery_status").setValue("state4");
-                                        mChatref.child(user2).child(sender).child(String.valueOf(timestamp))
-                                                .setValue("Messages" + "/" + receiver + "/" + sender + "/" + String.valueOf(timestamp));
-                                    }
-                                }
-                            });
+                                });
+
+
+
 
                     message.setText("");
                     message.setHint("Enter message here...");
@@ -293,131 +324,6 @@ public class ChatActivity extends AppCompatActivity {
 
     }
 
-////////////-----------------------Showing Message in an alternate----------------------------->>>>>>>>>>>>>>>>>>>>>-|_|_||||||_--
-
-
-
-//        mChatList = findViewById(R.id.message_list);
-//        mChatList.setLayoutManager(new LinearLayoutManager(ctx));
-//
-//
-//        Query query = FirebaseDatabase.getInstance()
-//                .getReference()
-//                .child("Messages")
-//                .child(user1.getUid())
-//                .child(user2)
-//                .limitToLast(5000);
-//
-//        FirebaseRecyclerOptions<SingleMessage> options =
-//                new FirebaseRecyclerOptions.Builder<SingleMessage>()
-//                        .setQuery(query, SingleMessage.class)
-//                        .build();
-//
-//        mAdapter = new FirebaseRecyclerAdapter<SingleMessage, messageViewHolder>(options) {
-//            @Override
-//            public int getItemViewType(int position) {
-//                return super.getItemViewType(position);
-//            }
-//
-//            @Override
-//            public messageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-//                // Create a new instance of the ViewHolder, in this case we are using a custom
-//                // layout called R.layout.single_user_layout for each item
-//                View view = LayoutInflater.from(parent.getContext())
-//                        .inflate(R.layout.single_user_layout, parent, false);
-//
-//                return new messageViewHolder(view);
-//            }
-//
-//            @Override
-//
-//            protected void onBindViewHolder(messageViewHolder holder, int position, SingleMessage message ) {
-//                // Bind the Users object to the messageViewHolder
-//                // ...
-//                //    Log.i(TAG, "onBindViewHolder: "+ user.getOnline());
-//
-//
-////                holder.setDetails(user.getName(),user.getStatus(),user.getImage(),getApplicationContext());
-//
-//
-//                final String user_id = getRef(position).getKey();
-//
-//                final Context ctx = ChatActivity.this;
-//
-////                holder.mView.setOnClickListener(new View.OnClickListener() {
-////                    @Override
-////                    public void onClick(View v) {
-////
-////                    }
-////                });
-//
-//                holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
-//                    @Override
-//                    public boolean onLongClick(View v) {
-//
-//                         {
-//                            //Choice dialog box on clicking user2 profile for long time
-//                            CharSequence options[] = new CharSequence[] {"Delete for me" , "Delete for everyone" };
-//                            final AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
-//                            builder.setTitle("Select Option");
-//                            builder.setItems(options, new DialogInterface.OnClickListener() {
-//                                @Override
-//                                public void onClick(DialogInterface dialog, int i) {
-//                                    // If events for item clicked
-//                                    if(i==0){
-//                                        Toast.makeText(ctx, "Delete for me Clicked", Toast.LENGTH_SHORT).show();
-//                                    }
-//                                    if(i==1){
-//                                        Toast.makeText(ctx, "Delete for everyone", Toast.LENGTH_SHORT).show();
-//                                    }
-//                                }
-//                            });
-//                            builder.show();
-//                        }
-//
-//
-//
-//
-//                        return false;
-//                    }
-//                });
-//            }
-//        };
-//
-//        mChatList.setAdapter(mAdapter);
-//
-//
-//    }
-//
-//    public class messageViewHolder extends RecyclerView.ViewHolder{
-//
-//        View mView;
-//
-//        public messageViewHolder(@NonNull View itemView) {
-//            super(itemView);
-//            mView=itemView;
-//        }
-//        public void setDetails(String name , String status, String imageUrl , Context ctx){
-//            TextView tv = mView.findViewById(R.id.single_display_name);
-//            TextView tv2 = mView.findViewById(R.id.single_user_status);
-//            tv.setText(name);
-//            tv2.setText(status);
-//            Uri resultUri = Uri.parse(imageUrl);
-//            CircleImageView circleImageView = mView.findViewById(R.id.single_user_profile_pic);
-//            Log.i(TAG, "setDetails: "+ name +" "+  imageUrl);
-//            Picasso.with(ChatActivity.this)
-//                    .load(imageUrl)
-//                    .placeholder(R.drawable.avtar)
-//                    .into(circleImageView);
-//            //Context ka problem hai....
-//
-//        }
-//
-//        public View getmView() {
-//            return mView;
-//        }
-//    }
-
    //----------------------------------------------------Menu Creation START--------------------------------------------
         @Override
     public boolean onCreateOptionsMenu(Menu menu1) {
@@ -437,11 +343,20 @@ public class ChatActivity extends AppCompatActivity {
          }
          if(item.getItemId() == R.id.clear_chat)
          {
-             Toast.makeText(this, "Wohoo", Toast.LENGTH_SHORT).show();
+
+
+
 
          }
 
         return true;
     }
   //-----------------------------------------MENU END-------------------------------------------------------------------
+    public String path(String s1,String s2)
+    {
+        String res;
+        if(s1.compareTo(s2)>0) res= s1+"/"+s2;
+        else res= s2+"/"+s1;
+        return res;
+    }
 }

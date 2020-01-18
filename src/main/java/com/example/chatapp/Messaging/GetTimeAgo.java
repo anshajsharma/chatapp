@@ -1,10 +1,9 @@
-package com.example.chatapp;
+package com.example.chatapp.Messaging;
 import android.app.Application;
 import android.content.Context;
 
-/**
- * Created by AkshayeJH on 16/07/17.
- */
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 public class GetTimeAgo extends Application{
 
@@ -55,8 +54,16 @@ public class GetTimeAgo extends Application{
             return diff / HOUR_MILLIS + " hours ago";
         } else if (diff < 48 * HOUR_MILLIS) {
             return "yesterday";
-        } else {
-            return diff / DAY_MILLIS + " days ago";
+        } else if(diff < 365*DAY_MILLIS) {
+            SimpleDateFormat sdf3 = new SimpleDateFormat("dd MMM", Locale.getDefault());              //  03:12 am (whatsApp uses this)
+            java.util.Date currenTimeZone = new java.util.Date((long) time );
+            String ans= sdf3.format(currenTimeZone);
+            return ans;
+        }else{
+            SimpleDateFormat sdf3 = new SimpleDateFormat("dd MMM YYYY", Locale.getDefault());              //  03:12 am (whatsApp uses this)
+            java.util.Date currenTimeZone = new java.util.Date((long) time );
+            String ans= sdf3.format(currenTimeZone);
+            return ans;
         }
     }
 

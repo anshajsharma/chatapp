@@ -1,4 +1,4 @@
-package com.example.chatapp;
+package com.example.chatapp.Messaging;
 
 import android.app.Application;
 
@@ -22,11 +22,11 @@ public class MApplication extends Application {
         {
             DatabaseReference userLastOnlineRef = FirebaseDatabase.getInstance().getReference("Users/"+curr_user.getUid()+"/online");
             userLastOnlineRef.onDisconnect().setValue(tsLong.toString());
-
         }
 
 
 
 
     }
+
 }
