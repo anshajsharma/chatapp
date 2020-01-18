@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#F0F0F0"
     tools:context=".Comments_handeling_Activity">
 
     <androidx.appcompat.widget.Toolbar
@@ -32,14 +33,14 @@
 
                 <TextView
                     android:id="@+id/user2_name"
-                    android:layout_width="162dp"
+                    android:layout_width="340dp"
                     android:layout_height="46dp"
                     android:layout_marginStart="20dp"
                     android:layout_marginTop="2dp"
+                    android:gravity="center_vertical"
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
-                    android:gravity="center_vertical"
-                    android:text="Anshaj's Post"
+                    android:text="Anshaj's Post Comments"
                     android:textSize="18dp" />
 
             </LinearLayout>
@@ -49,34 +50,30 @@
     </androidx.appcompat.widget.Toolbar>
 
 
-
-
-
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
+        android:layout_height="match_parent">
 
 
         <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
             android:id="@+id/cardView"
-            app:cardCornerRadius="25dp"
-            android:layout_marginBottom="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_alignParentBottom="true"
             android:layout_marginStart="6dp"
             android:layout_marginEnd="5dp"
-            android:scrollbars="vertical"
-            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="5dp"
             android:backgroundTint="@android:color/white"
-            android:layout_height="50dp">
+            android:scrollbars="vertical"
+            app:cardCornerRadius="25dp">
+
             <LinearLayout
                 android:id="@+id/linearLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@android:color/white"
                 android:layout_gravity="bottom"
-                android:orientation="horizontal"
-                >
+                android:backgroundTint="@android:color/white"
+                android:orientation="horizontal">
 
                 <ImageButton
                     android:id="@+id/chat_add_btn"
@@ -90,7 +87,7 @@
 
 
                 <EditText
-                    android:id="@+id/typed_message"
+                    android:id="@+id/comment_body"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="8"
@@ -131,8 +128,9 @@
             android:id="@+id/comment_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="55dp"
+
             android:layout_above="@id/cardView"
+            android:layout_marginTop="55dp"
 
 
             />

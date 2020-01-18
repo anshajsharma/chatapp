@@ -2,8 +2,74 @@ package com.example.chatapp.Messaging;
 
 public class SingleMessage {
 
-    String message_body, type , delivery_status , sender , receiver ;
-    long timestamp , sent_timestamp , received_timestamp , seen_timestamp;
+    String message_body, type , delivery_status , sender , receiver , image_url ,video_url , avaibility ;
+    long timestamp , sent_timestamp , received_timestamp , seen_timestamp ;
+
+    public SingleMessage(String message_body, String type, String delivery_status, String sender, String receiver, String image_url, String video_url, long timestamp, long sent_timestamp, long received_timestamp, long seen_timestamp, String avaibility) {
+        this.message_body = message_body;
+        this.type = type;
+        this.delivery_status = delivery_status;
+        this.sender = sender;
+        this.receiver = receiver;
+        this.image_url = image_url;
+        this.video_url = video_url;
+        this.timestamp = timestamp;
+        this.sent_timestamp = sent_timestamp;
+        this.received_timestamp = received_timestamp;
+        this.seen_timestamp = seen_timestamp;
+        this.avaibility = avaibility;
+    }
+
+    public String getVideo_url() {
+        return video_url;
+    }
+
+    public void setVideo_url(String video_url) {
+        this.video_url = video_url;
+    }
+
+    public SingleMessage(String message_body, String type, String delivery_status, String sender, String receiver, String image_url, long timestamp, long sent_timestamp, long received_timestamp, long seen_timestamp, String avaibility) {
+        this.message_body = message_body;
+        this.type = type;
+        this.delivery_status = delivery_status;
+        this.sender = sender;
+        this.receiver = receiver;
+        this.image_url = image_url;
+        this.timestamp = timestamp;
+        this.sent_timestamp = sent_timestamp;
+        this.received_timestamp = received_timestamp;
+        this.seen_timestamp = seen_timestamp;
+        this.avaibility = avaibility;   // 0 means both.. 1 means delete only sender ... 2 means none(delete  ref)....
+    }
+
+    public String getImage_url() {
+        return image_url;
+    }
+
+    public void setImage_url(String image_url) {
+        this.image_url = image_url;
+    }
+
+    public String getAvaibility() {
+        return avaibility;
+    }
+
+    public void setAvaibility(String avaibility) {
+        this.avaibility = avaibility;
+    }
+
+    public SingleMessage(String message_body, String type, String delivery_status, String sender, String receiver, long timestamp, long sent_timestamp, long received_timestamp, long seen_timestamp, String avaibility) {
+        this.message_body = message_body;
+        this.type = type;
+        this.delivery_status = delivery_status;
+        this.sender = sender;
+        this.receiver = receiver;
+        this.timestamp = timestamp;
+        this.sent_timestamp = sent_timestamp;
+        this.received_timestamp = received_timestamp;
+        this.seen_timestamp = seen_timestamp;
+        this.avaibility = avaibility;
+    }
 
     public SingleMessage() {
     }

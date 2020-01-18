@@ -11,7 +11,7 @@
         android:allowBackup="true"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/icon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".Comments_handeling_Activity"
@@ -19,6 +19,7 @@
             ></activity>
         <activity
             android:name=".ViewPostsLikesActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
             android:label="Likes" />
         <activity
             android:name=".Show_Clicked_Image"
@@ -52,16 +53,16 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name=".Messaging.MessagingService"
-            android:enabled="false"
-            android:exported="true" />
+        <!-- Example: Sets all OneSignal notification's accent color to Green by default.  -->
+        <!-- Color format is in ARGB. -->
+        <meta-data android:name="com.onesignal.NotificationAccentColor.DEFAULT" android:value="FF00FF00" />
 
         <activity
             android:name=".User2RelatedActivities.User2ProfileActivity"
-            android:parentActivityName=".RegisterAndLogin.AllUsersActivity" />
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
-            android:name=".RegisterAndLogin.AllUsersActivity"
+            android:name=".FindFriend"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
             android:parentActivityName=".UsersHomePage" />
         <activity
             android:name=".SettingsActivity"
@@ -85,12 +86,6 @@
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/Base.Theme.AppCompat" />
-
-        <service android:name=".java.MessagingService">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
     </application>
 
 </manifest>

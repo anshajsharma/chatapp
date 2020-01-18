@@ -86,7 +86,6 @@ public class RegisterActivity extends AppCompatActivity {
                     userMap.put("image","default");
                     userMap.put("thumb_nail","default");
                     userMap.put("online", "true");
-                    userMap.put("friends_Count","0");
                     userMap.put("last_synced_location","Earth");
                     userMap.put("user_id",curr_user.getUid());
                     userMap.put("friend_list_visibility","visible");

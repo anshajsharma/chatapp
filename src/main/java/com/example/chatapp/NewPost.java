@@ -57,6 +57,7 @@ public class NewPost extends AppCompatActivity {
         mPostPicture= FirebaseStorage.getInstance().getReference();
         imageView=findViewById(R.id.image_to_be_posted);
         editText = findViewById(R.id.description);
+        mProgressDialog = new ProgressDialog(this);
         imageUri = getIntent().getStringExtra("image");
         Picasso.with(NewPost.this)
                 .load(imageUri)
@@ -72,18 +73,18 @@ public class NewPost extends AppCompatActivity {
         post.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mProgressDialog = new ProgressDialog(getApplicationContext());
+
                 mProgressDialog.setTitle("Uploading");
                 mProgressDialog.setMessage("Please wait while we upload your data.");
                 mProgressDialog.setCanceledOnTouchOutside(false);
                 mProgressDialog.show();
-                   postImage(imageUri,mProgressDialog);
+                   postImage(imageUri);
             }
         });
 
     }
 
-    private void postImage(String imageUri, final ProgressDialog mProgressDialog) {
+    private void postImage(String imageUri) {
 
         // Time stampGenerator.... best way to get unique id....
         // Nothing can be better than this in uniqueness
@@ -105,7 +106,7 @@ public class NewPost extends AppCompatActivity {
                     filePath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
-                          final  String profilePicUrl = uri.toString();
+                          final  String uploadedImageUrl = uri.toString();
 
 
                        //
@@ -132,7 +133,7 @@ public class NewPost extends AppCompatActivity {
                                     HashMap<String, String> PostMap = new HashMap<>();
                                     PostMap.put("user_id",user1.getUser_id());
                                     PostMap.put("poster_name", user1.getName());
-                                    PostMap.put("posted_image", profilePicUrl);
+                                    PostMap.put("posted_image", uploadedImageUrl);
                                     PostMap.put("thumb_nail", "image");
                                     PostMap.put("user_profile_image",user1.getImage());
                                     PostMap.put("timestamp", timeStamp);
@@ -145,11 +146,21 @@ public class NewPost extends AppCompatActivity {
 
                                     assert s1 != null;
                                     mDatabaseRef.child("posts").child(s1).setValue(PostMap);
-                                    mDatabaseRef.child("post_ref").child(user1.getUser_id()).child(timeStamp).setValue(s1);
+                                    mDatabaseRef.child("post_ref").child(user1.getUser_id()).child(timeStamp).setValue(s1).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if(task.isSuccessful()){
+                                                Toast.makeText(NewPost.this, "Successful", Toast.LENGTH_SHORT).show();
+                                                finish();
 
 
+                                            }else {
+                                                mProgressDialog.hide();
+                                            }
+                                        }
+                                    });
 
-                                 mProgressDialog.hide();
+
 
 
 
@@ -166,11 +177,10 @@ public class NewPost extends AppCompatActivity {
 
                         }
                     });
-                    Toast.makeText(NewPost.this, "Successful", Toast.LENGTH_SHORT).show();
-                    finish();
 
                 }
                 else{
+                    mProgressDialog.hide();
                     Toast.makeText(NewPost.this, "Failed!!", Toast.LENGTH_SHORT).show();
 
                 }
@@ -190,8 +200,8 @@ public class NewPost extends AppCompatActivity {
                 final Uri resultUri = result.getUri();
                 final Uri resultUri2 = data.getData();
 
-                Log.i("asdfg2",resultUri.toString());
-                Log.i("asdfg2","i am here");
+//                Log.i("asdfg2",resultUri.toString());
+//                Log.i("asdfg2","i am here");
                 Picasso.with(NewPost.this)
                         .load(resultUri)
                         .placeholder(R.drawable.avtar)

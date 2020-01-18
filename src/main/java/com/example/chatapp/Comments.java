@@ -1,7 +1,57 @@
 package com.example.chatapp;
 
 public class Comments {
-    String post_id,user_id,pro_image,comment_body,time_of_comment,likes_count,user_name;
+    String post_id;
+    String user_id;
+    String pro_image;
+    String comment_body;
+    String time_of_comment;
+    String likes_count;
+    String user_name;
+    String type;
+    String comment_id;
+
+    public Comments(String post_id, String user_id, String pro_image, String comment_body, String time_of_comment, String likes_count, String user_name, String type, String comment_id) {
+        this.post_id = post_id;
+        this.user_id = user_id;
+        this.pro_image = pro_image;
+        this.comment_body = comment_body;
+        this.time_of_comment = time_of_comment;
+        this.likes_count = likes_count;
+        this.user_name = user_name;
+        this.type = type;
+        this.comment_id = comment_id;
+    }
+
+    public String getComment_id() {
+        return comment_id;
+    }
+
+    public void setComment_id(String comment_id) {
+        this.comment_id = comment_id;
+    }
+
+    public Comments(String post_id, String user_id, String pro_image, String comment_body, String time_of_comment,
+                    String likes_count, String user_name, String type) {
+        this.post_id = post_id;
+        this.user_id = user_id;
+        this.pro_image = pro_image;
+        this.comment_body = comment_body;
+        this.time_of_comment = time_of_comment;
+        this.likes_count = likes_count;
+        this.user_name = user_name;
+        this.type = type;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+
 
     public Comments() {
     }

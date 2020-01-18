@@ -37,7 +37,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class User2FriendListAdapter extends RecyclerView.Adapter<User2FriendListAdapter.ViewHolder> {
 
     private List<String> mUser2FriendList;
-    DatabaseReference mDataRef, mFriendRef;
+    DatabaseReference mDataRef, mFriendRef ,mFriendRequestRef;
     FirebaseUser currUser;
     Context ctx;
 
@@ -108,6 +108,7 @@ public class User2FriendListAdapter extends RecyclerView.Adapter<User2FriendList
 
             mDataRef = FirebaseDatabase.getInstance().getReference().child("Users");
             mFriendRef = FirebaseDatabase.getInstance().getReference().child("Friends");
+            mFriendRequestRef = FirebaseDatabase.getInstance().getReference().child("Friend_Requests");
             currUser = FirebaseAuth.getInstance().getCurrentUser();
             final String user1 = currUser.getUid();
             final String user2 = s;
@@ -151,17 +152,133 @@ public class User2FriendListAdapter extends RecyclerView.Adapter<User2FriendList
                 }
             });
 
-            mFriendRef.child(user2).addValueEventListener(new ValueEventListener() {
+            mFriendRequestRef.child(user1).child(user2).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    if(dataSnapshot.exists()){
-                        if(!dataSnapshot.hasChild(user1)){
+
+                        if(dataSnapshot.exists()){
                             final CardView cv = mView.findViewById(R.id.add_friend);
+                            final TextView Status = mView.findViewById(R.id.status);
+                            final String status = dataSnapshot.getValue(String.class);
+
+                            if(status.equals("friends"))
+                            {
+                                cv.setVisibility(View.GONE);
+                              //  viewProfile.animate().translationXBy(-210f).setDuration(1100);
+                            }
+                            else if(status.equals("sent"))
+                            {
+                                cv.setVisibility(View.VISIBLE);
+                                Status.setText("Cancel");
+
+                                cv.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        mFriendRequestRef.child(user1).child(user2).setValue("Friend request cancelled")
+                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        if (task.isSuccessful()) {
+
+
+
+                                                            mFriendRequestRef.child(user2).child(user1).setValue("Friend request cancelled")
+                                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                        @Override
+                                                                        public void onSuccess(Void aVoid) {
+                                                                            Toast.makeText(ctx, "Friend request cancelled...", Toast.LENGTH_SHORT).show();
+                                                                            Status.setText("Add Friend");
+                                                                        }
+                                                                    });
+
+                                                        } else {
+                                                            Toast.makeText(ctx, "Failed in cancelling friend request..", Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    }
+                                                });
+                                    }
+                                });
+
+                            }
+                            else  if(status.equals("received"))
+                            {
+                                cv.setVisibility(View.VISIBLE);
+                                Status.setText("Accept");
+                                cv.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+
+                                        mFriendRequestRef.child(user1).child(user2)
+                                                .setValue("friends")
+                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        if (task.isSuccessful()) {
+
+                                                            mFriendRequestRef.child(user2).child(user1)
+                                                                    .setValue("friends").addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                @Override
+                                                                public void onSuccess(Void aVoid) {
+                                                                    Toast.makeText(ctx, "Friend request accepted...", Toast.LENGTH_SHORT).show();
+                                                                    cv.setVisibility(View.GONE);
+                                                                  //  viewProfile.animate().translationXBy(-210f).setDuration(1100);
+                                                                    mFriendRef.child(user1).child(user2).setValue("friends");
+                                                                    mFriendRef.child(user2).child(user1).setValue("friends");
+                                                                }
+                                                            });
+                                                        } else {
+                                                            Toast.makeText(ctx, "Error in accepting friend request..", Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    }
+                                                });
+
+                                    }
+                                });
+                            }
+                            else{
+                                Status.setText("Add Friend");
+                                cv.setVisibility(View.VISIBLE);
+                                cv.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        final DatabaseReference mFriendRequestRef = FirebaseDatabase.getInstance().getReference().child("Friend_Requests");
+                                        mFriendRequestRef.child(user1).child(user2)
+                                                .setValue("sent")
+                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        if (task.isSuccessful()) {
+
+                                                            mFriendRequestRef.child(user2).child(user1)
+                                                                    .setValue("received").addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                @Override
+                                                                public void onSuccess(Void aVoid) {
+                                                                    Toast.makeText(ctx, "Friend request sent...", Toast.LENGTH_SHORT).show();
+                                                                    Status.setText("Cancel");
+                                                                }
+                                                            });
+                                                        } else {
+                                                            Toast.makeText(ctx, "Failed in sending friend request..", Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    }
+                                                });
+                                    }
+                                });
+                            }
+
+                        }
+                        else{
+
+                            final CardView cv = mView.findViewById(R.id.add_friend);
+                            final TextView Status = mView.findViewById(R.id.status);
+                            Status.setText("Add Friend");
+                            cv.setVisibility(View.VISIBLE);
                             cv.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                               final DatabaseReference mFriendRequestRef = FirebaseDatabase.getInstance().getReference().child("Friend_Requests");
-                                mFriendRequestRef.child(user1).child(user2)
+                                    final TextView Status = mView.findViewById(R.id.status);
+                                    final DatabaseReference mFriendRequestRef = FirebaseDatabase.getInstance().getReference().child("Friend_Requests");
+                                    mFriendRequestRef.child(user1).child(user2)
                                             .setValue("sent")
                                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                 @Override
@@ -173,8 +290,7 @@ public class User2FriendListAdapter extends RecyclerView.Adapter<User2FriendList
                                                             @Override
                                                             public void onSuccess(Void aVoid) {
                                                                 Toast.makeText(ctx, "Friend request sent...", Toast.LENGTH_SHORT).show();
-                                                                cv.setVisibility(View.INVISIBLE);
-                                                                viewProfile.animate().translationXBy(-210f).setDuration(1100);
+                                                                Status.setText("Cancel");
                                                             }
                                                         });
                                                     } else {
@@ -185,12 +301,7 @@ public class User2FriendListAdapter extends RecyclerView.Adapter<User2FriendList
                                 }
                             });
                         }
-                        else{
-                            final CardView cv = mView.findViewById(R.id.add_friend);
-                            cv.setVisibility(View.INVISIBLE);
-                            viewProfile.animate().translationXBy(-210f).setDuration(1100);
-                        }
-                    }
+
                 }
 
                 @Override

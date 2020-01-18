@@ -57,6 +57,7 @@ public class StatusChangeActivity extends AppCompatActivity {
                                     Toast.makeText(StatusChangeActivity.this, "Something went wrong!", Toast.LENGTH_SHORT).show();
                                 }
                             });
+                    finish();
                 }
                 else{
                     Toast.makeText(StatusChangeActivity.this, "Enter something in status!", Toast.LENGTH_SHORT).show();

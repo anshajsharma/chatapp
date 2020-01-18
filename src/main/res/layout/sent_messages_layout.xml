@@ -30,6 +30,7 @@
             android:id="@+id/message_body"
             android:text="Sent Messages"
             android:textColor="#101111"
+            android:paddingEnd="5dp"
             android:layout_marginBottom="5dp"
             android:paddingLeft="5dp"
             android:textSize="20sp">

@@ -3,8 +3,10 @@
    <item android:id="@+id/db" android:title="Account" android:icon="@drawable/baseline_account_circle_black_18dp"/>
     <item android:id="@+id/fr" android:title="Friends" android:icon="@drawable/baseline_insert_emoticon_black_18dp"/>
  <item android:id="@+id/feed" android:title="Feed"     android:icon="@drawable/ic_rss_feed_black_24dp"/>
+    <item android:id="@+id/ui" android:title="UI Check" android:icon="@drawable/baseline_exit_to_app_black"/>
     <item android:id="@+id/no" android:title="Notifications"     android:icon="@drawable/baseline_notifications_none_black_18d"/>
     <item android:id="@+id/ff" android:title="Find Friends" android:icon="@drawable/baseline_face_black_18d"/>
     <item android:id="@+id/st" android:title="Settings" android:icon="@drawable/baseline_settings_applications_black_18"/>
     <item android:id="@+id/lo" android:title="Log Out" android:icon="@drawable/baseline_exit_to_app_black"/>
+
 </menu>
