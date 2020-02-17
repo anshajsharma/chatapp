@@ -1,6 +1,6 @@
 buildscript {
     repositories {
-        maven { url 'https://plugins.gradle.org/m2/'}
+        maven { url 'https://plugins.gradle.org/m2/' }
     }
     dependencies {
         classpath 'gradle.plugin.com.onesignal:onesignal-gradle-plugin:0.12.6'
@@ -33,7 +33,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         manifestPlaceholders = [
-                onesignal_app_id: 'fe94c199-2d01-4146-83bf-c13b2ca35ec9',
+                onesignal_app_id               : 'fe94c199-2d01-4146-83bf-c13b2ca35ec9',
                 // Project number pulled from dashboard, local value is ignored.
                 onesignal_google_project_number: 'REMOTE'
         ]
@@ -61,7 +61,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:16.0.4'
     implementation 'com.google.firebase:firebase-messaging:17.3.1'
     // Update 9.0.0 to 11.2.+ so it is using the same gms version as OneSignal
-     implementation 'com.google.android.gms:play-services-maps:15.0.1'
+    implementation 'com.google.android.gms:play-services-maps:15.0.1'
 
     implementation 'com.onesignal:OneSignal:3.12.4'
 
@@ -82,13 +82,13 @@ dependencies {
     // FirebaseUI for Cloud Storage
     implementation 'com.firebaseui:firebase-ui-storage:6.2.0'
     implementation 'id.zelory:compressor:2.1.0'
-   // implementation 'com.google.android.gms:play-services-basement:16.0.0'
-  //  compile 'com.google.android.gms:play-services-ads:11.2.0'
+    // implementation 'com.google.android.gms:play-services-basement:16.0.0'
+    //  compile 'com.google.android.gms:play-services-ads:11.2.0'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
-    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'com.google.android.material:material:1.1.0'
     implementation 'androidx.mediarouter:mediarouter:1.1.0'
 
     //noinspection GradleCompatible
