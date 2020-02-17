@@ -10,11 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -70,30 +66,38 @@ public class NewsFeed extends AppCompatActivity {
                 if (dataSnapshot3.exists()) {
 
 
-                    mRooRef.child("posts").orderByChild("likes_count").addChildEventListener(new ChildEventListener() {
+                    mRooRef.child("posts").orderByChild("timestamp").addChildEventListener(new ChildEventListener() {
                         @Override
                         public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                            Posts tPost = dataSnapshot.getValue(Posts.class);
-                            assert tPost != null;
-                            {
-                                LinearLayoutManager mLayoutManager;
-                                mLayoutManager = new LinearLayoutManager(NewsFeed.this);
-                                mLayoutManager.setReverseLayout(true);
-                                mLayoutManager.setStackFromEnd(true);
 
-                                // And set it to RecyclerView
-                                postsList = findViewById(R.id.postList);
-                                postsList.setLayoutManager(mLayoutManager);
-                                mAdapter = new PostAdapter(reLatedPosts, ctx);
-                                postsList.setAdapter(mAdapter);
-                                //  mAdapter.notifyDataSetChanged();
-                                String poster_id = tPost.getUser_id();
-                            //    Log.i(TAG, "onDataChange: " + "12453" + " " + poster_id + " " + dataSnapshot.getValue());
-                                assert poster_id != null;
-                                if (dataSnapshot3.hasChild(poster_id)) reLatedPosts.add(tPost);
-                                else if (poster_id.equals(User1)) reLatedPosts.add(tPost);
-                                mAdapter.notifyItemInserted(0);
+                            if(dataSnapshot.exists())
+                            {
+                                Posts tPost = dataSnapshot.getValue(Posts.class);
+                                assert tPost != null;
+                                {
+                                    LinearLayoutManager mLayoutManager;
+                                    mLayoutManager = new LinearLayoutManager(NewsFeed.this);
+                                    mLayoutManager.setReverseLayout(true);
+                                    mLayoutManager.setStackFromEnd(true);
+
+                                    // And set it to RecyclerView
+                                    postsList = findViewById(R.id.postList);
+                                    postsList.setLayoutManager(mLayoutManager);
+                                    mAdapter = new PostAdapter(reLatedPosts, ctx);
+                                    postsList.setAdapter(mAdapter);
+                                    //  mAdapter.notifyDataSetChanged();
+                                    String poster_id = tPost.getUser_id();
+                                    //    Log.i(TAG, "onDataChange: " + "12453" + " " + poster_id + " " + dataSnapshot.getValue());
+                                    assert poster_id != null;
+                                    if (dataSnapshot3.hasChild(poster_id)) reLatedPosts.add(tPost);
+                                    else if (poster_id.equals(User1)) reLatedPosts.add(tPost);
+                                    mAdapter.notifyItemInserted(0);
+                                }
+
+
                             }
+
+
                         }
 
                         @Override
@@ -108,9 +112,9 @@ public class NewsFeed extends AppCompatActivity {
                             {
                                 String poster_id = tPost.getUser_id();
                        //         Log.i(TAG, "onDataChange: " + "123" + " " + poster_id + " " + tPost.toString());
-                                int a = reLatedPosts.lastIndexOf(tPost);
                                 assert poster_id != null;
                                 if (reLatedPosts.contains(tPost)) reLatedPosts.remove(tPost);
+                                int a = reLatedPosts.lastIndexOf(tPost);
                                 mAdapter.notifyItemRemoved(a);
                             }
                         }
@@ -135,17 +139,24 @@ public class NewsFeed extends AppCompatActivity {
         });
 
 
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            if (resultCode == RESULT_OK) {
+                Uri resultUri = result.getUri();
+//                Log.i("asdfg1","i am here");
+//                Log.i("asdfg1",resultUri.toString());
+//
+                Intent intent = new Intent(NewsFeed.this,NewPost.class);
+                intent.putExtra("image",resultUri.toString());
+                startActivity(intent);
 
-
-
-
-
-
-
-
-
-
-
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                Exception error = result.getError();
+            }
+        }
     }
 
     @Override
@@ -230,22 +241,5 @@ public class NewsFeed extends AppCompatActivity {
 
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-            CropImage.ActivityResult result = CropImage.getActivityResult(data);
-            if (resultCode == RESULT_OK) {
-                Uri resultUri = result.getUri();
-//                Log.i("asdfg1","i am here");
-//                Log.i("asdfg1",resultUri.toString());
-//
-                Intent intent = new Intent(NewsFeed.this,NewPost.class);
-                intent.putExtra("image",resultUri.toString());
-                startActivity(intent);
 
-            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                Exception error = result.getError();
-            }
-        }
-    }
 }

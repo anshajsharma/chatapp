@@ -14,13 +14,14 @@
         android:roundIcon="@drawable/icon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Comments_handeling_Activity"
-            android:theme="@style/Theme.AppCompat.NoActionBar"
-            ></activity>
+        <activity android:name=".Messaging.SendImageActivity"></activity>
+        <activity
+            android:name=".Comments_handeling_Activity"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
             android:name=".ViewPostsLikesActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar"
-            android:label="Likes" />
+            android:label="Likes"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
             android:name=".Show_Clicked_Image"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
@@ -51,19 +52,19 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <!-- Example: Sets all OneSignal notification's accent color to Green by default.  -->
+        </activity> <!-- Example: Sets all OneSignal notification's accent color to Green by default. -->
         <!-- Color format is in ARGB. -->
-        <meta-data android:name="com.onesignal.NotificationAccentColor.DEFAULT" android:value="FF00FF00" />
+        <meta-data
+            android:name="com.onesignal.NotificationAccentColor.DEFAULT"
+            android:value="FF00FF00" />
 
         <activity
             android:name=".User2RelatedActivities.User2ProfileActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
             android:name=".FindFriend"
-            android:theme="@style/Theme.AppCompat.NoActionBar"
-            android:parentActivityName=".UsersHomePage" />
+            android:parentActivityName=".UsersHomePage"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
             android:name=".SettingsActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />

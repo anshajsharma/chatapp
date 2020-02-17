@@ -1,16 +1,30 @@
 package com.example.chatapp.Messaging;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,8 +37,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.chatapp.R;
+import com.example.chatapp.SettingsActivity;
 import com.example.chatapp.User2RelatedActivities.User2ProfileActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -33,16 +50,25 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import id.zelory.compressor.Compressor;
 
 
 public class ChatActivity extends AppCompatActivity {
@@ -58,12 +84,14 @@ public class ChatActivity extends AppCompatActivity {
     private RecyclerView mChatList;
     private List<SingleMessage> messageList,sender;
     private RecyclerView.Adapter mAdapter;
-    private ImageButton sendMessage;
+    private ImageButton sendMessage,attach;
     private Context ctx;
     private ImageView back;
     SwipeRefreshLayout swipeRefreshLayout;
     private final int SENT_MESSAGE=0,RECEIVED_MESSAGE=1;
-    private String res;
+    private String res,fileType="",myUrl="";
+    private Uri fileUri,pickedImage;
+    private Bitmap compressImageFile;
 
     EditText message;
     @Override
@@ -74,13 +102,10 @@ public class ChatActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         user1 = FirebaseAuth.getInstance().getCurrentUser();
         ctx = ChatActivity.this;
-//        assert actionBar != null;
-//        actionBar.setDisplayHomeAsUpEnabled(true);
-//        actionBar.setDisplayShowCustomEnabled(true);
+
         mLastSeenView = findViewById(R.id.last_seen);
-//        swipeRefreshLayout = findViewById(R.id.swipe_view);
-//        swipeRefreshLayout.setEnabled(false);
         user2name = findViewById(R.id.user2_name);
+
         circleImageView = findViewById(R.id.user2_profile_pic);
         mRootRef = FirebaseDatabase.getInstance().getReference();
         message = findViewById(R.id.typed_message);
@@ -88,6 +113,7 @@ public class ChatActivity extends AppCompatActivity {
         back = findViewById(R.id.back_button);
         mMessageRef = mRootRef.child("Messages");
         mChatref = mRootRef.child("chat_ref");
+        attach = findViewById(R.id.attach);
         messageList = new ArrayList<>();
          res=path(user2,user1.getUid());
 
@@ -95,7 +121,8 @@ public class ChatActivity extends AppCompatActivity {
         getWindow().setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-
+        // all type of images , pdfs etc can be sent in this way.........
+        attachFilesAndSend();
 
 
         //toolbar initialisation----------------------------------------
@@ -204,7 +231,6 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final String meassage_body = message.getText().toString().trim();
-                ;
                 String type = "text";
                 String delivery_status = "waiting";
                 final String sender = user1.getUid();
@@ -310,7 +336,7 @@ public class ChatActivity extends AppCompatActivity {
                     GetTimeAgo getTimeAgo = new GetTimeAgo();
                     String online = s;
                     long lastTime = Long.parseLong(online);
-                    String lastSeenTime = getTimeAgo.getTimeAgo(lastTime, getApplicationContext());
+                    String lastSeenTime = GetTimeAgo.getTimeAgo(lastTime, getApplicationContext());
                     mLastSeenView.setText(lastSeenTime);
                 }
 
@@ -324,7 +350,344 @@ public class ChatActivity extends AppCompatActivity {
 
     }
 
-   //----------------------------------------------------Menu Creation START--------------------------------------------
+    private void attachFilesAndSend() {
+        attach.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CharSequence[] options = new CharSequence[]{
+                        "Images",
+                        "PDF Files",
+                        "Ms Word Files"
+                };
+                AlertDialog.Builder builder = new AlertDialog.Builder(ChatActivity.this);
+                builder.setTitle("Select File Type");
+                builder.setItems(options, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        if(i==0)
+                        {
+                           fileType = "image";
+                           Intent intent = new Intent();
+                           intent.setAction(Intent.ACTION_GET_CONTENT);
+                           intent.setType("image/*");
+                           startActivityForResult(Intent.createChooser(intent,"Select Image"),438);
+                        }
+                        if(i==1)
+                        {
+                           fileType = "pdf";
+
+                            Intent intent = new Intent();
+                            intent.setAction(Intent.ACTION_GET_CONTENT);
+                            intent.setType("application/pdf");
+                            startActivityForResult(Intent.createChooser(intent,"Select PDF file"),438);
+
+                        }
+                        if(i==2)
+                        {
+                           fileType = "docx";
+                            Intent intent = new Intent();
+                            intent.setAction(Intent.ACTION_GET_CONTENT);
+                            intent.setType("application/msword");
+//                            intent.setType("file/*");                      //Select any type of file...
+                            startActivityForResult(Intent.createChooser(intent,"Select MsWord file"),438);
+                        }
+                    }
+                });
+                builder.show();
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        assert data != null;
+        if(requestCode==438 && resultCode==RESULT_OK && data.getData()!=null)
+        {
+           fileUri = data.getData();
+           if(fileType.equals("image"))
+           {
+
+               imageCompressorAndUploader(data.getData());
+
+
+           }else if (fileType.equals("pdf")){
+
+                sendPDF(data.getData());
+
+           }else if (fileType.equals("docx")){
+
+           }
+        }
+    }
+
+    private void sendPDF(final Uri resultUri) {
+        //private Bitmap compressImageFile; ---------- initialise it on top of class or activity
+        //final Uri resultUri = result.getUri(); ----- initialise it in onActivityResult
+
+        //    String filename = f.substring(f.lastIndexOf('/')+1 , f.lastIndexOf('.'));
+
+        if (resultUri != null) {
+
+            if (resultUri.getPath() != null) {
+
+
+                final String rand = FirebaseDatabase.getInstance().getReference().child("asdf").push().getKey();
+                String timeStamp = String.valueOf(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())) + rand;
+
+                String f =  resultUri.getPath();
+                final String filename = f.substring(f.lastIndexOf('/')+1 , f.lastIndexOf('.'));
+
+
+
+//                Log.i(TAG, "sendPDF12: " + resultUri.getPath() + " --- " + filename + " --- " + filename+ rand + ".pdf" );
+
+                final StorageReference filePath = FirebaseStorage.getInstance().getReference().child("chat_docs").child(user1.getUid() + "--TO--" + user2).child(filename + ".pdf");
+                final StorageReference filePath2 = FirebaseStorage.getInstance().getReference().child("chat_docs").child(user1.getUid() + "--TO--" + user2).child(filename+ " " + rand + ".pdf");
+                FirebaseUser mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
+                final String curr_uid = mCurrentUser.getUid();
+
+
+
+
+
+
+
+
+                filePath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        // Got the download URL
+
+//  ------------------------------WHEN FILE IS FOUND-------------------------------------
+                        final DatabaseReference mDatabaseRef = mMessageRef.child(path(user1.getUid(), user2));
+
+                        final UploadTask uploadTask = filePath2.putFile(resultUri);
+
+                        final ProgressDialog mProgress = new ProgressDialog(ChatActivity.this);
+                        mProgress.setTitle("Uploading...");
+
+
+                        mProgress.setCancelable(false);
+
+                        mProgress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                        mProgress.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                uploadTask.cancel();
+                            }
+                        });
+
+                        //  mProgress.setInverseBackgroundForced(setColorFilter(0x80000000, PorterDuff.Mode.MULTIPLY));
+                        mProgress.show();
+
+                        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                            }
+                        })
+                                .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                                        if (task.isSuccessful()) {
+                                            filePath2.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                                @Override
+                                                public void onSuccess(Uri uri) {
+                                                    mProgress.dismiss();
+
+                                                    final String meassage_body = message.getText().toString().trim();
+                                                    String type = "pdf";
+                                                    String delivery_status = "waiting";
+                                                    final String sender = FirebaseAuth.getInstance().getUid();
+                                                    final String receiver = user2;
+                                                    final long timestamp = System.currentTimeMillis();
+                                                    //   SingleMessage current_message = new SingleMessage(message_body,type,delivery_status,sender,receiver,timestamp);
+                                                    final Map<String, Object> messages = new HashMap<>();
+                                                    messages.put("message_body", meassage_body);
+                                                    messages.put("type", type);
+                                                    messages.put("sender", sender);
+                                                    messages.put("receiver", receiver);
+                                                    messages.put("avaibility","both");
+                                                    messages.put("delivery_status", delivery_status);
+                                                    messages.put("timestamp", timestamp);
+                                                    messages.put("file_url",uri.toString());
+                                                    messages.put("downloaded","NO");
+                                                    messages.put("file_name",filename+ " " + rand + ".pdf");
+
+                                                    if (true) {
+
+                                                        mMessageRef.child(res).child(String.valueOf(timestamp)).setValue(messages)
+                                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                                        if (task.isSuccessful()) {
+
+
+                                                                        }
+                                                                    }
+                                                                });
+
+
+
+
+                                                        message.setText("");
+                                                        message.setHint("Enter message here...");
+                                                    }
+
+
+
+                                                }
+                                            });
+
+                                        }
+                                    }
+
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+
+                                        Toast.makeText(getApplicationContext(), "Error in sending file!", Toast.LENGTH_SHORT).show();
+                                    }
+                                }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                                double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                                mProgress.setMessage("Uploaded: " + (int) progress + "%");
+                                mProgress.setProgress((int) progress);
+
+                            }
+                        });
+
+
+                        //  ------------------------------WHEN FILE IS FOUND-------------------------------------
+
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        // File not found
+                        //  ------------------------------WHEN FILE IS NOT FOUND-------------------------------------
+
+                        final DatabaseReference mDatabaseRef = mMessageRef.child(path(user1.getUid(), user2));
+
+                        final UploadTask uploadTask = filePath.putFile(resultUri);
+
+                        final ProgressDialog mProgress = new ProgressDialog(ChatActivity.this);
+                        mProgress.setTitle("Uploading...");
+
+
+                        mProgress.setCancelable(false);
+
+                        mProgress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                        mProgress.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                uploadTask.cancel();
+                            }
+                        });
+
+                        //  mProgress.setInverseBackgroundForced(setColorFilter(0x80000000, PorterDuff.Mode.MULTIPLY));
+                        mProgress.show();
+
+                        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                            }
+                        })
+                                .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                                        if (task.isSuccessful()) {
+                                            filePath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                                @Override
+                                                public void onSuccess(Uri uri) {
+                                                    mProgress.dismiss();
+
+                                                    final String meassage_body = message.getText().toString().trim();
+                                                    String type = "pdf";
+                                                    String delivery_status = "waiting";
+                                                    final String sender = FirebaseAuth.getInstance().getUid();
+                                                    final String receiver = user2;
+                                                    final long timestamp = System.currentTimeMillis();
+                                                    //   SingleMessage current_message = new SingleMessage(message_body,type,delivery_status,sender,receiver,timestamp);
+                                                    final Map<String, Object> messages = new HashMap<>();
+                                                    messages.put("message_body", meassage_body);
+                                                    messages.put("type", type);
+                                                    messages.put("sender", sender);
+                                                    messages.put("receiver", receiver);
+                                                    messages.put("avaibility","both");
+                                                    messages.put("delivery_status", delivery_status);
+                                                    messages.put("timestamp", timestamp);
+                                                    messages.put("file_url",uri.toString());
+                                                    messages.put("downloaded","NO");
+                                                    messages.put("file_name",filename + ".pdf");
+
+                                                    if (true) {
+
+                                                        mMessageRef.child(res).child(String.valueOf(timestamp)).setValue(messages)
+                                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                                        if (task.isSuccessful()) {
+
+
+                                                                        }
+                                                                    }
+                                                                });
+
+
+
+
+                                                        message.setText("");
+                                                        message.setHint("Enter message here...");
+                                                    }
+
+
+
+                                                }
+                                            });
+
+                                        }
+                                    }
+
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+
+                                        Toast.makeText(getApplicationContext(), "Error in sending file!", Toast.LENGTH_SHORT).show();
+                                    }
+                                }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                                double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                                mProgress.setMessage("Uploaded: " + (int) progress + "%");
+                                mProgress.setProgress((int) progress);
+
+                            }
+                        });
+
+
+
+
+                        //  ------------------------------WHEN FILE IS NOT FOUND-------------------------------------
+                    }
+                });
+
+
+
+
+
+
+            }
+        }
+    }
+
+    //----------------------------------------------------Menu Creation START--------------------------------------------
         @Override
     public boolean onCreateOptionsMenu(Menu menu1) {
          super.onCreateOptionsMenu(menu1);
@@ -359,4 +722,193 @@ public class ChatActivity extends AppCompatActivity {
         else res= s2+"/"+s1;
         return res;
     }
+    private void imageCompressorAndUploader(final Uri resultUri) {
+
+        //private Bitmap compressImageFile; ---------- initialise it on top of class or activity
+        //final Uri resultUri = result.getUri(); ----- initialise it in onActivityResult
+
+    //    String filename = f.substring(f.lastIndexOf('/')+1 , f.lastIndexOf('.'));
+
+        if (resultUri != null) {
+
+
+            // Time stampGenerator.... best way to get unique id....
+            // Nothing can be better than this in uniqueness
+            String rand = FirebaseDatabase.getInstance().getReference().child("asdf").push().getKey();
+            String timeStamp = String.valueOf(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())) + rand;
+
+            final StorageReference filePath = FirebaseStorage.getInstance().getReference().child("chat_images").child(user1.getUid() + "--TO--" + user2).child(timeStamp + ".jpg");
+
+            FirebaseUser mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
+            final String curr_uid = mCurrentUser.getUid();
+
+            final DatabaseReference mDatabaseRef = mMessageRef.child(path(user1.getUid(), user2));
+
+
+            if (resultUri.getPath() != null) {
+
+                File imageFile = new File(getRealPathFromURI_API19(ChatActivity.this,resultUri));
+         //       Log.i(TAG, "imageCompressorAndUploader12: " + getRealPathFromURI_API19(ChatActivity.this,resultUri));
+                try {
+                    compressImageFile = new Compressor(getApplicationContext())
+                            .setMaxHeight(300)
+                            .setMaxWidth(300)
+                            .setQuality(25)
+                            .compressToBitmap(imageFile);
+                } catch (IOException e) {
+                    Toast.makeText(ChatActivity.this, "Error", Toast.LENGTH_SHORT).show();
+               //     Log.i(TAG, "imageCompressorAndUploader12: "+ "cisdgbihujdksffhsdnjlcvj" + "5641+652+625");
+
+                    e.printStackTrace();
+                }
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                compressImageFile.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] thumbData = baos.toByteArray();
+
+                final UploadTask uploadTask = filePath.putBytes(thumbData);
+//              final UploadTask  uploadTask = filePath.putFile(resultUri);
+
+                final ProgressDialog mProgress = new ProgressDialog(ChatActivity.this);
+                mProgress.setTitle("Uploading...");
+
+
+                mProgress.setCancelable(false);
+
+                mProgress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                mProgress.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        uploadTask.cancel();
+                    }
+                });
+
+                //  mProgress.setInverseBackgroundForced(setColorFilter(0x80000000, PorterDuff.Mode.MULTIPLY));
+                mProgress.show();
+
+                uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                    }
+                })
+                        .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    filePath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                        @Override
+                                        public void onSuccess(Uri uri) {
+                                            mProgress.dismiss();
+
+                                            final String meassage_body = message.getText().toString().trim();
+                                            String type = "image";
+                                            String delivery_status = "waiting";
+                                            final String sender = FirebaseAuth.getInstance().getUid();
+                                            final String receiver = user2;
+                                            final long timestamp = System.currentTimeMillis();
+                                            //   SingleMessage current_message = new SingleMessage(message_body,type,delivery_status,sender,receiver,timestamp);
+                                            final Map<String, Object> messages = new HashMap<>();
+                                            messages.put("message_body", meassage_body);
+                                            messages.put("type", type);
+                                            messages.put("sender", sender);
+                                            messages.put("receiver", receiver);
+                                            messages.put("avaibility","both");
+                                            messages.put("delivery_status", delivery_status);
+                                            messages.put("timestamp", timestamp);
+                                            messages.put("image_url",uri.toString());
+                                            messages.put("downloaded","NO");
+
+                                            if (true) {
+
+                                                mMessageRef.child(res).child(String.valueOf(timestamp)).setValue(messages)
+                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<Void> task) {
+                                                                if (task.isSuccessful()) {
+
+
+                                                                }
+                                                            }
+                                                        });
+
+
+
+
+                                                message.setText("");
+                                                message.setHint("Enter message here...");
+                                            }
+
+
+
+                                        }
+                                    });
+
+                                }
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(getApplicationContext(), "Error in sending file!", Toast.LENGTH_SHORT).show();
+                            }
+                        }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                        double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                        mProgress.setMessage("Uploaded: " + (int) progress + "%");
+                        mProgress.setProgress((int) progress);
+
+                    }
+                });;
+
+
+                // mDatabaseRef.child("image").setValue(profilePicUrl);
+//                mDatabaseRef.keepSynced(true);
+            }
+        }
+    }
+
+    private String getRealPathFromURI(Uri contentURI) {
+        String result;
+        Cursor cursor = getContentResolver().query(contentURI, null, null, null, null);
+        if (cursor == null) { // Source is Dropbox or other similar local file path
+            result = contentURI.getPath();
+        } else {
+            cursor.moveToFirst();
+            int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+            result = cursor.getString(idx);
+            cursor.close();
+        }
+        return result;
+    }
+
+    @SuppressLint("NewApi")
+    public  String getRealPathFromURI_API19(Context context, Uri uri){
+        String filePath = "";
+        String wholeID = DocumentsContract.getDocumentId(uri);
+
+        // Split at colon, use second item in the array
+        String id = wholeID.split(":")[1];
+
+        String[] column = { MediaStore.Images.Media.DATA };
+
+        // where id is equal to
+        String sel = MediaStore.Images.Media._ID + "=?";
+
+        Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                column, sel, new String[]{ id }, null);
+
+        int columnIndex = cursor.getColumnIndex(column[0]);
+
+        if (cursor.moveToFirst()) {
+            filePath = cursor.getString(columnIndex);
+        }
+        cursor.close();
+        return filePath;
+    }
+
+
+
+
 }

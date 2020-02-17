@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -21,6 +22,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -79,7 +81,7 @@ public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.
                  final int MINUTE_MILLIS = 60 * SECOND_MILLIS;
                  final int HOUR_MILLIS = 60 * MINUTE_MILLIS;
 
-                Log.i("asd", "onLongClick: " + ctx);
+     //           Log.i("asd", "onLongClick: " + ctx);
                  if(temp<HOUR_MILLIS && message.getSender().equals(currUser.getUid()) && !message.getAvaibility().equals("none"))
                  {
                      AlertDialog.Builder builder1 = new AlertDialog.Builder(ctx);
@@ -229,8 +231,29 @@ public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.
             currUser = FirebaseAuth.getInstance().getCurrentUser();
             final String user1 = currUser.getUid();
             final TextView tv = mView.findViewById(R.id.message_body);
+            final ImageView imageView = mView.findViewById(R.id.image);
             DatabaseReference mRootRef=FirebaseDatabase.getInstance().getReference();
             tv.setText(message.getMessage_body());
+            //Log.i("fghbjn", "imageCompressorAndUploader12: " + message.getType());
+            if(message.getType().equals("image"))
+            {
+               // Log.i("fghbjn", "imageCompressorAndUploader12: " + "gvhidfhujmdfhg");
+                imageView.setVisibility(View.VISIBLE);
+                if(message.getMessage_body().equals("")) tv.setVisibility(View.GONE);
+                Picasso.with(ctx)
+                       .load(message.getImage_url())
+                       .placeholder(R.drawable.image_loading)
+                       .into(imageView);
+            }
+            if(message.getType().equals("pdf"))
+            {
+                imageView.setVisibility(View.VISIBLE);
+                if(message.getMessage_body().equals("")) tv.setVisibility(View.GONE);
+                Picasso.with(ctx)
+                        .load(message.getFile_url())
+                        .placeholder(R.drawable.document_icon)
+                        .into(imageView);
+            }
 
 
         }
