@@ -12,6 +12,9 @@ import android.view.MenuItem;
 import android.widget.Toast;
 import com.example.chatapp.RegisterAndLogin.LoginActivity;
 import com.example.chatapp.User2RelatedActivities.User1FriendList;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
@@ -23,6 +26,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.onesignal.OneSignal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -32,6 +37,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TimeZone;
 
 public class UsersHomePage extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -66,7 +72,26 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
 
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "getInstanceId failed", task.getException());
+                            return;
+                        }
 
+                        // Get new Instance ID token
+                        String token = task.getResult().getToken();
+                        Log.d(TAG, "token" + " " + token);
+
+
+                        // Log and toast
+                        String msg = getString(R.string.msg_token_fmt, token);
+                        Log.d(TAG, msg);
+                        Toast.makeText(UsersHomePage.this, msg, Toast.LENGTH_SHORT).show();
+                    }
+                });
 
 
 
@@ -78,16 +103,16 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
                     .unsubscribeWhenNotificationsAreDisabled(true)
                     .init();
 
-            OneSignal.idsAvailable(new OneSignal.IdsAvailableHandler() {
-                @Override
-                public void idsAvailable(String userId, String registrationId) {
-                    databaseReference.child("notification_keys").child(currentUser.getUid()).child("notification_id").setValue(userId);
-                }
-            });
-
-            new SendNotification("Message 1","heading 1","fbd7962b-1075-4dda-995b-4b9d13440708");
-
-            OneSignal.clearOneSignalNotifications();
+//            OneSignal.idsAvailable(new OneSignal.IdsAvailableHandler() {
+//                @Override
+//                public void idsAvailable(String userId, String registrationId) {
+//                    databaseReference.child("notification_keys").child(currentUser.getUid()).child("notification_id").setValue(userId);
+//                }
+//            });
+//
+//            new SendNotification("Message 1","heading 1","fbd7962b-1075-4dda-995b-4b9d13440708");
+//
+//            OneSignal.clearOneSignalNotifications();
 
 
 
@@ -122,7 +147,16 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
                         Intent intent = new Intent(UsersHomePage.this, SettingsActivity.class);
                         startActivity(intent);
                     } else if (menuItem.getItemId() == R.id.lo) {
-                        FirebaseAuth.getInstance().signOut();
+                        FirebaseDatabase.getInstance().getReference().child("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()))
+                                .child("device_token").setValue("NULL").addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                FirebaseAuth.getInstance().signOut();
+                            }
+                        });
+
+
+
                         OneSignal.setSubscription(false);
                         sendToStart();
                     }

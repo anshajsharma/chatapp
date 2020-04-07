@@ -18,4 +18,6 @@
     <string name="close">Close</string>
     <string name="open">Open</string>
     <string name="user_s_posted_image">User\'s Posted Image</string>
+    <string name="channel_description">Friend request handelling</string>
+    <string name="channel_name">Friend request</string>
 </resources>

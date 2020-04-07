@@ -33,6 +33,7 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -86,7 +87,7 @@ public class ChatActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     private ImageButton sendMessage,attach;
     private Context ctx;
-    private ImageView back;
+    private LinearLayout back;
     SwipeRefreshLayout swipeRefreshLayout;
     private final int SENT_MESSAGE=0,RECEIVED_MESSAGE=1;
     private String res,fileType="",myUrl="";
@@ -169,10 +170,18 @@ public class ChatActivity extends AppCompatActivity {
                             {
                                 SingleMessage sm = messageList.get(messageList.size()-1);
                                 String res = sm.getMessage_body();
+                                if(sm.getType().equals("image")){
+                                    if(sm.getMessage_body().equals(""))
+                                    {
+                                        res = "📸 image";
+                                    } else {
+                                        res = "📸  " + res;
+                                    }
+                                }
                                 if(sm.getMessage_body().length() >=30 ) res= res.substring(0,28) + "...";
                                 mRootRef.child("chat_ref").child(user1.getUid()).child(user2).child("last_message").setValue(res);
                                 mRootRef.child("chat_ref").child(user1.getUid()).child(user2).child("last_message_timestamp").setValue(sm.getTimestamp());
-                            }else{
+                            } else {
 
                             }
 
@@ -257,6 +266,42 @@ public class ChatActivity extends AppCompatActivity {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
                                         if (task.isSuccessful()) {
+
+                                            DatabaseReference mNotRef = FirebaseDatabase.getInstance().getReference().child("notifications");
+                                            mNotRef.child(user2);
+                                            String notifId = mNotRef.push().getKey();
+                                            Map<String,String> newNotif = new HashMap<>();
+                                            newNotif.put("Type","Message");
+                                            newNotif.put("receiver",user2);
+                                            newNotif.put("notificationId",notifId);
+                                            newNotif.put("sender",user1.getUid());
+                                            mNotRef.child(user2).child(notifId).setValue(newNotif);
+
+
+
+
+                                            mRootRef.child("chat_ref").child(user1.getUid()).child(user2).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                    if(dataSnapshot.exists()){
+                                                        String res = messages.get("message_body").toString();
+
+                                                        if(res.length() >=30 ) res= res.substring(0,28) + "...";
+                                                        mRootRef.child("chat_ref").child(user1.getUid()).child(user2).child("last_message").setValue(res);
+                                                        mRootRef.child("chat_ref").child(user1.getUid()).child(user2).child("last_message_timestamp").setValue(messages.get("timestamp"));
+
+                                                        mRootRef.child("chat_ref").child(user2).child(user1.getUid()).child("last_message").setValue(res);
+                                                        mRootRef.child("chat_ref").child(user2).child(user1.getUid()).child("last_message_timestamp").setValue(messages.get("timestamp"));
+
+                                                    }
+                                                }
+
+                                                @Override
+                                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                                }
+                                            });
+
 
 
                                         }

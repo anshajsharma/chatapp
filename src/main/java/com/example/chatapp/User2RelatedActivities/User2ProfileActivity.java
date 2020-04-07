@@ -32,6 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
@@ -68,6 +69,9 @@ public class User2ProfileActivity extends AppCompatActivity {
         mFriendsRef = FirebaseDatabase.getInstance().getReference().child("Friends");
 
         cancelFriendRequest.setVisibility(View.INVISIBLE);
+
+
+
 
         //Progress dialog initialisation
         mProgressDialog = new ProgressDialog(this);
@@ -183,6 +187,17 @@ public class User2ProfileActivity extends AppCompatActivity {
                                             public void onSuccess(Void aVoid) {
                                                 Toast.makeText(User2ProfileActivity.this, "Friend request sent...", Toast.LENGTH_SHORT).show();
                                                 friendRequest.setText("Cancel Friend Request");
+
+                                                DatabaseReference mNotRef = FirebaseDatabase.getInstance().getReference().child("notifications");
+                                                mNotRef.child(user2);
+                                                String notifId = mNotRef.push().getKey();
+                                                Map<String,String> newNotif = new HashMap<>();
+                                                newNotif.put("Type","Request");
+                                                newNotif.put("receiver",user2);
+                                                newNotif.put("notificationId",notifId);
+                                                newNotif.put("sender",user1.getUid());
+                                                mNotRef.child(user2).child(notifId).setValue(newNotif);
+
                                                 curr_state = 1;
                                             }
                                         });

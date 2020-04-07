@@ -29,6 +29,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -255,6 +256,17 @@ public class User2FriendListAdapter extends RecyclerView.Adapter<User2FriendList
                                                                 public void onSuccess(Void aVoid) {
                                                                     Toast.makeText(ctx, "Friend request sent...", Toast.LENGTH_SHORT).show();
                                                                     Status.setText("Cancel");
+
+                                                                    DatabaseReference mNotRef = FirebaseDatabase.getInstance().getReference().child("notifications");
+                                                                    mNotRef.child(user2);
+                                                                    String notifId = mNotRef.push().getKey();
+                                                                    Map<String,String> newNotif = new HashMap<>();
+                                                                    newNotif.put("Type","Request");
+                                                                    newNotif.put("receiver",user2);
+                                                                    newNotif.put("notificationId",notifId);
+                                                                    newNotif.put("sender",user1);
+                                                                    mNotRef.child(user2).child(notifId).setValue(newNotif);
+
                                                                 }
                                                             });
                                                         } else {
