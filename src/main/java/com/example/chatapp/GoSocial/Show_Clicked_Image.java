@@ -1,4 +1,4 @@
-package com.example.chatapp;
+package com.example.chatapp.GoSocial;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -9,6 +9,7 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.example.chatapp.R;
 import com.squareup.picasso.Picasso;
 
 public class Show_Clicked_Image extends AppCompatActivity {

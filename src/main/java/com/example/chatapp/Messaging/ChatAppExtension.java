@@ -51,13 +51,14 @@ public class ChatAppExtension extends Application {
             mUserDatabase = FirebaseDatabase.getInstance()
                     .getReference().child("Users").child(mAuth.getCurrentUser().getUid());
 
-            mUserDatabase.addValueEventListener(new ValueEventListener() {
+            mUserDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
 
                     if (dataSnapshot != null) {
 
                         mUserDatabase.child("online").onDisconnect().setValue(ServerValue.TIMESTAMP);
+                        mUserDatabase.child("online").onDisconnect().setValue("true");
 
                     }
 
@@ -76,6 +77,10 @@ public class ChatAppExtension extends Application {
 
 
     }
+
+
+
+
 
 
 }

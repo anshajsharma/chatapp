@@ -1,4 +1,4 @@
-package com.example.chatapp;
+package com.example.chatapp.GoSocial;
 
 public class Posts {
 
@@ -6,17 +6,14 @@ public class Posts {
     String poster_name;
     String posted_image;
     String thumb_nail;
-    String timestamp;
     String description;
-    String likes_count;
-    String comments_count;
-    String shares_count;
     String last_comment;
     String post_id;
     String user_profile_image;
+    long likes_count,shares_count,comments_count,timestamp;
 
-    public Posts(String user_id, String poster_name, String posted_image, String thumb_nail, String timestamp,
-                 String description, String likes_count, String comments_count, String shares_count, String last_comment,
+    public Posts(String user_id, String poster_name, String posted_image, String thumb_nail, long timestamp,
+                 String description, long likes_count, long comments_count, long shares_count, String last_comment,
                  String post_id, String user_profile_image) {
         this.user_id = user_id;
         this.poster_name = poster_name;
@@ -49,9 +46,9 @@ public class Posts {
     }
 
 
-    public Posts(String user_id, String poster_name, String posted_image, String thumb_nail, String timestamp,
-                 String description, String likes_count,
-                 String comments_count, String shares_count, String last_comment, String user_profile_image) {
+    public Posts(String user_id, String poster_name, String posted_image, String thumb_nail, long timestamp,
+                 String description, long likes_count,
+                 long comments_count, long shares_count, String last_comment, String user_profile_image) {
         this.user_id = user_id;
         this.poster_name = poster_name;
         this.posted_image = posted_image;
@@ -68,8 +65,8 @@ public class Posts {
 
 
     public Posts(String user_id, String poster_name, String posted_image,
-                 String thumb_nail, String timestamp, String description, String likes_count,
-                 String comments_count, String shares_count, String last_comment) {
+                 String thumb_nail, long timestamp, String description, long likes_count,
+                 long comments_count, long shares_count, String last_comment) {
         this.user_id = user_id;
         this.poster_name = poster_name;
         this.posted_image = posted_image;
@@ -117,11 +114,11 @@ public class Posts {
         this.thumb_nail = thumb_nail;
     }
 
-    public String getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(String timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -133,27 +130,27 @@ public class Posts {
         this.description = description;
     }
 
-    public String getLikes_count() {
+    public long getLikes_count() {
         return likes_count;
     }
 
-    public void setLikes_count(String likes_count) {
+    public void setLikes_count(long likes_count) {
         this.likes_count = likes_count;
     }
 
-    public String getComments_count() {
+    public long getComments_count() {
         return comments_count;
     }
 
-    public void setComments_count(String comments_count) {
+    public void setComments_count(long comments_count) {
         this.comments_count = comments_count;
     }
 
-    public String getShares_count() {
+    public long getShares_count() {
         return shares_count;
     }
 
-    public void setShares_count(String shares_count) {
+    public void setShares_count(long shares_count) {
         this.shares_count = shares_count;
     }
 

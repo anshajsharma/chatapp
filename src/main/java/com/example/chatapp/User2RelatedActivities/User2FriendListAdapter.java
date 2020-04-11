@@ -224,7 +224,20 @@ public class User2FriendListAdapter extends RecyclerView.Adapter<User2FriendList
                                                                     cv.setVisibility(View.GONE);
                                                                   //  viewProfile.animate().translationXBy(-210f).setDuration(1100);
                                                                     mFriendRef.child(user1).child(user2).setValue("friends");
-                                                                    mFriendRef.child(user2).child(user1).setValue("friends");
+                                                                    mFriendRef.child(user2).child(user1).setValue("friends").addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                        @Override
+                                                                        public void onSuccess(Void aVoid) {
+                                                                            DatabaseReference mNotRef = FirebaseDatabase.getInstance().getReference().child("notifications");
+                                                                            mNotRef.child(user2);
+                                                                            String notifId = mNotRef.push().getKey();
+                                                                            Map<String,String> newNotif = new HashMap<>();
+                                                                            newNotif.put("Type","Request Accepted");
+                                                                            newNotif.put("receiver",user2);
+                                                                            newNotif.put("notificationId",notifId);
+                                                                            newNotif.put("sender",user1);
+                                                                            mNotRef.child(user2).child(notifId).setValue(newNotif);
+                                                                        }
+                                                                    });
                                                                 }
                                                             });
                                                         } else {

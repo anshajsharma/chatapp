@@ -1,9 +1,7 @@
-package com.example.chatapp;
+package com.example.chatapp.Fragments;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +12,7 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chatapp.Messaging.ChatActivity;
-import com.example.chatapp.Messaging.MessageLIstAdapter;
+import com.example.chatapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -23,14 +21,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
-import java.util.TimeZone;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -92,10 +86,14 @@ public class HomeChatViewAdapter extends RecyclerView.Adapter<HomeChatViewAdapte
                         if(dataSnapshot.hasChild("last_message_timestamp"))
                         {
                             long tsLong = dataSnapshot.child("last_message_timestamp").getValue(Long.class);
-                            Calendar calendar = Calendar.getInstance();
-                            SimpleDateFormat sdf2 = new SimpleDateFormat("hh:mm a", Locale.getDefault());              //  03:12 PM
-                            java.util.Date currenTimeZone = new java.util.Date((long) tsLong );
-                            time_of_last_message.setText(sdf2.format(currenTimeZone));
+                            if(tsLong!=0){
+                                Calendar calendar = Calendar.getInstance();
+                                SimpleDateFormat sdf2 = new SimpleDateFormat("hh:mm a", Locale.getDefault());              //  03:12 PM
+                                java.util.Date currenTimeZone = new java.util.Date((long) tsLong );
+                                time_of_last_message.setText(sdf2.format(currenTimeZone));
+                            }else{
+                                time_of_last_message.setText("");
+                            }
                         }
                         if(dataSnapshot.hasChild("last_message"))
                         {

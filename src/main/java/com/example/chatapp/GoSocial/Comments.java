@@ -1,4 +1,4 @@
-package com.example.chatapp;
+package com.example.chatapp.GoSocial;
 
 public class Comments {
     String post_id;

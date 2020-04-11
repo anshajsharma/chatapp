@@ -1,4 +1,4 @@
-package com.example.chatapp;
+package com.example.chatapp.GoSocial;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -12,6 +12,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 
+import com.example.chatapp.R;
+import com.example.chatapp.UsersHomePage;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -88,10 +90,12 @@ public class NewsFeed extends AppCompatActivity {
                                     //  mAdapter.notifyDataSetChanged();
                                     String poster_id = tPost.getUser_id();
                                     //    Log.i(TAG, "onDataChange: " + "12453" + " " + poster_id + " " + dataSnapshot.getValue());
-                                    assert poster_id != null;
-                                    if (dataSnapshot3.hasChild(poster_id)) reLatedPosts.add(tPost);
-                                    else if (poster_id.equals(User1)) reLatedPosts.add(tPost);
-                                    mAdapter.notifyItemInserted(0);
+                                    if (poster_id != null) {
+                                        if (dataSnapshot3.hasChild(poster_id)) reLatedPosts.add(tPost);
+                                        else if (poster_id.equals(User1)) reLatedPosts.add(tPost);
+                                        mAdapter.notifyItemInserted(0);
+                                    }
+
                                 }
 
 
@@ -142,6 +146,7 @@ public class NewsFeed extends AppCompatActivity {
     }
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
@@ -149,8 +154,8 @@ public class NewsFeed extends AppCompatActivity {
 //                Log.i("asdfg1","i am here");
 //                Log.i("asdfg1",resultUri.toString());
 //
-                Intent intent = new Intent(NewsFeed.this,NewPost.class);
-                intent.putExtra("image",resultUri.toString());
+                Intent intent = new Intent(NewsFeed.this, NewPost.class);
+                intent.putExtra("image", resultUri.toString());
                 startActivity(intent);
 
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
@@ -158,87 +163,10 @@ public class NewsFeed extends AppCompatActivity {
             }
         }
     }
-
     @Override
-    protected void onStart() {
-        super.onStart();
-
-//        mRooRef.child("Friends").child(User1).addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull final DataSnapshot dataSnapshot3) {
-//
-//
-//                if (dataSnapshot3.exists()) {
-//                    // Log.i(TAG, "onCreate: "+dataSnapshot3.getValue());
-//
-//                    mRooRef.child("posts").addListenerForSingleValueEvent(new ValueEventListener() {
-//                        @Override
-//                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                            if (dataSnapshot.exists()) {
-//                                if (reLatedPosts.size() != 0) reLatedPosts.clear();
-//                                Log.i(TAG, "onCreate: "+dataSnapshot.getValue());
-//                                if (dataSnapshot.exists()) {
-//                                    for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
-//                                        Posts tPost = dataSnapshot1.getValue(Posts.class);
-//                                        assert tPost != null;
-//                                        { String poster_id = tPost.getUser_id();
-//                                            Log.i(TAG, "onDataChange: "+"123" + " " + poster_id + " " + tPost.toString());
-//                                            assert poster_id != null;
-//                                            if (dataSnapshot3.hasChild(poster_id)) reLatedPosts.add(tPost);
-//                                            else if (poster_id.equals(User1)) reLatedPosts.add(tPost);}
-//                                    }
-//
-//                                    if (reLatedPosts.size() > 0) {
-//                                        //  Log.i(TAG, "onDataChange: "+ reLatedPosts.toString());
-//                                        LinearLayoutManager mLayoutManager;
-//                                        mLayoutManager = new LinearLayoutManager(NewsFeed.this);
-//                                        mLayoutManager.setReverseLayout(true);
-//                                        mLayoutManager.setStackFromEnd(true);
-//
-//                                        // And set it to RecyclerView
-//                                        postsList = findViewById(R.id.postList);
-//                                        postsList.setLayoutManager(mLayoutManager);
-//                                        mAdapter = new PostAdapter(reLatedPosts, ctx);
-//                                        postsList.setAdapter(mAdapter);
-//                                      //  mAdapter.notifyDataSetChanged();
-//
-//
-//
-//
-//                                    } else {
-//                                        Toast.makeText(NewsFeed.this, "Nothing to show!!", Toast.LENGTH_SHORT).show();
-//                                    }
-//
-//
-//                                }
-//
-//                            }
-//
-//                        }
-//
-//                        @Override
-//                        public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//                        }
-//                    });
-//
-//
-//                }
-//
-//
-//
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-
-
-
-
+    public void onBackPressed() {
+        startActivity(new Intent(this, UsersHomePage.class));
+        finish();
     }
 
 

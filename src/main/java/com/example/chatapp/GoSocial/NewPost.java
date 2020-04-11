@@ -1,4 +1,4 @@
-package com.example.chatapp;
+package com.example.chatapp.GoSocial;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -10,12 +10,12 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.example.chatapp.R;
 import com.example.chatapp.RegisterAndLogin.Users;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -25,6 +25,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -34,6 +35,8 @@ import com.theartofdev.edmodo.cropper.CropImage;
 
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
+
+import io.grpc.Server;
 
 
 public class NewPost extends AppCompatActivity {
@@ -130,17 +133,17 @@ public class NewPost extends AppCompatActivity {
                                     String  image = user1.getImage();
                                     if(!user1.getThumb_nail().equals("default")) image=user1.getThumb_nail();
 
-                                    HashMap<String, String> PostMap = new HashMap<>();
+                                    HashMap<String, Object> PostMap = new HashMap<>();
                                     PostMap.put("user_id",user1.getUser_id());
                                     PostMap.put("poster_name", user1.getName());
                                     PostMap.put("posted_image", uploadedImageUrl);
                                     PostMap.put("thumb_nail", "image");
                                     PostMap.put("user_profile_image",user1.getImage());
-                                    PostMap.put("timestamp", timeStamp);
+                                    PostMap.put("timestamp", ServerValue.TIMESTAMP);
                                     PostMap.put("description", description);
-                                    PostMap.put("likes_count","0");
-                                    PostMap.put("comments_count","0");
-                                    PostMap.put("shares_count","0");
+                                    PostMap.put("likes_count",0);
+                                    PostMap.put("comments_count",0);
+                                    PostMap.put("shares_count",0);
                                     PostMap.put("last_comment","default");
                                     PostMap.put("post_id",s1);
 
@@ -192,8 +195,7 @@ public class NewPost extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-
-
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {

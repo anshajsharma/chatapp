@@ -1,4 +1,4 @@
-package com.example.chatapp;
+package com.example.chatapp.Fragments;
 
 public class ChatFragmentViewData {
     String timestamp , last_message ;

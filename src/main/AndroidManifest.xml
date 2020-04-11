@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:name=".Messaging.MApplication"
@@ -12,31 +13,46 @@
         android:icon="@drawable/icon"
         android:label="@string/app_name"
 
+        android:roundIcon="@drawable/icon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
+        <meta-data android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
         <activity android:name=".Messaging.SendImageActivity" />
         <activity
-            android:name=".Comments_handeling_Activity"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:name=".GoSocial.Comments_handeling_Activity"
+            android:theme="@style/Theme.AppCompat.NoActionBar">
+            <intent-filter>
+                <action android:name="com.example.chatApp.TARGET_NOTIFICATION_POST"></action>
+                <category android:name="android.intent.category.DEFAULT"></category>
+            </intent-filter>
+        </activity>
         <activity
-            android:name=".ViewPostsLikesActivity"
+            android:name=".GoSocial.ViewPostsLikesActivity"
             android:label="Likes"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
-            android:name=".Show_Clicked_Image"
+            android:name=".GoSocial.Show_Clicked_Image"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
-        <activity android:name=".NewPost" />
-        <activity android:name=".UICheckActivity" />
-        <service android:name=".FirebaseMessagingService">
+        <activity android:name=".GoSocial.NewPost" />
+        <activity android:name=".UiChechAndLearnings.LocationLearning"
+            android:screenOrientation="portrait"/>
+        <service android:name=".GoSocial.FirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
         <activity
-            android:name=".NewsFeed"
+            android:name=".GoSocial.NewsFeed"
             android:label="News Feed"
-            android:parentActivityName=".UsersHomePage" />
+            android:parentActivityName=".UsersHomePage" >
+            <intent-filter>
+                <action android:name="com.example.chatApp.HOME_PAGE"></action>
+                <category android:name="android.intent.category.DEFAULT"></category>
+            </intent-filter>
+        </activity>
         <activity
             android:name=".User2RelatedActivities.User1FriendList"
             android:label="Start a new conversation"
@@ -65,7 +81,11 @@
             </intent-filter>
         </activity>
 
-        <meta-data android:name="com.google.firebase.messaging.default_notification_icon" android:resource="@drawable/ic_launcher" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/fcm_push_icon" />
+<!--        <meta-data android:name="com.google.firebase.messaging.default_notification_color"-->
+<!--            android:resource="@color/green" />-->
 
         <activity
             android:name=".User2RelatedActivities.User2ProfileActivity"
@@ -76,7 +96,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".FindFriend"
+            android:name=".GoSocial.FindFriend"
             android:parentActivityName=".UsersHomePage"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity

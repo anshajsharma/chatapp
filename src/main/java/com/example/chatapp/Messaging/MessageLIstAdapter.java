@@ -12,9 +12,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.text.Html;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.TextPaint;
+import android.text.style.URLSpan;
+import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -47,14 +55,14 @@ import java.util.Locale;
 
 import static android.view.View.GONE;
 
-public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.ViewHolder> {
+public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.ViewHolder>  {
     private List<SingleMessage> chats;
     private Context ctx;
     private DatabaseReference mMessageRef, mChatRooomRef;
     private FirebaseUser currUser;
     private int MESSAGE_RECEIVED=0,MESSAGE_SENT=1;
     private String user2;
-
+    private static final String TAG = "MessageLIstAdapter";
 
     public MessageLIstAdapter(List<SingleMessage> chats, Context ctx ,String User2) {
         this.chats = chats;
@@ -84,11 +92,43 @@ public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.
         //Every position describes a different message
         final SingleMessage message = chats.get(position);
 
+
+        //What to set in single holder
+        holder.setDetailAndOnclickFns(message);
+
         LinearLayout date = holder.mView.findViewById(R.id.date);
         TextView dateValue = holder.mView.findViewById(R.id.dateValue);
         TextView messageTime = holder.mView.findViewById(R.id.messageTime);
         SimpleDateFormat sdf3 = new SimpleDateFormat("dd MMM YYYY", Locale.getDefault());
         SimpleDateFormat sdf2 = new SimpleDateFormat("hh:mm a", Locale.getDefault());
+        final TextView messageBody = holder.mView.findViewById(R.id.message_body);
+
+        CardView messageCardView = holder.mView.findViewById(R.id.cardView);
+        ImageView messageCorner = holder.mView.findViewById(R.id.message_corner);
+
+//        if()
+
+        if(message.getType().equals("Location")){
+            messageBody.setTextColor(Color.parseColor("#190DAB"));
+        }else{
+            messageBody.setTextColor(Color.parseColor("#363636"));
+        }
+//        Log.i(TAG, "onBindViewHolder: " + messageBody.getText());
+        holder.stripUnderlines(messageBody);
+        messageBody.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if(message.getType().equals("Location")){
+                    String geoUri = message.getLocation_URL();
+
+                    if(geoUri != null && !geoUri.isEmpty()){
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(geoUri));
+                        ctx.startActivity(intent);
+                    }
+                }
+            }
+        });
 
         if(position>0){
             SingleMessage prevMessage = chats.get(position-1);
@@ -97,13 +137,22 @@ public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.
             }else{
                 date.setVisibility(View.VISIBLE);
             }
+            if(message.getSender().equals(prevMessage.getSender())){
+                messageCorner.setVisibility(View.INVISIBLE);
+                holder.setMargins(messageCardView, 0, 1, 0, 0);
+
+            }else{
+                messageCorner.setVisibility(View.VISIBLE);
+                holder.setMargins(messageCardView, 0, 3, 0, 0);
+            }
+        }
+        if(position==chats.size()-1){
+            holder.setMargins(messageCardView, 0, 3, 0, 5);
         }
 
         dateValue.setText(sdf3.format(message.getTimestamp()));
         messageTime.setText(sdf2.format(message.getTimestamp()));
 
-        //What to set in single holder
-        holder.setDetailAndOnclickFns(message);
         currUser = FirebaseAuth.getInstance().getCurrentUser();
         final String user1 = currUser.getUid();
         final DatabaseReference mRootRef = FirebaseDatabase.getInstance().getReference();
@@ -119,33 +168,39 @@ public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.
                  final int SECOND_MILLIS = 1000;
                  final int MINUTE_MILLIS = 60 * SECOND_MILLIS;
                  final int HOUR_MILLIS = 60 * MINUTE_MILLIS;
+                 boolean asdf = temp<HOUR_MILLIS ;
 
-     //           Log.i("asd", "onLongClick: " + ctx);
-                 if(temp<HOUR_MILLIS && message.getSender().equals(currUser.getUid()) && !message.getAvaibility().equals("none"))
+
+
+
+                 if(temp<HOUR_MILLIS && message.getSender().equals(currUser.getUid()))
                  {
                      AlertDialog.Builder builder1 = new AlertDialog.Builder(ctx);
                      builder1.setMessage("Delete message??");
                      builder1.setCancelable(true);
-
                      builder1.setPositiveButton(
                              "DELETE FOR ME",
                              new DialogInterface.OnClickListener() {
                                  public void onClick(DialogInterface dialog, int id) {
-                             mRootRef.child("Messages").child(path(user1,user2)).child(String.valueOf(message.getTimestamp()))
+
+                                     Toast.makeText(ctx, "DELETE FOR ME", Toast.LENGTH_SHORT).show();
+
+                                 mRootRef.child("Messages").child(path(user1,user2)).child(String.valueOf(message.getMessageID()))
                                      .addListenerForSingleValueEvent(new ValueEventListener() {
                                          @Override
                                          public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                                              if(dataSnapshot.exists())
                                              {
-                                                 if(dataSnapshot.child("avaibility").getValue(String.class).equals(user1))
+
+                                                 if(dataSnapshot.child("availability").getValue(String.class).equals(user1))
                                                  {
-                                                     mRootRef.child("Messages").child(path(user1,user2)).child(String.valueOf(message.getTimestamp()))
+                                                     mRootRef.child("Messages").child(path(user1,user2)).child(String.valueOf(message.getMessageID()))
                                                              .removeValue();
                                                  }
                                                  else{
-                                                     mRootRef.child("Messages").child(path(user1,user2)).child(String.valueOf(message.getTimestamp()))
-                                                             .child("avaibility").setValue(user2);
+                                                     mRootRef.child("Messages").child(path(user1,user2)).child(String.valueOf(message.getMessageID()))
+                                                             .child("availability").setValue(user2);
                                                  }
 
                                              }
@@ -166,7 +221,9 @@ public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.
                              "DELETE FOR EVERYONE",
                              new DialogInterface.OnClickListener() {
                                  public void onClick(DialogInterface dialog, int id) {
-                                     mRootRef.child("Messages").child(path(user1,user2)).child(String.valueOf(message.getTimestamp()))
+                                     Toast.makeText(ctx, "DELETE FOR EVERYONE", Toast.LENGTH_SHORT).show();
+
+                                     mRootRef.child("Messages").child(path(user1,user2)).child(String.valueOf(message.getMessageID()))
                                              .addListenerForSingleValueEvent(new ValueEventListener() {
                                                  @Override
                                                  public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -174,11 +231,11 @@ public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.
                                                      if(dataSnapshot.exists() )
                                                      {
 
-                                                             mRootRef.child("Messages").child(path(user1,user2)).child(String.valueOf(message.getTimestamp()))
+                                                             mRootRef.child("Messages").child(path(user1,user2)).child(String.valueOf(message.getMessageID()))
                                                                      .child("message_body").setValue("@-> This message was deleted");
 
-                                                         mRootRef.child("Messages").child(path(user1,user2)).child(String.valueOf(message.getTimestamp()))
-                                                                 .child("avaibility").setValue("none");
+                                                              mRootRef.child("Messages").child(path(user1,user2)).child(String.valueOf(message.getMessageID()))
+                                                                 .child("availability").setValue("none");
 
 
 
@@ -206,6 +263,7 @@ public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.
                  }
                  else
                  {
+
                      AlertDialog.Builder builder1 = new AlertDialog.Builder(ctx);
                      builder1.setMessage("Delete message??");
                      builder1.setCancelable(true);
@@ -214,21 +272,24 @@ public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.
                              "DELETE FOR ME",
                              new DialogInterface.OnClickListener() {
                                  public void onClick(DialogInterface dialog, int id) {
-                                     mRootRef.child("Messages").child(path(user1,user2)).child(String.valueOf(message.getTimestamp()))
+                                     Toast.makeText(ctx, "DELETE FOR ME", Toast.LENGTH_SHORT).show();
+
+                                     mRootRef.child("Messages").child(path(user1,user2)).child(String.valueOf(message.getMessageID()))
                                              .addListenerForSingleValueEvent(new ValueEventListener() {
                                                  @Override
                                                  public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                                                      if(dataSnapshot.exists())
                                                      {
-                                                         if(dataSnapshot.child("avaibility").getValue(String.class).equals(user1))
+
+                                                         if(dataSnapshot.child("availability").getValue(String.class).equals(user1))
                                                          {
-                                                             mRootRef.child("Messages").child(path(user1,user2)).child(String.valueOf(message.getTimestamp()))
+                                                             mRootRef.child("Messages").child(path(user1,user2)).child(String.valueOf(message.getMessageID()))
                                                                      .removeValue();
                                                          }
                                                          else{
-                                                             mRootRef.child("Messages").child(path(user1,user2)).child(String.valueOf(message.getTimestamp()))
-                                                                     .child("avaibility").setValue(user2);
+                                                             mRootRef.child("Messages").child(path(user1,user2)).child(String.valueOf(message.getMessageID()))
+                                                                     .child("availability").setValue(user2);
                                                          }
 
                                                      }
@@ -251,6 +312,8 @@ public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.
                              "Cancel",
                              new DialogInterface.OnClickListener() {
                                  public void onClick(DialogInterface dialog, int id) {
+
+                                     Toast.makeText(ctx, "Cancel", Toast.LENGTH_SHORT).show();
 
                                      dialog.dismiss();
 
@@ -281,12 +344,33 @@ public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.
         return chats.size();
     }
 
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         View mView;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             mView = itemView;
+        }
+
+        private void setMargins (View view, int left, int top, int right, int bottom) {
+            if (view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
+                ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+                p.setMargins(left, top, right, bottom);
+                view.requestLayout();
+            }
+        }
+        private void stripUnderlines(TextView textView) {
+            Spannable s = new SpannableString(textView.getText());
+            URLSpan[] spans = s.getSpans(0, s.length(), URLSpan.class);
+            for (URLSpan span: spans) {
+                int start = s.getSpanStart(span);
+                int end = s.getSpanEnd(span);
+                s.removeSpan(span);
+                span = new URLSpanNoUnderline(span.getURL());
+                s.setSpan(span, start, end, 0);
+            }
+            textView.setText(s);
         }
 
         @SuppressLint("ResourceAsColor")
@@ -299,9 +383,9 @@ public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.
             final ImageView downloadImage = mView.findViewById(R.id.download_image);
             downloadImage.setVisibility(GONE);
             final DatabaseReference mRootRef=FirebaseDatabase.getInstance().getReference();
-            final DatabaseReference mMessageRef =  mRootRef.child("Messages").child(path(message.getSender(),message.getReceiver())).child(String.valueOf(message.getTimestamp()));
+            final DatabaseReference mMessageRef =  mRootRef.child("Messages").child(path(message.getSender(),message.getReceiver())).child(String.valueOf(message.getMessageID()));
             tv.setText(message.getMessage_body());
-            //Log.i("fghbjn", "imageCompressorAndUploader12: " + message.getType());
+
 
 
 

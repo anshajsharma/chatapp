@@ -1,4 +1,4 @@
-package com.example.chatapp;
+package com.example.chatapp.GoSocial;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -7,8 +7,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
@@ -16,13 +16,16 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.chatapp.R;
 import com.example.chatapp.RegisterAndLogin.Users;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -81,7 +84,7 @@ public class Comments_handeling_Activity extends AppCompatActivity {
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 if(dataSnapshot.exists()){
                     commentsList.add(dataSnapshot.getValue(Comments.class));
-                    mAdapter.notifyItemInserted(commentsList.size()-1);
+                    mAdapter.notifyItemInserted(commentsList.size());
                 }
 
 
@@ -98,7 +101,7 @@ public class Comments_handeling_Activity extends AppCompatActivity {
                     if(commentsList.contains(dataSnapshot.getValue(Comments.class))){
                         int index = commentsList.indexOf(dataSnapshot.getValue(Comments.class));
                         commentsList.remove(dataSnapshot.getValue(Comments.class));
-                        mAdapter.notifyItemRemoved(index);
+                        mAdapter.notifyItemRemoved(index+1);
                     }
 
                 }
@@ -165,36 +168,39 @@ public class Comments_handeling_Activity extends AppCompatActivity {
                             commentMap.put("user_name",user.getName());
                             commentMap.put("type","text");
                             commentMap.put("comment_id",commentId);
-                            mRootRef.child("posts_comments").child(post_id).child(commentId).setValue(commentMap);
-                            mRootRef.child("comments_ref").child(post_id).child(curr_user).child(commentId).setValue(timestamp);
-                            commentBody.setText("");
-                            commentBody.setHint("Enter your comment here...");
-
-                            //  Adding comment count by 1
-
-                            mRootRef.child("posts").child(post_id).addListenerForSingleValueEvent(new ValueEventListener() {
+                            mRootRef.child("posts_comments").child(post_id).child(commentId).setValue(commentMap)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
-                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                    if(dataSnapshot.exists() && dataSnapshot.hasChild("comments_count")){
+                                public void onSuccess(Void aVoid) {
+                                    mRootRef.child("posts").child(post_id).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                            Posts post = dataSnapshot.getValue(Posts.class);
+                                            if(!post.getUser_id().equals(curr_user)){
+                                                DatabaseReference mNotRef = FirebaseDatabase.getInstance().getReference().child("notifications");
+                                                mNotRef.child(post.getUser_id());
+                                                String notifId = mNotRef.push().getKey();
+                                                Map<String,Object> newNotif = new HashMap<>();
+                                                newNotif.put("Type","Comment");
+                                                newNotif.put("receiver",post.getUser_id());
+                                                newNotif.put("notificationId",notifId);
+                                                newNotif.put("timestamp", ServerValue.TIMESTAMP);
+                                                newNotif.put("postId",post.getPost_id());
+                                                newNotif.put("sender",curr_user);
+                                                mNotRef.child(post.getUser_id()).child(notifId).setValue(newNotif);
+                                            }
+                                        }
 
-                                        String comments_count  = dataSnapshot.child("comments_count").getValue(String.class);
-                                        long temp = Long.parseLong(comments_count);
-                                        temp++;
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                                        mRootRef.child("posts").child(post_id).child("comments_count").setValue(String.valueOf(temp));
-                                        mRootRef.child("posts").child(post_id).child("last_comment").setValue(commentId);
-
-
-                                    }
-                                }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                                        }
+                                    });
                                 }
                             });
 
-
+                            commentBody.setText("");
+                            commentBody.setHint("Enter your comment here...");
 
                         }
 
@@ -211,5 +217,16 @@ public class Comments_handeling_Activity extends AppCompatActivity {
 
 
 
+    }
+    @Override
+    public void onBackPressed() {
+
+        if(isTaskRoot()){
+            //// This is last activity
+            startActivity(new Intent(this, NewsFeed.class));
+            finish();
+        }else{
+            super.onBackPressed();
+        }
     }
 }

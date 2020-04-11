@@ -1,20 +1,26 @@
 package com.example.chatapp;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.ViewPager;
+
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
+
+import com.example.chatapp.GoSocial.FindFriend;
+import com.example.chatapp.GoSocial.NewsFeed;
 import com.example.chatapp.RegisterAndLogin.LoginActivity;
+import com.example.chatapp.UiChechAndLearnings.LocationLearning;
 import com.example.chatapp.User2RelatedActivities.User1FriendList;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
@@ -26,8 +32,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
 import com.onesignal.OneSignal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -72,26 +76,6 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
 
-        FirebaseInstanceId.getInstance().getInstanceId()
-                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
-                        if (!task.isSuccessful()) {
-                            Log.w(TAG, "getInstanceId failed", task.getException());
-                            return;
-                        }
-
-                        // Get new Instance ID token
-                        String token = task.getResult().getToken();
-                        Log.d(TAG, "token" + " " + token);
-
-
-                        // Log and toast
-                        String msg = getString(R.string.msg_token_fmt, token);
-                        Log.d(TAG, msg);
-                        Toast.makeText(UsersHomePage.this, msg, Toast.LENGTH_SHORT).show();
-                    }
-                });
 
 
 
@@ -136,7 +120,7 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
                         Intent intent = new Intent(UsersHomePage.this, NewsFeed.class);
                         startActivity(intent);
                     } else if (menuItem.getItemId() == R.id.ui) {
-                        Intent intent = new Intent(UsersHomePage.this, UICheckActivity.class);
+                        Intent intent = new Intent(UsersHomePage.this, LocationLearning.class);
                         startActivity(intent);
                     }
                     else if (menuItem.getItemId() == R.id.ff){
@@ -241,7 +225,7 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
 
         }else{
             OneSignal.clearOneSignalNotifications();
-            databaseReference.child("Users").child(curr_user.getUid()).child("online").setValue("true");
+//            databaseReference.child("Users").child(curr_user.getUid()).child("online").setValue("true");
         }
     }
     @Override
@@ -250,6 +234,37 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
 
     }
 
+    @Override
+    public void onBackPressed() {
+        if(mDrawerLayout.isDrawerOpen(GravityCompat.START))
+        {
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+        }else{
+            AlertDialog.Builder a_builder = new AlertDialog.Builder(UsersHomePage.this);
+
+
+
+            a_builder.setMessage("Do you want to Close this App !!!")
+                    .setCancelable(false)
+                    .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    })
+                    .setNegativeButton("No",new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    }) ;
+            AlertDialog alert = a_builder.create();
+            alert.setTitle("Alert !!!");
+            alert.show();
+
+        }
+
+    }
     private void sendToStart() {
         Intent startIntent = new Intent(this, LoginActivity.class);
         startActivity(startIntent);

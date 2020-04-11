@@ -1,4 +1,4 @@
-package com.example.chatapp;
+package com.example.chatapp.GoSocial;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +10,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.chatapp.R;
+import com.example.chatapp.SettingsActivity;
 import com.example.chatapp.User2RelatedActivities.User2ProfileActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -53,7 +55,7 @@ public class LikesAndSharesAdapter extends RecyclerView.Adapter<LikesAndSharesAd
                     ctx.startActivity(intent);
                 }
                 else{
-                    Intent intent = new Intent(ctx,SettingsActivity.class);
+                    Intent intent = new Intent(ctx, SettingsActivity.class);
                     ctx.startActivity(intent);
                 }
             }
