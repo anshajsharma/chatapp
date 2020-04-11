@@ -12,6 +12,9 @@ public class Users {
     private String online_visisbility;
     private String email_id;
     private String post_count;
+    private String phoneNumber;
+    private String emailId;
+    private String webSite;
     private String last_synced_location;
     private String background_image;
    // public  int friend_count;
@@ -30,6 +33,48 @@ public class Users {
         this.post_count = post_count;
         this.last_synced_location = last_synced_location;
         this.background_image = background_image;
+    }
+
+    public Users(String name, String image, String status, String thumb_nail, String online, String user_id, String friend_list_visibility, String online_visisbility, String email_id, String post_count, String phoneNumber, String emailId, String webSite, String last_synced_location, String background_image) {
+        this.name = name;
+        this.image = image;
+        this.status = status;
+        this.thumb_nail = thumb_nail;
+        this.online = online;
+        this.user_id = user_id;
+        this.friend_list_visibility = friend_list_visibility;
+        this.online_visisbility = online_visisbility;
+        this.email_id = email_id;
+        this.post_count = post_count;
+        this.phoneNumber = phoneNumber;
+        this.emailId = emailId;
+        this.webSite = webSite;
+        this.last_synced_location = last_synced_location;
+        this.background_image = background_image;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getWebSite() {
+        return webSite;
+    }
+
+    public void setWebSite(String webSite) {
+        this.webSite = webSite;
+    }
+
+    public String getEmailId() {
+        return emailId;
+    }
+
+    public void setEmailId(String emailId) {
+        this.emailId = emailId;
     }
 
     public String getPost_count() {

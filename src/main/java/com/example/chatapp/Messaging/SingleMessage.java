@@ -2,10 +2,22 @@ package com.example.chatapp.Messaging;
 
 public class SingleMessage {
 
-    String message_body, type , delivery_status , sender , receiver , image_url ,video_url , avaibility ,downloaded , file_name ,file_url;
+    String message_body;
+    String type;
+    String delivery_status;
+    String sender;
+    String receiver;
+    String image_url;
+    String video_url;
+    String availability;
+    String downloaded;
+    String file_name;
+    String file_url;
+    String location_URL;
+    String messageID;
     long timestamp , sent_timestamp , received_timestamp , seen_timestamp ;
 
-    public SingleMessage(String message_body, String type, String delivery_status, String sender, String receiver, String image_url, String video_url, String avaibility, String downloaded, String file_name, String file_url, long timestamp, long sent_timestamp, long received_timestamp, long seen_timestamp) {
+    public SingleMessage(String message_body, String type, String delivery_status, String sender, String receiver, String image_url, String video_url, String availability, String downloaded, String file_name, String file_url, String location_URL, long timestamp, long sent_timestamp, long received_timestamp, long seen_timestamp) {
         this.message_body = message_body;
         this.type = type;
         this.delivery_status = delivery_status;
@@ -13,7 +25,62 @@ public class SingleMessage {
         this.receiver = receiver;
         this.image_url = image_url;
         this.video_url = video_url;
-        this.avaibility = avaibility;
+        this.availability = availability;
+        this.downloaded = downloaded;
+        this.file_name = file_name;
+        this.file_url = file_url;
+        this.location_URL = location_URL;
+        this.timestamp = timestamp;
+        this.sent_timestamp = sent_timestamp;
+        this.received_timestamp = received_timestamp;
+        this.seen_timestamp = seen_timestamp;
+    }
+
+    public String getAvailability() {
+        return availability;
+    }
+
+    public void setAvailability(String availability) {
+        this.availability = availability;
+    }
+
+    public String getMessageID() {
+        return messageID;
+    }
+
+    public void setMessageID(String messageID) {
+        this.messageID = messageID;
+    }
+
+    public SingleMessage(String message_body, String type, String delivery_status, String sender, String receiver, String image_url, String video_url, String availability, String downloaded, String file_name, String file_url, String location_URL, String messageID, long timestamp, long sent_timestamp, long received_timestamp, long seen_timestamp) {
+        this.message_body = message_body;
+        this.type = type;
+        this.delivery_status = delivery_status;
+        this.sender = sender;
+        this.receiver = receiver;
+        this.image_url = image_url;
+        this.video_url = video_url;
+        this.availability = availability;
+        this.downloaded = downloaded;
+        this.file_name = file_name;
+        this.file_url = file_url;
+        this.location_URL = location_URL;
+        this.messageID = messageID;
+        this.timestamp = timestamp;
+        this.sent_timestamp = sent_timestamp;
+        this.received_timestamp = received_timestamp;
+        this.seen_timestamp = seen_timestamp;
+    }
+
+    public SingleMessage(String message_body, String type, String delivery_status, String sender, String receiver, String image_url, String video_url, String availability, String downloaded, String file_name, String file_url, long timestamp, long sent_timestamp, long received_timestamp, long seen_timestamp) {
+        this.message_body = message_body;
+        this.type = type;
+        this.delivery_status = delivery_status;
+        this.sender = sender;
+        this.receiver = receiver;
+        this.image_url = image_url;
+        this.video_url = video_url;
+        this.availability = availability;
         this.downloaded = downloaded;
         this.file_name = file_name;
         this.file_url = file_url;
@@ -23,7 +90,7 @@ public class SingleMessage {
         this.seen_timestamp = seen_timestamp;
     }
 
-    public SingleMessage(String message_body, String type, String delivery_status, String sender, String receiver, String image_url, String video_url, String avaibility, String downloaded, String file_name, long timestamp, long sent_timestamp, long received_timestamp, long seen_timestamp) {
+    public SingleMessage(String message_body, String type, String delivery_status, String sender, String receiver, String image_url, String video_url, String availability, String downloaded, String file_name, long timestamp, long sent_timestamp, long received_timestamp, long seen_timestamp) {
         this.message_body = message_body;
         this.type = type;
         this.delivery_status = delivery_status;
@@ -31,7 +98,7 @@ public class SingleMessage {
         this.receiver = receiver;
         this.image_url = image_url;
         this.video_url = video_url;
-        this.avaibility = avaibility;
+        this.availability = availability;
         this.downloaded = downloaded;
         this.file_name = file_name;
         this.timestamp = timestamp;
@@ -42,6 +109,14 @@ public class SingleMessage {
 
     public String getFile_url() {
         return file_url;
+    }
+
+    public String getLocation_URL() {
+        return location_URL;
+    }
+
+    public void setLocation_URL(String location_URL) {
+        this.location_URL = location_URL;
     }
 
     public void setFile_url(String file_url) {
@@ -56,7 +131,7 @@ public class SingleMessage {
         this.file_name = file_name;
     }
 
-    public SingleMessage(String message_body, String type, String delivery_status, String sender, String receiver, String image_url, String video_url, String avaibility, String downloaded, long timestamp, long sent_timestamp, long received_timestamp, long seen_timestamp) {
+    public SingleMessage(String message_body, String type, String delivery_status, String sender, String receiver, String image_url, String video_url, String availability, String downloaded, long timestamp, long sent_timestamp, long received_timestamp, long seen_timestamp) {
         this.message_body = message_body;
         this.type = type;
         this.delivery_status = delivery_status;
@@ -64,7 +139,7 @@ public class SingleMessage {
         this.receiver = receiver;
         this.image_url = image_url;
         this.video_url = video_url;
-        this.avaibility = avaibility;
+        this.availability = availability;
         this.downloaded = downloaded;
         this.timestamp = timestamp;
         this.sent_timestamp = sent_timestamp;
@@ -80,7 +155,7 @@ public class SingleMessage {
         this.downloaded = downloaded;
     }
 
-    public SingleMessage(String message_body, String type, String delivery_status, String sender, String receiver, String image_url, String video_url, long timestamp, long sent_timestamp, long received_timestamp, long seen_timestamp, String avaibility) {
+    public SingleMessage(String message_body, String type, String delivery_status, String sender, String receiver, String image_url, String video_url, long timestamp, long sent_timestamp, long received_timestamp, long seen_timestamp, String availability) {
         this.message_body = message_body;
         this.type = type;
         this.delivery_status = delivery_status;
@@ -92,7 +167,7 @@ public class SingleMessage {
         this.sent_timestamp = sent_timestamp;
         this.received_timestamp = received_timestamp;
         this.seen_timestamp = seen_timestamp;
-        this.avaibility = avaibility;
+        this.availability = availability;
     }
 
     public String getVideo_url() {
@@ -103,7 +178,7 @@ public class SingleMessage {
         this.video_url = video_url;
     }
 
-    public SingleMessage(String message_body, String type, String delivery_status, String sender, String receiver, String image_url, long timestamp, long sent_timestamp, long received_timestamp, long seen_timestamp, String avaibility) {
+    public SingleMessage(String message_body, String type, String delivery_status, String sender, String receiver, String image_url, long timestamp, long sent_timestamp, long received_timestamp, long seen_timestamp, String availability) {
         this.message_body = message_body;
         this.type = type;
         this.delivery_status = delivery_status;
@@ -114,7 +189,7 @@ public class SingleMessage {
         this.sent_timestamp = sent_timestamp;
         this.received_timestamp = received_timestamp;
         this.seen_timestamp = seen_timestamp;
-        this.avaibility = avaibility;   // 0 means both.. 1 means delete only sender ... 2 means none(delete  ref)....
+        this.availability = availability;   // 0 means both.. 1 means delete only sender ... 2 means none(delete  ref)....
     }
 
     public String getImage_url() {
@@ -125,15 +200,9 @@ public class SingleMessage {
         this.image_url = image_url;
     }
 
-    public String getAvaibility() {
-        return avaibility;
-    }
 
-    public void setAvaibility(String avaibility) {
-        this.avaibility = avaibility;
-    }
 
-    public SingleMessage(String message_body, String type, String delivery_status, String sender, String receiver, long timestamp, long sent_timestamp, long received_timestamp, long seen_timestamp, String avaibility) {
+    public SingleMessage(String message_body, String type, String delivery_status, String sender, String receiver, long timestamp, long sent_timestamp, long received_timestamp, long seen_timestamp, String availability) {
         this.message_body = message_body;
         this.type = type;
         this.delivery_status = delivery_status;
@@ -143,7 +212,7 @@ public class SingleMessage {
         this.sent_timestamp = sent_timestamp;
         this.received_timestamp = received_timestamp;
         this.seen_timestamp = seen_timestamp;
-        this.avaibility = avaibility;
+        this.availability = availability;
     }
 
     public SingleMessage() {

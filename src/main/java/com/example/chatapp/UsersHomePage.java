@@ -1,17 +1,26 @@
 package com.example.chatapp;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.ViewPager;
+
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
+
+import com.example.chatapp.GoSocial.FindFriend;
+import com.example.chatapp.GoSocial.NewsFeed;
 import com.example.chatapp.RegisterAndLogin.LoginActivity;
+import com.example.chatapp.UiChechAndLearnings.LocationLearning;
 import com.example.chatapp.User2RelatedActivities.User1FriendList;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
@@ -32,6 +41,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TimeZone;
 
 public class UsersHomePage extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -69,7 +79,6 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
 
 
 
-
         if(currentUser!=null) {
 
             // OneSignal Initialization
@@ -78,16 +87,16 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
                     .unsubscribeWhenNotificationsAreDisabled(true)
                     .init();
 
-            OneSignal.idsAvailable(new OneSignal.IdsAvailableHandler() {
-                @Override
-                public void idsAvailable(String userId, String registrationId) {
-                    databaseReference.child("notification_keys").child(currentUser.getUid()).child("notification_id").setValue(userId);
-                }
-            });
-
-            new SendNotification("Message 1","heading 1","fbd7962b-1075-4dda-995b-4b9d13440708");
-
-            OneSignal.clearOneSignalNotifications();
+//            OneSignal.idsAvailable(new OneSignal.IdsAvailableHandler() {
+//                @Override
+//                public void idsAvailable(String userId, String registrationId) {
+//                    databaseReference.child("notification_keys").child(currentUser.getUid()).child("notification_id").setValue(userId);
+//                }
+//            });
+//
+//            new SendNotification("Message 1","heading 1","fbd7962b-1075-4dda-995b-4b9d13440708");
+//
+//            OneSignal.clearOneSignalNotifications();
 
 
 
@@ -111,7 +120,7 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
                         Intent intent = new Intent(UsersHomePage.this, NewsFeed.class);
                         startActivity(intent);
                     } else if (menuItem.getItemId() == R.id.ui) {
-                        Intent intent = new Intent(UsersHomePage.this, UICheckActivity.class);
+                        Intent intent = new Intent(UsersHomePage.this, LocationLearning.class);
                         startActivity(intent);
                     }
                     else if (menuItem.getItemId() == R.id.ff){
@@ -122,7 +131,16 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
                         Intent intent = new Intent(UsersHomePage.this, SettingsActivity.class);
                         startActivity(intent);
                     } else if (menuItem.getItemId() == R.id.lo) {
-                        FirebaseAuth.getInstance().signOut();
+                        FirebaseDatabase.getInstance().getReference().child("Users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()))
+                                .child("device_token").setValue("NULL").addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                FirebaseAuth.getInstance().signOut();
+                            }
+                        });
+
+
+
                         OneSignal.setSubscription(false);
                         sendToStart();
                     }
@@ -207,7 +225,7 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
 
         }else{
             OneSignal.clearOneSignalNotifications();
-            databaseReference.child("Users").child(curr_user.getUid()).child("online").setValue("true");
+//            databaseReference.child("Users").child(curr_user.getUid()).child("online").setValue("true");
         }
     }
     @Override
@@ -216,6 +234,37 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
 
     }
 
+    @Override
+    public void onBackPressed() {
+        if(mDrawerLayout.isDrawerOpen(GravityCompat.START))
+        {
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+        }else{
+            AlertDialog.Builder a_builder = new AlertDialog.Builder(UsersHomePage.this);
+
+
+
+            a_builder.setMessage("Do you want to Close this App !!!")
+                    .setCancelable(false)
+                    .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    })
+                    .setNegativeButton("No",new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    }) ;
+            AlertDialog alert = a_builder.create();
+            alert.setTitle("Alert !!!");
+            alert.show();
+
+        }
+
+    }
     private void sendToStart() {
         Intent startIntent = new Intent(this, LoginActivity.class);
         startActivity(startIntent);

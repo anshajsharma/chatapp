@@ -3,6 +3,7 @@ package com.example.chatapp.User2RelatedActivities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ActivityManager;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.chatapp.R;
+import com.example.chatapp.UsersHomePage;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -32,6 +34,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
@@ -68,6 +72,9 @@ public class User2ProfileActivity extends AppCompatActivity {
         mFriendsRef = FirebaseDatabase.getInstance().getReference().child("Friends");
 
         cancelFriendRequest.setVisibility(View.INVISIBLE);
+
+
+
 
         //Progress dialog initialisation
         mProgressDialog = new ProgressDialog(this);
@@ -183,6 +190,17 @@ public class User2ProfileActivity extends AppCompatActivity {
                                             public void onSuccess(Void aVoid) {
                                                 Toast.makeText(User2ProfileActivity.this, "Friend request sent...", Toast.LENGTH_SHORT).show();
                                                 friendRequest.setText("Cancel Friend Request");
+
+                                                DatabaseReference mNotRef = FirebaseDatabase.getInstance().getReference().child("notifications");
+                                                mNotRef.child(user2);
+                                                String notifId = mNotRef.push().getKey();
+                                                Map<String,String> newNotif = new HashMap<>();
+                                                newNotif.put("Type","Request");
+                                                newNotif.put("receiver",user2);
+                                                newNotif.put("notificationId",notifId);
+                                                newNotif.put("sender",user1.getUid());
+                                                mNotRef.child(user2).child(notifId).setValue(newNotif);
+
                                                 curr_state = 1;
                                             }
                                         });
@@ -239,7 +257,20 @@ public class User2ProfileActivity extends AppCompatActivity {
                                                 Toast.makeText(User2ProfileActivity.this, "Friend request accepted...", Toast.LENGTH_SHORT).show();
                                                 friendRequest.setText("Unfriend");
                                                 mFriendsRef.child(user1.getUid()).child(user2).setValue("friends");
-                                                mFriendsRef.child(user2).child(user1.getUid()).setValue("friends");
+                                                mFriendsRef.child(user2).child(user1.getUid()).setValue("friends").addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        DatabaseReference mNotRef = FirebaseDatabase.getInstance().getReference().child("notifications");
+                                                        mNotRef.child(user2);
+                                                        String notifId = mNotRef.push().getKey();
+                                                        Map<String,String> newNotif = new HashMap<>();
+                                                        newNotif.put("Type","Request Accepted");
+                                                        newNotif.put("receiver",user2);
+                                                        newNotif.put("notificationId",notifId);
+                                                        newNotif.put("sender",user1.getUid());
+                                                        mNotRef.child(user2).child(notifId).setValue(newNotif);
+                                                    }
+                                                });
                                                 cancelFriendRequest.setVisibility(View.INVISIBLE);
                                                 curr_state = 3;
                                             }
@@ -316,6 +347,20 @@ public class User2ProfileActivity extends AppCompatActivity {
             }
         });
         //-----------------------------------------------------------------------------------------------------------------\\
+
+
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        if(isTaskRoot()){
+            //// This is last activity
+            startActivity(new Intent(this, UsersHomePage.class));
+            finish();
+        }else{
+            super.onBackPressed();
+        }
 
 
     }

@@ -2,8 +2,10 @@ package com.example.chatapp.Messaging;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
+import android.content.Intent;
 import android.util.Log;
 
+import com.example.chatapp.RegisterAndLogin.LoginActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -49,13 +51,14 @@ public class ChatAppExtension extends Application {
             mUserDatabase = FirebaseDatabase.getInstance()
                     .getReference().child("Users").child(mAuth.getCurrentUser().getUid());
 
-            mUserDatabase.addValueEventListener(new ValueEventListener() {
+            mUserDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
 
                     if (dataSnapshot != null) {
 
                         mUserDatabase.child("online").onDisconnect().setValue(ServerValue.TIMESTAMP);
+                        mUserDatabase.child("online").onDisconnect().setValue("true");
 
                     }
 
@@ -67,45 +70,17 @@ public class ChatAppExtension extends Application {
                 }
             });
 
+        }else{
+            startActivity(new Intent(this, LoginActivity.class));
         }
 
-        // Since I can connect from multiple devices, we store each connection instance separately
-        // any time that connectionsRef's value is null (i.e. has no children) I am offline
-        final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final DatabaseReference myConnectionsRef = database.getReference("Users/" + curr_user + "/connections");
-
-        // Stores the timestamp of my last disconnect (the last time I was seen online)
-        final DatabaseReference lastOnlineRef = database.getReference("Users/" + curr_user + "/online");
-
-        final DatabaseReference connectedRef = database.getReference(".info/connected");
-        connectedRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                boolean connected = snapshot.getValue(Boolean.class);
-                if (connected) {
-                    DatabaseReference con = myConnectionsRef.push();
-
-                    // When this device disconnects, remove it
-                    con.onDisconnect().removeValue();
-
-                    // When I disconnect, update the last time I was seen online
-                    lastOnlineRef.onDisconnect().setValue(ServerValue.TIMESTAMP);
-
-                    // Add this device to my connections list
-                    // this value could contain info about the device or a timestamp too
-                    con.setValue(Boolean.TRUE);
-                }
-            }
-
-            @SuppressLint("RestrictedApi")
-            @Override
-            public void onCancelled(DatabaseError error) {
-                Log.w(TAG, "Listener was cancelled at .info/connected");
-            }
-        });
 
 
     }
+
+
+
+
 
 
 }

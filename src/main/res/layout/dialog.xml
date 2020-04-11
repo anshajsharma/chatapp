@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="wrap_content"
+    android:background="#4D000000"
+    android:layout_height="wrap_content">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:text="Delete message??"
+            android:layout_gravity="center"
+            android:textColor="#BDE6E2"
+            android:textSize="18sp" />
+
+        <LinearLayout
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+         android:orientation="horizontal">
+         <TextView
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="Delete For Everyone"
+             android:clickable="true"
+             android:id="@+id/negativeButton"
+             android:layout_marginStart="30dp"
+             android:focusable="true" />
+         <TextView
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_marginStart="30dp"
+             android:layout_marginEnd="30dp"
+             android:clickable="true"
+             android:id="@+id/positiveButton"
+             android:text="Delete For Me"
+             android:focusable="true" />
+     </LinearLayout>
+
+    </LinearLayout>
+
+    
+
+
+
+
+</LinearLayout>
