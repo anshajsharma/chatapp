@@ -5,28 +5,47 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BROADCAST_STICKY"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
     <application
         android:name=".Messaging.MApplication"
         android:allowBackup="true"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
-
         android:roundIcon="@drawable/icon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".Messaging.VideoCalling"
+            android:theme="@style/Theme.AppCompat.NoActionBar"></activity>
+        <activity
+            android:name=".Messaging.VideoCall"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
+        <activity android:name=".Messaging.GroupChatInitialisation" />
+        <activity android:name=".Messaging.AddGroupChat" />
 
-        <meta-data android:name="com.google.android.gms.version"
+        <meta-data
+            android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-4075320646067486~6287221269" />
 
         <activity android:name=".Messaging.SendImageActivity" />
         <activity
             android:name=".GoSocial.Comments_handeling_Activity"
             android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
-                <action android:name="com.example.chatApp.TARGET_NOTIFICATION_POST"></action>
-                <category android:name="android.intent.category.DEFAULT"></category>
+                <action android:name="com.example.chatApp.TARGET_NOTIFICATION_POST" />
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity
@@ -37,20 +56,22 @@
             android:name=".GoSocial.Show_Clicked_Image"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity android:name=".GoSocial.NewPost" />
-        <activity android:name=".UiChechAndLearnings.LocationLearning"
-            android:screenOrientation="portrait"/>
+        <activity android:name=".UiChechAndLearnings.LocationLearning" />
+
         <service android:name=".GoSocial.FirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
         <activity
             android:name=".GoSocial.NewsFeed"
             android:label="News Feed"
-            android:parentActivityName=".UsersHomePage" >
+            android:parentActivityName=".UsersHomePage">
             <intent-filter>
-                <action android:name="com.example.chatApp.HOME_PAGE"></action>
-                <category android:name="android.intent.category.DEFAULT"></category>
+                <action android:name="com.example.chatApp.HOME_PAGE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity
@@ -65,10 +86,11 @@
         <activity
             android:name=".Messaging.ChatActivity"
             android:parentActivityName=".UsersHomePage"
-            android:theme="@style/Theme.AppCompat.NoActionBar" >
+            android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
-                <action android:name="com.example.chatApp.TARGET_NOTIFICATION_MESSAGE"></action>
-                <category android:name="android.intent.category.DEFAULT"></category>
+                <action android:name="com.example.chatApp.TARGET_NOTIFICATION_MESSAGE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity
@@ -83,16 +105,15 @@
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@drawable/fcm_push_icon" />
-<!--        <meta-data android:name="com.google.firebase.messaging.default_notification_color"-->
-<!--            android:resource="@color/green" />-->
-
+            android:resource="@drawable/fcm_push_icon" /> <!-- <meta-data android:name="com.google.firebase.messaging.default_notification_color" -->
+        <!-- android:resource="@color/green" /> -->
         <activity
             android:name=".User2RelatedActivities.User2ProfileActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
-                <action android:name="com.example.chatApp.TARGET_NOTIFICATION"></action>
-                <category android:name="android.intent.category.DEFAULT"></category>
+                <action android:name="com.example.chatApp.TARGET_NOTIFICATION" />
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity

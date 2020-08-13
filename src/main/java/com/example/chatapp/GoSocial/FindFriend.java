@@ -101,7 +101,6 @@ public class FindFriend extends AppCompatActivity {
                             if(!dataSnapshot1.getKey().equals(FirebaseAuth.getInstance().getUid()))
                                 mUsers.add(dataSnapshot1.getKey());
                         }
-
                     }
                 }
                 mAdapter.notifyDataSetChanged();

@@ -12,6 +12,7 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chatapp.Messaging.ChatActivity;
+import com.example.chatapp.Messaging.Groups;
 import com.example.chatapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -29,14 +30,20 @@ import java.util.Locale;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class HomeChatViewAdapter extends RecyclerView.Adapter<HomeChatViewAdapter.ViewHolder> {
-    private List<String> UsersList;
+    private List<String> UsersList, typeList;
 
     Context ctx;
 
-    public HomeChatViewAdapter(List<String> usersList, Context ctx) {
+    public HomeChatViewAdapter(List<String> usersList, List<String> typeList, Context ctx) {
         UsersList = usersList;
+        this.typeList = typeList;
         this.ctx = ctx;
     }
+
+//    public HomeChatViewAdapter(List<String> usersList, Context ctx) {
+//        UsersList = usersList;
+//        this.ctx = ctx;
+//    }
 
     @NonNull
     @Override
@@ -61,22 +68,46 @@ public class HomeChatViewAdapter extends RecyclerView.Adapter<HomeChatViewAdapte
         DatabaseReference mRootRef = FirebaseDatabase.getInstance().getReference();
         final String user2= UsersList.get(i);
         holder.setUserDetail(user2);
+        final String type = typeList.get(i);
 
         holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ctx, ChatActivity.class);
                 intent.putExtra("user_id2",UsersList.get(i));
+                intent.putExtra("type",type);
                 ctx.startActivity(intent);
             }
         });
 
 
-
+        final CircleImageView circleImageView = holder.view.findViewById(R.id.single_user_profile_pic);
+        final TextView tv = holder.view.findViewById(R.id.single_display_name);
 
         //Message details setting done here
         if(FirebaseAuth.getInstance().getCurrentUser() != null)
         {
+            if(type.equals("Group")){
+                mRootRef.child("Groups").child(user2).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.exists() ){
+                            Groups groups = dataSnapshot.getValue(Groups.class);
+                            tv.setText(groups.getGroupName());
+                            Picasso.with(ctx)
+                                    .load(groups.getGroupIcon())
+                                    .placeholder(R.drawable.avtar)
+                                    .into(circleImageView);
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+            }
 
             mRootRef.child("chat_ref").child(user1).child(user2).addValueEventListener(new ValueEventListener() {
                 @Override
@@ -129,6 +160,7 @@ public class HomeChatViewAdapter extends RecyclerView.Adapter<HomeChatViewAdapte
             mRootRef.child("Users").child(s).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
                     if(dataSnapshot.hasChild("thumb_nail"))
                     {
                         if(!dataSnapshot.child("thumb_nail").getValue(String.class).equals("default"))

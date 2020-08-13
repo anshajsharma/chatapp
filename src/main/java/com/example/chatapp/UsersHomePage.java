@@ -72,7 +72,7 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
         mViewPager.setAdapter(mSectionPagerAdapter);
         mTablayout = findViewById(R.id.tab_layout);
         mTablayout.setupWithViewPager(mViewPager);
-        databaseReference = FirebaseDatabase.getInstance().getReference();
+         databaseReference = FirebaseDatabase.getInstance().getReference();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
 
@@ -241,9 +241,6 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
             mDrawerLayout.closeDrawer(GravityCompat.START);
         }else{
             AlertDialog.Builder a_builder = new AlertDialog.Builder(UsersHomePage.this);
-
-
-
             a_builder.setMessage("Do you want to Close this App !!!")
                     .setCancelable(false)
                     .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
@@ -261,7 +258,6 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
             AlertDialog alert = a_builder.create();
             alert.setTitle("Alert !!!");
             alert.show();
-
         }
 
     }
@@ -278,12 +274,9 @@ public class UsersHomePage extends AppCompatActivity implements NavigationView.O
         {
             OneSignal.clearOneSignalNotifications();
         }
-
-
     }
 
-    //Menu got connected to appbar......................................................................\\
-
+//Menu got connected to appbar......................................................................\\
 //    @Override
 //    public boolean onCreateOptionsMenu(Menu menu1) {
 //         super.onCreateOptionsMenu(menu1);

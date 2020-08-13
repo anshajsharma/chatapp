@@ -117,15 +117,16 @@ public class NewsFeed extends AppCompatActivity {
                                 String poster_id = tPost.getUser_id();
                        //         Log.i(TAG, "onDataChange: " + "123" + " " + poster_id + " " + tPost.toString());
                                 assert poster_id != null;
-                                if (reLatedPosts.contains(tPost)) reLatedPosts.remove(tPost);
+                                if (reLatedPosts.contains(tPost)) {
                                 int a = reLatedPosts.lastIndexOf(tPost);
-                                mAdapter.notifyItemRemoved(a);
+                                reLatedPosts.remove(tPost);
+                                mAdapter.notifyItemRemoved(a);}
                             }
                         }
 
                         @Override
                         public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
+                            mAdapter.notifyDataSetChanged();
                         }
 
                         @Override

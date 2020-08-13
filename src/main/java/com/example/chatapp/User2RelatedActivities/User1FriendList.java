@@ -10,8 +10,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
-import com.example.chatapp.Fragments.FriendListAdapter;
+import com.example.chatapp.Messaging.AddGroupChat;
 import com.example.chatapp.R;
+import com.example.chatapp.RegisterAndLogin.Users;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -30,10 +31,11 @@ public class User1FriendList extends AppCompatActivity {
     private static final String TAG = "User1FriendList";
     private RecyclerView mFriendList;
     private FirebaseUser current_user;
-    private DatabaseReference databaseReference , mfriendRef;
+    private DatabaseReference databaseReference , mfriendRef, mRootRef ;
     private FirebaseRecyclerAdapter adapter;
     private View mMainView;
     private Context ctx;
+    private String user;
     private List<String> FriendList ;
     private RecyclerView.Adapter mAdapter;
 
@@ -45,32 +47,48 @@ public class User1FriendList extends AppCompatActivity {
         //variable initialisation
         databaseReference = FirebaseDatabase.getInstance().getReference().child("Users");
         databaseReference.keepSynced(true);
+        mRootRef = FirebaseDatabase.getInstance().getReference();
         current_user = FirebaseAuth.getInstance().getCurrentUser();
         databaseReference.keepSynced(true); ctx = getApplicationContext();
         mfriendRef = FirebaseDatabase.getInstance().getReference().child("Friends");
+        mFriendList = findViewById(R.id.friend_list);
 
         //Retreiving Friends in Friendlist array of string----------------------------------------------------------\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-        if(current_user != null)
-            mfriendRef.child(current_user.getUid()).addValueEventListener(new ValueEventListener() {
+        if(FirebaseAuth.getInstance().getCurrentUser() != null){
+            user = FirebaseAuth.getInstance().getUid();
+            mRootRef.child("Friends").child(user).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
+                    final List<Users> friendList=new ArrayList<>();
                     if(dataSnapshot.exists()){
-                        GenericTypeIndicator<Map<String, String>> genericTypeIndicator = new GenericTypeIndicator<Map<String, String>>() {};
-                        Map<String, String> map = dataSnapshot.getValue(genericTypeIndicator );
-                        //Log.i("asad", String.valueOf(map));
-                        // FriendList.clear();
-                        assert map != null;
-                        FriendList = new ArrayList(map.keySet());
-                       // Log.i(TAG, "onDataChange2: "+ FriendList.toString());
+                        for(DataSnapshot dataSnapshot1:dataSnapshot.getChildren()){
+                            Log.i(TAG, "onDataChange1234: " + dataSnapshot1.getKey() );
+                            mRootRef.child("Users").child(dataSnapshot1.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot3) {
+                                    if(dataSnapshot3.exists()){
 
-                        //Recycler view initialisation done here....
-                        mFriendList =  findViewById(R.id.friend_list);
-                        mFriendList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-                        mFriendList.setLayoutManager(new LinearLayoutManager(ctx));
-                        mAdapter = new FriendListAdapter(FriendList,User1FriendList.this);
-                        mFriendList.setAdapter(mAdapter);
-                        mAdapter.notifyDataSetChanged();
+                                        Users users = dataSnapshot3.getValue(Users.class);
+
+                                        friendList.add(users);
+
+                                        mFriendList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+                                        mFriendList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+                                        mAdapter = new FriendListAdapter(friendList, User1FriendList.this);
+                                        mFriendList.setAdapter(mAdapter);
+                                        mAdapter.notifyDataSetChanged();
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                }
+                            });
+                        }
+
+
+
 
                     }
                 }
@@ -80,6 +98,7 @@ public class User1FriendList extends AppCompatActivity {
 
                 }
             });
+        }
 
 
 

@@ -2,6 +2,8 @@ package com.example.chatapp.User2RelatedActivities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.ActivityManager;
 import android.app.ProgressDialog;
@@ -14,6 +16,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.chatapp.GoSocial.PostAdapter;
+import com.example.chatapp.GoSocial.Posts;
 import com.example.chatapp.R;
 import com.example.chatapp.UsersHomePage;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -39,18 +43,25 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.stream.Stream;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class User2ProfileActivity extends AppCompatActivity {
     private static final String TAG = "User2ProfileActivity";
     private DatabaseReference mDatabaseRef, mFriendRequestRef, mFriendsRef;
-    private TextView display_name, friends, status;
-    private ImageView profile_pic;
+    private TextView display_name, friends, status,post_count;
+    private CircleImageView profile_pic;
     private ProgressDialog mProgressDialog;
     private Button friendRequest, cancelFriendRequest;
     private String user2;
     private FirebaseUser user1;
     DatabaseReference up;
     private int curr_state;
+    private RecyclerView recView;
+    private RecyclerView.Adapter mAdapter;
+    private DatabaseReference mRootRef;
+    List<Posts> PostList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,8 +81,63 @@ public class User2ProfileActivity extends AppCompatActivity {
         mDatabaseRef = FirebaseDatabase.getInstance().getReference().child("Users").child(user2);
         mFriendRequestRef = FirebaseDatabase.getInstance().getReference().child("Friend_Requests");
         mFriendsRef = FirebaseDatabase.getInstance().getReference().child("Friends");
+        post_count = findViewById(R.id.post_count);
 
-        cancelFriendRequest.setVisibility(View.INVISIBLE);
+        cancelFriendRequest.setVisibility(View.GONE);
+        PostList = new ArrayList<>();
+
+
+        recView = findViewById(R.id.recView);
+        mRootRef = FirebaseDatabase.getInstance().getReference();
+
+        mRootRef.child("post_ref").child(user2).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Log.i(TAG, "onDataChange1234: " + 1);
+                if(dataSnapshot.exists()){
+                    post_count.setText("POSTS: "+dataSnapshot.getChildrenCount());
+                    for(DataSnapshot dataSnapshot1:dataSnapshot.getChildren()){
+                        Log.i(TAG, "onDataChange1234: " + 2);
+                        String postId= dataSnapshot1.getValue(String.class);
+                        Log.i(TAG, "onDataChange1234: " + "  POSTID  " + postId );
+                        mRootRef.child("posts").child(postId).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot3) {
+                                if(dataSnapshot3.exists()){
+                                    Log.i(TAG, "onDataChange1234: " + 3);
+                                    Posts post = dataSnapshot3.getValue(Posts.class);
+                                    PostList.add(post);
+                                    Log.i(TAG, "onDataChange1234: "+post.getPost_id());
+                                    LinearLayoutManager mLayoutManager;
+                                    mLayoutManager = new LinearLayoutManager(User2ProfileActivity.this);
+                                    mLayoutManager.setReverseLayout(true);
+                                    mLayoutManager.setStackFromEnd(true);
+                                    // And set it to RecyclerView
+                                    recView.setLayoutManager(mLayoutManager);
+                                    mAdapter = new PostAdapter(PostList,User2ProfileActivity.this );
+                                    recView.setAdapter(mAdapter);
+                                    mAdapter.notifyDataSetChanged();
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
+                }else{
+                    post_count.setText("POST:"+0);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+
 
 
 
@@ -105,7 +171,7 @@ public class User2ProfileActivity extends AppCompatActivity {
                     switch (type) {
                         case "sent":
                             friendRequest.setText("Cancel Friend Request");
-                            cancelFriendRequest.setVisibility(View.INVISIBLE);
+                            cancelFriendRequest.setVisibility(View.GONE);
                             curr_state = 1;
                             break;
                         case "received":
@@ -116,12 +182,12 @@ public class User2ProfileActivity extends AppCompatActivity {
                         case "Not Friend Now":
                         case "Friend request cancelled":
                             friendRequest.setText("Send Friend Request");
-                            cancelFriendRequest.setVisibility(View.INVISIBLE);
+                            cancelFriendRequest.setVisibility(View.GONE);
                             curr_state = 4;
                             break;
                         default:
                             friendRequest.setText("Unfriend");
-                            cancelFriendRequest.setVisibility(View.INVISIBLE);
+                            cancelFriendRequest.setVisibility(View.GONE);
                             curr_state = 3;
                             break;
                     }
@@ -271,7 +337,7 @@ public class User2ProfileActivity extends AppCompatActivity {
                                                         mNotRef.child(user2).child(notifId).setValue(newNotif);
                                                     }
                                                 });
-                                                cancelFriendRequest.setVisibility(View.INVISIBLE);
+                                                cancelFriendRequest.setVisibility(View.GONE);
                                                 curr_state = 3;
                                             }
                                         });
@@ -335,7 +401,7 @@ public class User2ProfileActivity extends AppCompatActivity {
                                                     mFriendsRef.child(user2).child(user1.getUid()).removeValue();
                                                     curr_state = 0;
 
-                                                    cancelFriendRequest.setVisibility(View.INVISIBLE);
+                                                    cancelFriendRequest.setVisibility(View.GONE);
                                                 }
                                             });
 

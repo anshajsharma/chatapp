@@ -1,6 +1,8 @@
 package com.example.chatapp.RegisterAndLogin;
 
-public class Users {
+import java.io.Serializable;
+
+public class Users implements Serializable {
 
     private String name;
     private String image;
@@ -17,8 +19,36 @@ public class Users {
     private String webSite;
     private String last_synced_location;
     private String background_image;
+    private boolean selected;
    // public  int friend_count;
 
+
+    public Users(String name, String image, String status, String thumb_nail, String online, String user_id, String friend_list_visibility, String online_visisbility, String email_id, String post_count, String phoneNumber, String emailId, String webSite, String last_synced_location, String background_image, boolean selected) {
+        this.name = name;
+        this.image = image;
+        this.status = status;
+        this.thumb_nail = thumb_nail;
+        this.online = online;
+        this.user_id = user_id;
+        this.friend_list_visibility = friend_list_visibility;
+        this.online_visisbility = online_visisbility;
+        this.email_id = email_id;
+        this.post_count = post_count;
+        this.phoneNumber = phoneNumber;
+        this.emailId = emailId;
+        this.webSite = webSite;
+        this.last_synced_location = last_synced_location;
+        this.background_image = background_image;
+        this.selected = selected;
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
 
     public Users(String name, String image, String status, String thumb_nail, String online, String user_id, String friend_list_visibility, String online_visisbility, String email_id, String post_count, String last_synced_location, String background_image) {
         this.name = name;

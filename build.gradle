@@ -1,6 +1,8 @@
 buildscript {
     repositories {
-        maven { url 'https://plugins.gradle.org/m2/' }
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
     }
     dependencies {
         classpath 'gradle.plugin.com.onesignal:onesignal-gradle-plugin:0.12.6'
@@ -38,11 +40,25 @@ android {
                 onesignal_google_project_number: 'REMOTE'
         ]
     }
+    sourceSets {
+        main {
+            res.srcDirs = [
+                    file("src/main/res/layouts/").listFiles(),
+                    "src/main/res/layouts",
+                    "src/main/res"
+            ]
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
@@ -60,6 +76,11 @@ dependencies {
     implementation 'com.google.firebase:firebase-storage:16.0.4'
     implementation 'com.google.firebase:firebase-auth:16.0.4'
     implementation 'com.google.firebase:firebase-messaging:20.1.5'
+    implementation 'com.google.android.gms:play-services-ads:19.0.1'
+
+    implementation 'com.opentok.android:opentok-android-sdk:2.16.5'
+    implementation 'pub.devrel:easypermissions:3.0.0'
+
     // Update 9.0.0 to 11.2.+ so it is using the same gms version as OneSignal
     implementation 'com.google.android.gms:play-services-maps:15.0.1'
     //noinspection GradleCompatible
@@ -84,8 +105,8 @@ dependencies {
     // FirebaseUI for Cloud Storage
     implementation 'com.firebaseui:firebase-ui-storage:6.2.0'
     implementation 'id.zelory:compressor:2.1.0'
-    // implementation 'com.google.android.gms:play-services-basement:16.0.0'
-    //  compile 'com.google.android.gms:play-services-ads:11.2.0'
+    //  implementation  'com.google.android.gms:play-services-basement:16.0.0'
+    //  implementation  'com.google.android.gms:play-services-ads:11.2.0'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.0'
@@ -95,4 +116,6 @@ dependencies {
 
     //noinspection GradleCompatible
     implementation 'com.android.support:design:25.3.1'
+    implementation 'com.google.android.gms:play-services-ads:19.0.1'
+
 }

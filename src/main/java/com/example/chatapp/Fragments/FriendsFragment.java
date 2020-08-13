@@ -13,10 +13,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.chatapp.R;
+import com.example.chatapp.User2RelatedActivities.FriendListAdapter;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -70,36 +70,36 @@ public class FriendsFragment extends Fragment {
 
 
       //Retreiving Friends in Friendlist array of string----------------------------------------------------------\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-        if(current_user != null)
-            mfriendRef.child(current_user.getUid()).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                    if(dataSnapshot.exists()){
-                        GenericTypeIndicator<Map<String, String>> genericTypeIndicator = new GenericTypeIndicator<Map<String, String>>() {};
-                        Map<String, String> map = dataSnapshot.getValue(genericTypeIndicator );
-                        Log.i("asad", String.valueOf(map));
-                       // FriendList.clear();
-                        assert map != null;
-                        FriendList = new ArrayList(map.keySet());
-                        //Log.i(TAG, "onDataChange2: "+ FriendList.toString());
-
-                        //Recycler view initialisation done here....
-                        mFriendList =  mMainView.findViewById(R.id.friend_list);
-                        mFriendList.setLayoutManager(new LinearLayoutManager(getContext()));
-                        mFriendList.setLayoutManager(new LinearLayoutManager(ctx));
-                        mAdapter = new FriendListAdapter(FriendList,ctx);
-                        mFriendList.setAdapter(mAdapter);
-                        mAdapter.notifyDataSetChanged();
-
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-            });
+//        if(current_user != null)
+//            mfriendRef.child(current_user.getUid()).addValueEventListener(new ValueEventListener() {
+//                @Override
+//                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//
+//                    if(dataSnapshot.exists()){
+//                        GenericTypeIndicator<Map<String, String>> genericTypeIndicator = new GenericTypeIndicator<Map<String, String>>() {};
+//                        Map<String, String> map = dataSnapshot.getValue(genericTypeIndicator );
+//                        Log.i("asad", String.valueOf(map));
+//                       // FriendList.clear();
+//                        assert map != null;
+//                        FriendList = new ArrayList(map.keySet());
+//                        //Log.i(TAG, "onDataChange2: "+ FriendList.toString());
+//
+//                        //Recycler view initialisation done here....
+//                        mFriendList =  mMainView.findViewById(R.id.friend_list);
+//                        mFriendList.setLayoutManager(new LinearLayoutManager(getContext()));
+//                        mFriendList.setLayoutManager(new LinearLayoutManager(ctx));
+//                        mAdapter = new FriendListAdapter(FriendList,ctx);
+//                        mFriendList.setAdapter(mAdapter);
+//                        mAdapter.notifyDataSetChanged();
+//
+//                    }
+//                }
+//
+//                @Override
+//                public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//                }
+//            });
 
   //      Log.i(TAG, "onDataChange22: "+ FriendList.toString());
 

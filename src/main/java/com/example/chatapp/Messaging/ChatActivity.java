@@ -43,6 +43,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.chatapp.GoSocial.NewPost;
+import com.example.chatapp.GoSocial.NewsFeed;
 import com.example.chatapp.R;
 import com.example.chatapp.SettingsActivity;
 import com.example.chatapp.UiChechAndLearnings.LocationLearning;
@@ -70,6 +72,8 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -90,7 +94,7 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
 
     private Toolbar mToolbar;
     private String user2;
-    private DatabaseReference mRootRef,mMessageRef,mChatref;
+    private DatabaseReference mRootRef;
     private CircleImageView circleImageView;
     private Toolbar toolbar;
     private FirebaseUser user1;
@@ -109,7 +113,7 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
     private static final int REQUEST_CODE = 1657;
     private GoogleApiClient googleApiClient;
     private Location location;
-    private String newMessageId;
+    private String newMessageId,type2;
 
     EditText message;
     @Override
@@ -129,11 +133,10 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
         message = findViewById(R.id.typed_message);
         mChatList = findViewById(R.id.message_list);
         back = findViewById(R.id.back_button);
-        mMessageRef = mRootRef.child("Messages");
-        mChatref = mRootRef.child("chat_ref");
         attach = findViewById(R.id.attach);
         messageList = new ArrayList<>();
-         res=path(user2,user1.getUid());
+        type2 = getIntent().getStringExtra("type");
+        res = path(user2,user1.getUid());
 
 
         // Hide keyeboard  when activity opens...............
@@ -143,6 +146,11 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
         // all type of images , pdfs etc can be sent in this way.........
         attachFilesAndSend();
 
+        // Listen for video call
+        callListener();
+
+        Toast.makeText(ctx, type2, Toast.LENGTH_SHORT).show();
+
 
         //toolbar initialisation----------------------------------------
         toolbar = findViewById(R.id.toolbar);
@@ -150,9 +158,12 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
         toolbar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ChatActivity.this, User2ProfileActivity.class);
-                intent.putExtra("user_id2",user2);
-                startActivity(intent);
+                if(!type2.equals("Group")){
+                    Intent intent = new Intent(ChatActivity.this, User2ProfileActivity.class);
+                    intent.putExtra("user_id2",user2);
+                    startActivity(intent);
+                }
+
             }
         });
         //--------------------------------------------------------------------
@@ -161,6 +172,27 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
             @Override
             public void onClick(View v) {
                 finish();
+            }
+        });
+
+        mRootRef.child("Groups").child(user2).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                    Groups groups = dataSnapshot.getValue(Groups.class);
+                    user2name.setText(groups.getGroupName());
+                    Picasso.with(ctx)
+                            .load(groups.getGroupIcon())
+                            .placeholder(R.drawable.avtar)
+                            .into(circleImageView);
+                    int a = groups.usersDetails.size();
+                    mLastSeenView.setText(String.valueOf(a) + "  Members...");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
             }
         });
 
@@ -173,7 +205,7 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
 
         if(user2 != null)
         {
-                mMessageRef.child(path(user1.getUid(),user2)).orderByChild("timestamp").addValueEventListener(new ValueEventListener() {
+                mRootRef.child(res).orderByChild("timestamp").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         if(messageList.size() != 0) messageList.clear();
@@ -181,14 +213,20 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
                             for(DataSnapshot dataSnapshot1:dataSnapshot.getChildren()){
                                 SingleMessage singleMessage = dataSnapshot1.getValue(SingleMessage.class);
                                 assert singleMessage != null;
-                                if(!singleMessage.getAvailability().equals(user2))
+                                if(!singleMessage.getAvailability().contains(user1.getUid()))
                                 messageList.add(singleMessage);
                             }
+                            if(messageList.size()>0 && type2.equals("Group")){
+                                SingleMessage lastMessage = messageList.get(messageList.size()-1);
+                                mRootRef.child("chat_ref").child(user1.getUid()).child(user2).child("last_message").setValue(lastMessage.getMessage_body());
+                                mRootRef.child("chat_ref").child(user1.getUid()).child(user2).child("last_message_timestamp").setValue(lastMessage.getTimestamp());
+                            }
+
 
 //------------------    Recycler view initialisation done here....
                             mChatList = findViewById(R.id.message_list);
                             mChatList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-                            mAdapter = new MessageLIstAdapter(messageList,ChatActivity.this,user2);
+                            mAdapter = new MessageLIstAdapter(messageList,ChatActivity.this,user2 ,type2);
                             mChatList.setAdapter(mAdapter);
                             Objects.requireNonNull(mChatList.getLayoutManager()).scrollToPosition(messageList.size()-1);
                             //  mAdapter.notifyDataSetChanged();
@@ -251,7 +289,7 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
                 messages.put("sender", sender);
                 messages.put("receiver", receiver);
                 messages.put("availability","both");
-                newMessageId = mMessageRef.child("dfghjk").push().getKey();
+                newMessageId = mRootRef.child("dfghjk").push().getKey();
                 messages.put("messageID",newMessageId);
                 messages.put("delivery_status", delivery_status);
                 messages.put("timestamp", ServerValue.TIMESTAMP);
@@ -262,7 +300,7 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
 
                 if (!meassage_body.equals("")) {
 
-                        mMessageRef.child(res).child(String.valueOf(newMessageId)).setValue(messages)
+                        mRootRef.child(res).child(String.valueOf(newMessageId)).setValue(messages)
                                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
@@ -276,7 +314,7 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
                                             newNotif.put("receiver",user2);
                                             newNotif.put("notificationId",notifId);
                                             newNotif.put("sender",user1.getUid());
-                                            mNotRef.child(user2).child(notifId).setValue(newNotif);
+                                        if(!type2.equals("Group"))   mNotRef.child(user2).child(notifId).setValue(newNotif);
 
 
 
@@ -300,39 +338,31 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
         mRootRef.child("Users").child(user2).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                    String online = Objects.requireNonNull(dataSnapshot.child("online").getValue()).toString();
+                    String image = Objects.requireNonNull(dataSnapshot.child("image").getValue()).toString();
+                    String name = Objects.requireNonNull(dataSnapshot.child("name").getValue()).toString();
+                    String temp = Objects.requireNonNull(dataSnapshot.child("thumb_nail").getValue()).toString();
 
-                String online = Objects.requireNonNull(dataSnapshot.child("online").getValue()).toString();
-                String image = Objects.requireNonNull(dataSnapshot.child("image").getValue()).toString();
-                String name = Objects.requireNonNull(dataSnapshot.child("name").getValue()).toString();
-                String temp = Objects.requireNonNull(dataSnapshot.child("thumb_nail").getValue()).toString();
+                    user2name.setText(name);
 
-                user2name.setText(name);
-
-                if(!temp.equals("default")) image=temp;
+                    if(!temp.equals("default")) image=temp;
 
 
 
-                Picasso.with(getApplicationContext())
-                        .load(image)
-                        .networkPolicy(NetworkPolicy.OFFLINE)
-                        .placeholder(R.drawable.avtar)
-                        .into(circleImageView);
+                    Picasso.with(getApplicationContext())
+                            .load(image)
+                            .networkPolicy(NetworkPolicy.OFFLINE)
+                            .placeholder(R.drawable.avtar)
+                            .into(circleImageView);
 
-                if (online.equals("true")) {
+                    if (online.equals("true")) {
 
-                    mLastSeenView.setText("Online");
+                        mLastSeenView.setText("Online");
 
-                } else {
-
-//                    GetTimeAgo getTimeAgo = new GetTimeAgo();
-//
-//                    long lastTime = Long.parseLong(online);
-//
-//                    String lastSeenTime = getTimeAgo.getTimeAgo(lastTime, getApplicationContext());
-//
-//                    mLastSeenView.setText(lastSeenTime);
-
+                    }
                 }
+
 
             }
 
@@ -349,17 +379,20 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
         mRootRef.child("Users").child(user2 + "/" + "online").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String s = dataSnapshot.getValue().toString();
+                if(dataSnapshot.exists()){
+                    String s = dataSnapshot.getValue().toString();
 
-                if (s.equals("true")) {
-                    mLastSeenView.setText("Online");
-                } else {
-                    GetTimeAgo getTimeAgo = new GetTimeAgo();
-                    String online = s;
-                    long lastTime = Long.parseLong(online);
-                    String lastSeenTime = GetTimeAgo.getTimeAgo(lastTime, getApplicationContext());
-                    mLastSeenView.setText(lastSeenTime);
+                    if (s.equals("true")) {
+                        mLastSeenView.setText("Online");
+                    } else {
+                        GetTimeAgo getTimeAgo = new GetTimeAgo();
+                        String online = s;
+                        long lastTime = Long.parseLong(online);
+                        String lastSeenTime = GetTimeAgo.getTimeAgo(lastTime, getApplicationContext());
+                        mLastSeenView.setText(lastSeenTime);
+                    }
                 }
+
 
             }
 
@@ -389,10 +422,9 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
                         if(i==0)
                         {
                            fileType = "image";
-                           Intent intent = new Intent();
-                           intent.setAction(Intent.ACTION_GET_CONTENT);
-                           intent.setType("image/*");
-                           startActivityForResult(Intent.createChooser(intent,"Select Image"),438);
+                            CropImage.activity()
+                                    .setGuidelines(CropImageView.Guidelines.ON)
+                                    .start(ChatActivity.this);
                         }
                         if(i==1)
                         {
@@ -402,7 +434,6 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
                             intent.setAction(Intent.ACTION_GET_CONTENT);
                             intent.setType("application/pdf");
                             startActivityForResult(Intent.createChooser(intent,"Select PDF file"),438);
-
                         }
                         if(i==2)
                         {
@@ -446,17 +477,24 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        if(fileType.equals("image"))
+        {
+            if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+                CropImage.ActivityResult result = CropImage.getActivityResult(data);
+                if (resultCode == RESULT_OK) {
+                    final Uri resultUri = result.getUri();
+                    final Uri resultUri2 = data.getData();
+                    imageCompressorAndUploader(resultUri);
+
+                }
+            }
+        }
+
         assert data != null;
         if(requestCode==438 && resultCode==RESULT_OK && data.getData()!=null)
         {
            fileUri = data.getData();
-           if(fileType.equals("image"))
-           {
-
-               imageCompressorAndUploader(data.getData());
-
-
-           }else if (fileType.equals("pdf")){
+           if (fileType.equals("pdf")){
 
                 sendPDF(data.getData());
 
@@ -508,7 +546,7 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
                         // Got the download URL
 
 //  ------------------------------WHEN FILE IS FOUND-------------------------------------
-                        final DatabaseReference mDatabaseRef = mMessageRef.child(path(user1.getUid(), user2));
+                        final DatabaseReference mDatabaseRef = mRootRef.child(res);
 
                         final UploadTask uploadTask = filePath2.putFile(resultUri);
 
@@ -556,7 +594,7 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
                                                     messages.put("sender", sender);
                                                     messages.put("receiver", receiver);
                                                     messages.put("availability","both");
-                                                    newMessageId = mMessageRef.child("dfghjk").push().getKey();
+                                                    newMessageId = mRootRef.child("dfghjk").push().getKey();
                                                     messages.put("messageID",newMessageId);
                                                     messages.put("delivery_status", delivery_status);
                                                     messages.put("timestamp", ServerValue.TIMESTAMP);
@@ -566,7 +604,7 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
 
                                                     if (true) {
 
-                                                        mMessageRef.child(res).child(String.valueOf(newMessageId)).setValue(messages)
+                                                        mRootRef.child(res).child(String.valueOf(newMessageId)).setValue(messages)
                                                                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                                     @Override
                                                                     public void onComplete(@NonNull Task<Void> task) {
@@ -619,7 +657,7 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
                         // File not found
                         //  ------------------------------WHEN FILE IS NOT FOUND-------------------------------------
 
-                        final DatabaseReference mDatabaseRef = mMessageRef.child(path(user1.getUid(), user2));
+                        final DatabaseReference mDatabaseRef = mRootRef.child(res);
 
                         final UploadTask uploadTask = filePath.putFile(resultUri);
 
@@ -666,7 +704,7 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
                                                     messages.put("type", type);
                                                     messages.put("sender", sender);
                                                     messages.put("receiver", receiver);
-                                                    newMessageId = mMessageRef.child("dfghjk").push().getKey();
+                                                    newMessageId = mRootRef.child("dfghjk").push().getKey();
                                                     messages.put("messageID",newMessageId);
                                                     messages.put("availability","both");
                                                     messages.put("delivery_status", delivery_status);
@@ -677,7 +715,7 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
 
                                                     if (true) {
 
-                                                        mMessageRef.child(res).child(String.valueOf(newMessageId)).setValue(messages)
+                                                        mRootRef.child(res).child(String.valueOf(newMessageId)).setValue(messages)
                                                                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                                     @Override
                                                                     public void onComplete(@NonNull Task<Void> task) {
@@ -756,30 +794,37 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
          if(item.getItemId() == R.id.clear_chat)
          {
 
-             mRootRef.child("Messages").child(path(user1.getUid(),user2)).addListenerForSingleValueEvent(new ValueEventListener() {
+             mRootRef.child(res).addListenerForSingleValueEvent(new ValueEventListener() {
                  @Override
                  public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                      if(dataSnapshot.exists()){
                          for(DataSnapshot dataSnapshot1:dataSnapshot.getChildren()){
                              final SingleMessage message = dataSnapshot1.getValue(SingleMessage.class);
-                             mRootRef.child("Messages").child(path(user1.getUid(),user2)).child(String.valueOf(message.getMessageID()))
+                             mRootRef.child(res).child(String.valueOf(message.getMessageID()))
                                      .addListenerForSingleValueEvent(new ValueEventListener() {
                                          @Override
                                          public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                                             if(dataSnapshot.exists())
+                                             if(dataSnapshot.hasChild("availability") && !type2.equals("Group"))
                                              {
 
-                                                 if(dataSnapshot.child("availability").getValue(String.class).equals(user1))
+                                                 if(dataSnapshot.child("availability").getValue(String.class).contains(user2))
                                                  {
-                                                     mRootRef.child("Messages").child(path(user1.getUid(),user2)).child(String.valueOf(message.getMessageID()))
+                                                     mRootRef.child(res).child(String.valueOf(message.getMessageID()))
                                                              .removeValue();
                                                  }
                                                  else{
-                                                     mRootRef.child("Messages").child(path(user1.getUid(),user2)).child(String.valueOf(message.getMessageID()))
-                                                             .child("availability").setValue(user2);
+                                                     String availability = dataSnapshot.child("availability").getValue(String.class);
+                                                     availability = availability+ user1.getUid();
+                                                     mRootRef.child(res).child(String.valueOf(message.getMessageID()))
+                                                             .child("availability").setValue(availability);
                                                  }
 
+                                             }else if(dataSnapshot.hasChild("availability")){
+                                                 String availability = dataSnapshot.child("availability").getValue(String.class);
+                                                 availability = availability+ user1.getUid();
+                                                 mRootRef.child(res).child(String.valueOf(message.getMessageID()))
+                                                         .child("availability").setValue(availability );
                                              }
 
 
@@ -821,17 +866,57 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
                  }
              });
          }
+        if(item.getItemId() == R.id.video_call){
+//            if(!type2.equals("Group")){
+//                Intent intent = new Intent(ChatActivity.this,VideoCall.class);
+//                intent.putExtra("user_id2",user2);
+//                intent.putExtra("type",user2);
+//                startActivity(intent);
+//
+//            }
+
+        }
+
 
         return true;
     }
   //-----------------------------------------MENU END-------------------------------------------------------------------
     public String path(String s1,String s2)
     {
-        String res;
-        if(s1.compareTo(s2)>0) res= s1+"/"+s2;
-        else res= s2+"/"+s1;
-        return res;
+        if(!type2.equals("Group")){
+            String res;
+            if(s1.compareTo(s2)>0) res= s1+"/"+s2;
+            else res= s2+"/"+s1;
+            res = "Messages/"+res;
+            return res;
+        }else{
+            return "GroupMessages/"+s1;
+        }
+
     }
+
+    public void callListener() {
+        if(FirebaseAuth.getInstance().getCurrentUser()!=null){
+            FirebaseDatabase.getInstance().getReference().child("currentVideoCall").child(FirebaseAuth.getInstance().getUid()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if(dataSnapshot.exists()){
+                        Intent intent = new Intent(ChatActivity.this,VideoCall.class);
+                        intent.putExtra("user_id2",dataSnapshot.child("callerId").getValue(String.class));
+                        intent.putExtra("type","coming");
+                        startActivity(intent);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
+    }
+
+
     private void imageCompressorAndUploader(final Uri resultUri) {
 
         //private Bitmap compressImageFile; ---------- initialise it on top of class or activity
@@ -846,19 +931,21 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
             // Nothing can be better than this in uniqueness
             String rand = FirebaseDatabase.getInstance().getReference().child("asdf").push().getKey();
             String timeStamp = String.valueOf(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())) + rand;
+            String temp = user1.getUid() + "--TO--" + user2;
+            if(type2.equals("Group")) {temp=user2; timeStamp+=user1; }
 
-            final StorageReference filePath = FirebaseStorage.getInstance().getReference().child("chat_images").child(user1.getUid() + "--TO--" + user2).child(timeStamp + ".jpg");
+            final StorageReference filePath = FirebaseStorage.getInstance().getReference().child("chat_images").child(temp).child(timeStamp + ".jpg");
 
             FirebaseUser mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
             final String curr_uid = mCurrentUser.getUid();
 
-            final DatabaseReference mDatabaseRef = mMessageRef.child(path(user1.getUid(), user2));
+            final DatabaseReference mDatabaseRef = mRootRef.child(res);
 
 
             if (resultUri.getPath() != null) {
 
-                File imageFile = new File(getRealPathFromURI_API19(ChatActivity.this,resultUri));
-                Log.i(TAG, "imageCompressorAndUploader12: " + getRealPathFromURI_API19(ChatActivity.this,resultUri));
+                File imageFile = new File(resultUri.getPath());
+//                Log.i(TAG, "imageCompressorAndUploader12: " + getRealPathFromURI_API19(ChatActivity.this,resultUri));
                 try {
                     compressImageFile = new Compressor(getApplicationContext())
                             .setMaxHeight(300)
@@ -917,7 +1004,7 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
                                             messages.put("sender", sender);
                                             messages.put("receiver", receiver);
                                             messages.put("availability","both");
-                                            newMessageId = mMessageRef.child("dfghjk").push().getKey();
+                                            newMessageId = mRootRef.child("dfghjk").push().getKey();
                                             messages.put("messageID",newMessageId);
                                             messages.put("delivery_status", delivery_status);
                                             messages.put("timestamp", ServerValue.TIMESTAMP);
@@ -926,7 +1013,7 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
 
                                             if (true) {
 
-                                                mMessageRef.child(res).child(String.valueOf(newMessageId)).setValue(messages)
+                                                mRootRef.child(res).child(String.valueOf(newMessageId)).setValue(messages)
                                                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                             @Override
                                                             public void onComplete(@NonNull Task<Void> task) {
@@ -970,7 +1057,7 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
                 } catch (IOException e) {
                     Toast.makeText(ChatActivity.this, "Error", Toast.LENGTH_SHORT).show();
                     //     Log.i(TAG, "imageCompressorAndUploader12: "+ "cisdgbihujdksffhsdnjlcvj" + "5641+652+625");
-
+                    Toast.makeText(ctx, "err", Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 }
 
@@ -1076,12 +1163,12 @@ public class ChatActivity extends AppCompatActivity implements GoogleApiClient.C
                             messages.put("sender", FirebaseAuth.getInstance().getUid());
                             messages.put("receiver", user2);
                             messages.put("availability","both");
-                            newMessageId = mMessageRef.child("dfghjk").push().getKey();
+                            newMessageId = mRootRef.child("dfghjk").push().getKey();
                             messages.put("messageID",newMessageId);
                             messages.put("delivery_status", "waiting");
                             messages.put("timestamp", ServerValue.TIMESTAMP);
                             messages.put("location_URL",geoUri);
-                            mMessageRef.child(res).child(String.valueOf(newMessageId)).setValue(messages)
+                            mRootRef.child(res).child(String.valueOf(newMessageId)).setValue(messages)
                                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {

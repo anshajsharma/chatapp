@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Messaging.VideoCalling">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+          <FrameLayout
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@color/colorAccent"
+              android:id="@+id/user2_container">
+               <FrameLayout
+                   android:layout_width="100dp"
+                   android:layout_height="130dp"
+                   android:id="@+id/user1_container"
+                   android:layout_gravity="bottom|end"
+                   android:layout_marginEnd="15dp"
+                   android:layout_marginBottom="15dp"
+                   android:background="@color/white">
+
+               </FrameLayout>
+          </FrameLayout>
+    </FrameLayout>
+
+    <ImageView
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:src="@drawable/cancel_call"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/end_call"
+        android:layout_centerInParent="true"
+        android:layout_marginBottom="40dp"
+        />
+
+
+</RelativeLayout>

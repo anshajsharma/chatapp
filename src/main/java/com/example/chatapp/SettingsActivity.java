@@ -1,6 +1,7 @@
 package com.example.chatapp;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -10,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -298,6 +300,24 @@ public class SettingsActivity extends AppCompatActivity {
                     mProgress.setProgress((int) progress);
                 }
             });
+        }
+    }
+
+    public static class AdapterA extends RecyclerView.Adapter<AdapterA.ViewHolder> {
+        @NonNull
+        @Override
+        public AdapterA.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            return null;
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull AdapterA.ViewHolder holder, int position) {
+
+        }
+
+        @Override
+        public int getItemCount() {
+            return 0;
         }
     }
 }

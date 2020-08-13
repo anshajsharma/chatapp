@@ -37,6 +37,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chatapp.R;
+import com.example.chatapp.RegisterAndLogin.Users;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -61,13 +62,14 @@ public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.
     private DatabaseReference mMessageRef, mChatRooomRef;
     private FirebaseUser currUser;
     private int MESSAGE_RECEIVED=0,MESSAGE_SENT=1;
-    private String user2;
+    private String user2,type;
     private static final String TAG = "MessageLIstAdapter";
 
-    public MessageLIstAdapter(List<SingleMessage> chats, Context ctx ,String User2) {
+    public MessageLIstAdapter(List<SingleMessage> chats, Context ctx ,String User2 ,String Type) {
         this.chats = chats;
         this.ctx = ctx;
         this.user2 = User2;
+        this.type = Type;
     }
 
     @NonNull
@@ -92,9 +94,11 @@ public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.
         //Every position describes a different message
         final SingleMessage message = chats.get(position);
 
-
+        final String res = path(user2,FirebaseAuth.getInstance().getUid());
         //What to set in single holder
-        holder.setDetailAndOnclickFns(message);
+        holder.setDetailAndOnclickFns(message,res);
+        final DatabaseReference mRootRef = FirebaseDatabase.getInstance().getReference();
+
 
         LinearLayout date = holder.mView.findViewById(R.id.date);
         TextView dateValue = holder.mView.findViewById(R.id.dateValue);
@@ -108,9 +112,15 @@ public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.
 
 //        if()
 
-        if(message.getType().equals("Location")){
+
+
+
+        if(message.getType().equals("Location") && !message.getAvailability().contains("none")){
             messageBody.setTextColor(Color.parseColor("#190DAB"));
-        }else{
+        }else if(message.getAvailability().contains("none")) {
+            messageBody.setTextColor(Color.parseColor("#B5B3B3"));
+        }
+        else{
             messageBody.setTextColor(Color.parseColor("#363636"));
         }
 //        Log.i(TAG, "onBindViewHolder: " + messageBody.getText());
@@ -129,6 +139,36 @@ public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.
                 }
             }
         });
+        final TextView senderName = holder.mView.findViewById(R.id.senderName);
+        if(!type.equals("Group")){
+            if(!message.getSender().equals(FirebaseAuth.getInstance().getUid()))
+            senderName.setVisibility(GONE);
+        }else{
+            if(position>0 && !message.getSender().equals(FirebaseAuth.getInstance().getUid())){
+                SingleMessage prevMessage = chats.get(position-1);
+                if(message.getSender().equals(prevMessage.getSender())){
+                    senderName.setVisibility(GONE);
+                }else{
+                    senderName.setVisibility(View.VISIBLE);
+                    mRootRef.child("Users").child(message.getSender()).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            if(dataSnapshot.exists()){
+                                Users users=dataSnapshot.getValue(Users.class);
+                                senderName.setText(users.getName());
+                            }else{
+                                senderName.setText("Deleted user..");
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
+                }
+            }
+        }
 
         if(position>0){
             SingleMessage prevMessage = chats.get(position-1);
@@ -155,7 +195,7 @@ public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.
 
         currUser = FirebaseAuth.getInstance().getCurrentUser();
         final String user1 = currUser.getUid();
-        final DatabaseReference mRootRef = FirebaseDatabase.getInstance().getReference();
+//        final DatabaseReference mRootRef = FirebaseDatabase.getInstance().getReference();
 
         holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -173,7 +213,7 @@ public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.
 
 
 
-                 if(temp<HOUR_MILLIS && message.getSender().equals(currUser.getUid()))
+                 if(temp<HOUR_MILLIS && message.getSender().equals(currUser.getUid()) && !message.getAvailability().contains("none"))
                  {
                      AlertDialog.Builder builder1 = new AlertDialog.Builder(ctx);
                      builder1.setMessage("Delete message??");
@@ -183,26 +223,33 @@ public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.
                              new DialogInterface.OnClickListener() {
                                  public void onClick(DialogInterface dialog, int id) {
 
-                                     Toast.makeText(ctx, "DELETE FOR ME", Toast.LENGTH_SHORT).show();
+//                                     Toast.makeText(ctx, "DELETE FOR ME", Toast.LENGTH_SHORT).show();
 
-                                 mRootRef.child("Messages").child(path(user1,user2)).child(String.valueOf(message.getMessageID()))
+                                 mRootRef.child(res).child(String.valueOf(message.getMessageID()))
                                      .addListenerForSingleValueEvent(new ValueEventListener() {
                                          @Override
                                          public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                                             if(dataSnapshot.exists())
+                                             if(dataSnapshot.hasChild("availability") && !type.equals("Group"))
                                              {
 
-                                                 if(dataSnapshot.child("availability").getValue(String.class).equals(user1))
+                                                 if(dataSnapshot.child("availability").getValue(String.class).contains(user2))
                                                  {
-                                                     mRootRef.child("Messages").child(path(user1,user2)).child(String.valueOf(message.getMessageID()))
+                                                     mRootRef.child(res).child(String.valueOf(message.getMessageID()))
                                                              .removeValue();
                                                  }
                                                  else{
-                                                     mRootRef.child("Messages").child(path(user1,user2)).child(String.valueOf(message.getMessageID()))
-                                                             .child("availability").setValue(user2);
+                                                     String availability = dataSnapshot.child("availability").getValue(String.class);
+                                                     availability = availability+ user1;
+                                                     mRootRef.child(res).child(String.valueOf(message.getMessageID()))
+                                                             .child("availability").setValue(availability);
                                                  }
 
+                                             }else if(dataSnapshot.hasChild("availability")){
+                                                 String availability = dataSnapshot.child("availability").getValue(String.class);
+                                                 availability = availability+ user1;
+                                                 mRootRef.child(res).child(String.valueOf(message.getMessageID()))
+                                                         .child("availability").setValue(availability );
                                              }
 
 
@@ -221,24 +268,30 @@ public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.
                              "DELETE FOR EVERYONE",
                              new DialogInterface.OnClickListener() {
                                  public void onClick(DialogInterface dialog, int id) {
-                                     Toast.makeText(ctx, "DELETE FOR EVERYONE", Toast.LENGTH_SHORT).show();
+//                                     Toast.makeText(ctx, "DELETE FOR EVERYONE", Toast.LENGTH_SHORT).show();
 
-                                     mRootRef.child("Messages").child(path(user1,user2)).child(String.valueOf(message.getMessageID()))
+                                     mRootRef.child(res).child(String.valueOf(message.getMessageID()))
                                              .addListenerForSingleValueEvent(new ValueEventListener() {
                                                  @Override
                                                  public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                                                     if(dataSnapshot.exists() )
+                                                     if(dataSnapshot.exists() && !type.equals("Group"))
                                                      {
+                                                         mRootRef.child(res).child(String.valueOf(message.getMessageID()))
+                                                                 .child("message_body").setValue("@-> This message was deleted");
+                                                         String availability = dataSnapshot.child("availability").getValue(String.class);
+                                                         if(availability!=null) availability+="none";
+                                                         else availability="none";
+                                                             mRootRef.child(res).child(String.valueOf(message.getMessageID()))
+                                                                     .child("availability").setValue(availability);
 
-                                                             mRootRef.child("Messages").child(path(user1,user2)).child(String.valueOf(message.getMessageID()))
-                                                                     .child("message_body").setValue("@-> This message was deleted");
-
-                                                              mRootRef.child("Messages").child(path(user1,user2)).child(String.valueOf(message.getMessageID()))
-                                                                 .child("availability").setValue("none");
-
-
-
+                                                     }else if(dataSnapshot.hasChild("availability")){
+                                                         String availability = dataSnapshot.child("availability").getValue(String.class);
+                                                         availability = "none" + availability;
+                                                         mRootRef.child(res).child(String.valueOf(message.getMessageID()))
+                                                                 .child("message_body").setValue("@-> This message was deleted");
+                                                         mRootRef.child(res).child(String.valueOf(message.getMessageID()))
+                                                                 .child("availability").setValue(availability);
                                                      }
 
 
@@ -272,26 +325,33 @@ public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.
                              "DELETE FOR ME",
                              new DialogInterface.OnClickListener() {
                                  public void onClick(DialogInterface dialog, int id) {
-                                     Toast.makeText(ctx, "DELETE FOR ME", Toast.LENGTH_SHORT).show();
+//                                     Toast.makeText(ctx, "DELETE FOR ME", Toast.LENGTH_SHORT).show();
 
-                                     mRootRef.child("Messages").child(path(user1,user2)).child(String.valueOf(message.getMessageID()))
+                                     mRootRef.child(res).child(String.valueOf(message.getMessageID()))
                                              .addListenerForSingleValueEvent(new ValueEventListener() {
                                                  @Override
                                                  public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                                                     if(dataSnapshot.exists())
+                                                     if(dataSnapshot.hasChild("availability") && !type.equals("Group"))
                                                      {
 
-                                                         if(dataSnapshot.child("availability").getValue(String.class).equals(user1))
+                                                         if(dataSnapshot.child("availability").getValue(String.class).contains(user2))
                                                          {
-                                                             mRootRef.child("Messages").child(path(user1,user2)).child(String.valueOf(message.getMessageID()))
+                                                             mRootRef.child(res).child(String.valueOf(message.getMessageID()))
                                                                      .removeValue();
                                                          }
                                                          else{
-                                                             mRootRef.child("Messages").child(path(user1,user2)).child(String.valueOf(message.getMessageID()))
-                                                                     .child("availability").setValue(user2);
+                                                             String availability = dataSnapshot.child("availability").getValue(String.class);
+                                                             availability = availability+ user1;
+                                                             mRootRef.child(res).child(String.valueOf(message.getMessageID()))
+                                                                     .child("availability").setValue(availability);
                                                          }
 
+                                                     }else if(dataSnapshot.hasChild("availability")){
+                                                         String availability = dataSnapshot.child("availability").getValue(String.class);
+                                                         availability = availability+ user1;
+                                                         mRootRef.child(res).child(String.valueOf(message.getMessageID()))
+                                                                 .child("availability").setValue(availability );
                                                      }
 
 
@@ -313,7 +373,7 @@ public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.
                              new DialogInterface.OnClickListener() {
                                  public void onClick(DialogInterface dialog, int id) {
 
-                                     Toast.makeText(ctx, "Cancel", Toast.LENGTH_SHORT).show();
+//                                     Toast.makeText(ctx, "Cancel", Toast.LENGTH_SHORT).show();
 
                                      dialog.dismiss();
 
@@ -374,7 +434,7 @@ public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.
         }
 
         @SuppressLint("ResourceAsColor")
-        public void setDetailAndOnclickFns(final SingleMessage message) {
+        public void setDetailAndOnclickFns(final SingleMessage message, final String res) {
 
             currUser = FirebaseAuth.getInstance().getCurrentUser();
             final String user1 = currUser.getUid();
@@ -385,6 +445,7 @@ public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.
             final DatabaseReference mRootRef=FirebaseDatabase.getInstance().getReference();
             final DatabaseReference mMessageRef =  mRootRef.child("Messages").child(path(message.getSender(),message.getReceiver())).child(String.valueOf(message.getMessageID()));
             tv.setText(message.getMessage_body());
+
 
 
 
@@ -444,7 +505,9 @@ public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.
                 imageView.setVisibility(View.VISIBLE);
                 Picasso.with(ctx)
                        .load(message.getImage_url())
-                       .placeholder(R.drawable.image_loading)
+                        .placeholder(R.drawable.image_loading)
+                       .centerCrop()
+                       .fit()
                        .into(imageView);
             }
             if(message.getType().equals("pdf"))
@@ -453,6 +516,8 @@ public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.
                 Picasso.with(ctx)
                         .load(message.getFile_url())
                         .placeholder(R.drawable.document_icon)
+                        .centerCrop()
+                        .fit()
                         .into(imageView);
             }
             if(!(message.getType().equals("image")||message.getType().equals("pdf"))){
@@ -557,10 +622,16 @@ public class MessageLIstAdapter extends RecyclerView.Adapter<MessageLIstAdapter.
     }
     public String path(String s1,String s2)
     {
-        String res;
-        if(s1.compareTo(s2)>0) res= s1+"/"+s2;
-        else res= s2+"/"+s1;
-        return res;
+        if(!type.equals("Group")){
+            String res;
+            if(s1.compareTo(s2)>0) res= s1+"/"+s2;
+            else res= s2+"/"+s1;
+            res = "Messages/"+res;
+            return res;
+        }else{
+            return "GroupMessages/"+s1;
+        }
+
     }
     private void openFile(File url) {
 
